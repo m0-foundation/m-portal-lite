@@ -9,7 +9,9 @@ import { IPortal } from "./IPortal.sol";
  * @author M^0 Labs
  */
 interface IHubPortal is IPortal {
-    /* ============ Events ============ */
+    ///////////////////////////////////////////////////////////////////////////
+    //                                 EVENTS                                //
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * @notice Emitted when earning is enabled for the Hub Portal.
@@ -47,7 +49,9 @@ interface IHubPortal is IPortal {
      */
     event RegistrarListStatusSent(bytes32 messageId, bytes32 indexed listName, address indexed account, bool status);
 
-    /* ============ Custom Errors ============ */
+    ///////////////////////////////////////////////////////////////////////////
+    //                             CUSTOM ERRORS                             //
+    ///////////////////////////////////////////////////////////////////////////
 
     /// @notice Emitted when trying to enable earning after it has been explicitly disabled.
     error EarningCannotBeReenabled();
@@ -67,7 +71,9 @@ interface IHubPortal is IPortal {
     /// @notice Emitted when calling `setMerkleTreeBuilder` if Merkle Tree Builder address is 0x0.
     error ZeroMerkleTreeBuilder();
 
-    /* ============ View/Pure Functions ============ */
+    ///////////////////////////////////////////////////////////////////////////
+    //                          VIEW/PURE FUNCTIONS                          //
+    ///////////////////////////////////////////////////////////////////////////
 
     /// @notice Indicates whether earning for HubPortal was ever enabled.
     function wasEarningEnabled() external returns (bool);
@@ -75,34 +81,37 @@ interface IHubPortal is IPortal {
     /// @notice Returns the value of M Token index when earning for HubPortal was disabled.
     function disableEarningIndex() external returns (uint128);
 
-    /* ============ Interactive Functions ============ */
+    ///////////////////////////////////////////////////////////////////////////
+    //                         INTERACTIVE FUNCTIONS                         //
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * @notice Sends the M token index to the destination chain.
-     * @param  refundAddress      The refund address to receive excess native gas.
-     * @return messageId          The ID uniquely identifying the message.
+     * @param  refundAddress The refund address to receive excess native gas.
+     * @return messageId     The ID uniquely identifying the message.
      */
-    function sendMTokenIndex(bytes32 refundAddress) external payable returns (bytes32 messageId);
+    function sendMTokenIndex(address refundAddress) external payable returns (bytes32 messageId);
 
     /**
      * @notice Sends the Registrar key to the destination chain.
-     * @param  key            The key to dispatch.
-     * @param  refundAddress  The refund address to receive excess native gas.
-     * @return messageId      The ID uniquely identifying the message
+     * @param  key           The key to dispatch.
+     * @param  refundAddress The refund address to receive excess native gas.
+     * @return messageId     The ID uniquely identifying the message
      */
-    function sendRegistrarKey(bytes32 key, bytes32 refundAddress) external payable returns (bytes32 messageId);
+    function sendRegistrarKey(bytes32 key, address refundAddress) external payable returns (bytes32 messageId);
 
     /**
      * @notice Sends the Registrar list status for an account to the destination chain.
-     * @param  listName           The name of the list.
-     * @param  account            The account.
-     * @param  refundAddress      The refund address to receive excess native gas.
-     * @return messageId          The ID uniquely identifying the message.
+     * @param  listName      The name of the list.
+     * @param  account       The account.
+     * @param  refundAddress The refund address to receive excess native gas.
+     * @return messageId     The ID uniquely identifying the message.
      */
-    function sendRegistrarListStatus(bytes32 listName, address account, bytes32 refundAddress)
-        external
-        payable
-        returns (bytes32 messageId);
+    function sendRegistrarListStatus(
+        bytes32 listName,
+        address account,
+        address refundAddress
+    ) external payable returns (bytes32 messageId);
 
     /// @notice Enables earning for the Hub Portal if allowed by TTG.
     function enableEarning() external;
