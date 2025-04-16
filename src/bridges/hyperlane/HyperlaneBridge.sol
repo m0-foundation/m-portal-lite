@@ -56,15 +56,11 @@ contract HyperlaneBridge is IHyperlaneBridge {
         if (msg.sender != portal) revert NotPortal();
 
         IMailbox mailbox_ = IMailbox(mailbox);
-        bytes32 remoteBridge_ = remoteBridge;
-        uint32 remoteChainId_ = remoteChainId;
-
         bytes memory metadata_ = StandardHookMetadata.formatMetadata(0, gasLimit_, refundAddress_, "");
-        uint256 fee_ = mailbox_.quoteDispatch(remoteChainId_, remoteBridge_, payload_, metadata_);
 
-        if (msg.value < fee_) revert InsufficientFee();
-
-        messageId_ = mailbox_.dispatch{ value: fee_ }(remoteChainId_, remoteBridge_, payload_, metadata_);
+        // NOTE: The transaction reverts if mgs.value isn't enough to cover the fee.
+        // If msg.value is greater than the required fee, the excess is sent to the refund address.
+        messageId_ = mailbox_.dispatch{ value: msg.value }(remoteChainId, remoteBridge, payload_, metadata_);
     }
 
     /// @inheritdoc IMessageRecipient
