@@ -14,6 +14,7 @@ enum PayloadType {
 
 /**
  * @title  PayloadEncoder
+ * @author M^0 Labs
  * @notice Encodes and decodes cross-chain message payloads.
  */
 library PayloadEncoder {
