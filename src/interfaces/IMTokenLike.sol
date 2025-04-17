@@ -3,8 +3,9 @@
 pragma solidity 0.8.26;
 
 /**
- * @title  Subset of M Token interface required for Portal contracts.
+ * @title IMTokenLike interface
  * @author M^0 Labs
+ * @notice  Subset of M Token interface required for Portal contracts.
  */
 interface IMTokenLike {
     /// @notice The current index that would be written to storage if `updateIndex` is called.

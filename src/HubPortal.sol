@@ -15,9 +15,8 @@ import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
  * @title  HubPortal
  * @author M^0 Labs
  * @notice Deployed on Ethereum Mainnet and responsible for sending and receiving M tokens
- *         as well as propagating M Token index, Registrar keys and list status to the Spoke chain.
- * @dev    M Tokens are locked in the HubPortal when transfer message is sent to the Spoke and unlocked
- *         when the transfer message is received from the Spoke.
+ *         as well as propagating M token index, Registrar keys and list status to the Spoke chain.
+ * @dev    Tokens are bridged using lock-release mechanism.
  */
 contract HubPortal is Portal, IHubPortal {
     /// @inheritdoc IHubPortal
@@ -43,7 +42,9 @@ contract HubPortal is Portal, IHubPortal {
     function sendMTokenIndex(address refundAddress_) external payable returns (bytes32 messageId_) {
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeIndex(index_);
+
         messageId_ = _sendMessage(PayloadType.Index, refundAddress_, payload_);
+
         emit MTokenIndexSent(messageId_, index_);
     }
 
@@ -51,7 +52,9 @@ contract HubPortal is Portal, IHubPortal {
     function sendRegistrarKey(bytes32 key_, address refundAddress_) external payable returns (bytes32 messageId_) {
         bytes32 value_ = IRegistrarLike(registrar).get(key_);
         bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_);
+
         messageId_ = _sendMessage(PayloadType.Key, refundAddress_, payload_);
+
         emit RegistrarKeySent(messageId_, key_, value_);
     }
 
@@ -63,6 +66,7 @@ contract HubPortal is Portal, IHubPortal {
     ) external payable returns (bytes32 messageId_) {
         bool status_ = IRegistrarLike(registrar).listContains(listName_, account_);
         bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, status_);
+
         messageId_ = _sendMessage(PayloadType.List, refundAddress_, payload_);
 
         emit RegistrarListStatusSent(messageId_, listName_, account_, status_);

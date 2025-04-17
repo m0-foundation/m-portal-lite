@@ -12,8 +12,11 @@ import { Portal } from "./Portal.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
 
 /**
- * @title  Portal on a Spoke chain responsible for sending/receiving M and updating the M index and Registrar keys.
+ * @title  SpokePortal
  * @author M^0 Labs
+ * @notice Deployed on Spoke chains and responsible for sending and receiving M tokens 
+           as well as updating M index and Registrar keys.
+ * @dev    Tokens are bridged using mint-burn mechanism.
  */
 contract SpokePortal is Portal, ISpokePortal {
     using PayloadEncoder for bytes;

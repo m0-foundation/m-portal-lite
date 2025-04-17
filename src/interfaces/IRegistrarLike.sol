@@ -3,8 +3,9 @@
 pragma solidity 0.8.26;
 
 /**
- * @title  Subset of Registrar interface required for Portal contracts.
+ * @title  IRegistrarLike interface
  * @author M^0 Labs
+ * @notice Subset of Registrar interface required for Portal contracts.
  */
 interface IRegistrarLike {
     /**

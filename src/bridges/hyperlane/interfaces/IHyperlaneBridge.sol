@@ -22,9 +22,6 @@ interface IHyperlaneBridge is IBridge, IMessageRecipient {
     /// @notice Thrown when the caller is not the Hyperlane Mailbox.
     error NotMailbox();
 
-    /// @notice Thrown when the provided fee is insufficient for sending a message.
-    error InsufficientFee();
-
     ///////////////////////////////////////////////////////////////////////////
     //                          VIEW/PURE FUNCTIONS                          //
     ///////////////////////////////////////////////////////////////////////////

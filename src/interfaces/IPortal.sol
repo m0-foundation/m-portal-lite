@@ -5,9 +5,9 @@ pragma solidity 0.8.26;
 import { PayloadType } from "../libs/PayloadEncoder.sol";
 
 /**
- * @title  Portal
+ * @title  IPortal interface
  * @author M^0 Labs
- * @notice Portal interface inherited by IHubPortal and ISpokePortal.
+ * @notice Subset of functions inherited by both IHubPortal and ISpokePortal.
  */
 interface IPortal {
     ///////////////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ interface IPortal {
     /// @notice The address of the Registrar contract.
     function registrar() external view returns (address);
 
-    /// @notice The address bridge contract responsible for cross-chain communication.
+    /// @notice The address of the Bridge contract responsible for cross-chain communication.
     function bridge() external view returns (address);
 
     /// @notice The address of M token on the remote chain.
@@ -144,7 +144,7 @@ interface IPortal {
 
     /**
      * @notice Returns the gas limit required to process a message
-     *            with the specified payload type on the destination chain.
+     *         with the specified payload type on the destination chain.
      * @param  payloadType The type of payload.
      * @return gasLimit    The gas limit.
      */
@@ -155,8 +155,8 @@ interface IPortal {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * @notice Sets address of the bridge contract responsible for cross-chain communication.
-     * @param  bridge The address of the bridge.
+     * @notice Sets address of the Bridge contract responsible for cross-chain communication.
+     * @param  bridge The address of the Bridge.
      */
     function setBridge(address bridge) external;
 
@@ -169,18 +169,18 @@ interface IPortal {
     function setSupportedBridgingPath(address sourceToken, address destinationToken, bool supported) external;
 
     /**
-     * @notice Sets the gas limit for a payload type.
-     * @param  payloadType The type of payload.
-     * @param  gasLimit    The gas limit.
+     * @notice Sets the gas limit required to process a message
+     *         with the specified payload type on the destination chain.
+     * @param  payloadType The payload type.
+     * @param  gasLimit    The gas limit required to process the message.
      */
     function setPayloadGasLimit(PayloadType payloadType, uint256 gasLimit) external;
 
     /**
      * @notice Transfers M token to the destination chain.
-     * @dev    If wrapping on the destination fails, the recipient will receive $M token.
      * @param  amount        The amount of tokens to transfer.
      * @param  recipient     The account to receive tokens.
-     * @param  refundAddress The address to receive excess native gas on the destination chain.
+     * @param  refundAddress The address to receive excess native gas on the source chain.
      * @return messageId     The unique identifier of the message sent.
      */
     function transfer(
@@ -196,7 +196,7 @@ interface IPortal {
      * @param  sourceToken      The address of the token (M or Wrapped M) on the source chain.
      * @param  destinationToken The address of the token (M or Wrapped M) on the destination chain.
      * @param  recipient        The account to receive tokens.
-     * @param  refundAddress    The address to receive excess native gas on the destination chain.
+     * @param  refundAddress    The address to receive excess native gas on the source chain.
      * @return messageId        The unique identifier of the message sent.
      */
     function transferMLikeToken(
