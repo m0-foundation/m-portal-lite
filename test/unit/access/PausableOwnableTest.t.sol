@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.26;
 
-import { Test } from "forge-std/Test.sol";
+import { Test } from "../../../lib/forge-std/src/Test.sol";
+import { Ownable } from "../../../lib/openzeppelin/contracts/access/Ownable.sol";
 
 import { IPausableOwnable } from "../../../src/interfaces/IPausableOwnable.sol";
 import { PausableOwnable } from "../../../src/access/PausableOwnable.sol";
@@ -33,33 +34,6 @@ contract PausableOwnableTest is Test {
         assertFalse(pausable.paused());
     }
 
-    // Ownership Tests
-    function test_transferOwnership() external {
-        vm.prank(OWNER);
-        pausable.transferOwnership(NEW_OWNER);
-
-        assertEq(pausable.owner(), NEW_OWNER);
-    }
-
-    function test_transferOwnership_emitsEvent() external {
-        vm.prank(OWNER);
-        vm.expectEmit(true, true, false, true);
-        emit IPausableOwnable.OwnershipTransferred(OWNER, NEW_OWNER);
-        pausable.transferOwnership(NEW_OWNER);
-    }
-
-    function test_transferOwnership_nonOwner() external {
-        vm.prank(address(0xBAD));
-        vm.expectRevert(abi.encodeWithSelector(IPausableOwnable.Unauthorized.selector, address(0xBAD)));
-        pausable.transferOwnership(NEW_OWNER);
-    }
-
-    function test_transferOwnership_zeroAddress() external {
-        vm.prank(OWNER);
-        vm.expectRevert(IPausableOwnable.ZeroOwner.selector);
-        pausable.transferOwnership(address(0));
-    }
-
     // Pauser Role Tests
     function test_transferPauserRole() external {
         vm.prank(OWNER);
@@ -70,7 +44,7 @@ contract PausableOwnableTest is Test {
 
     function test_transferPauserRole_nonOwner() external {
         vm.prank(address(0xBAD));
-        vm.expectRevert(abi.encodeWithSelector(IPausableOwnable.Unauthorized.selector, address(0xBAD)));
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(0xBAD)));
         pausable.transferPauserRole(NEW_PAUSER);
     }
 

@@ -8,13 +8,6 @@ interface IPausableOwnable {
     ///////////////////////////////////////////////////////////////////////////
 
     /* 
-    * @notice Emitted when the ownership is transferred.
-    * @param previousOwner The previous owner.
-    * @param newOwner      The new owner.
-    */
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    /* 
     * @notice Emitted when the pauser role is transferred.
     * @param previousPauser The previous pauser.
     * @param newPauser      The new pauser.
@@ -30,9 +23,6 @@ interface IPausableOwnable {
     ///////////////////////////////////////////////////////////////////////////
     //                             CUSTOM ERRORS                             //
     ///////////////////////////////////////////////////////////////////////////
-
-    /// @notice Thrown when the owner address is 0x0.
-    error ZeroOwner();
 
     /// @notice Thrown when the pauser address is 0x0.
     error ZeroPauser();
@@ -56,9 +46,6 @@ interface IPausableOwnable {
     //                          VIEW/PURE FUNCTIONS                          //
     ///////////////////////////////////////////////////////////////////////////
 
-    /// @notice Returns the address of the owner.
-    function owner() external view returns (address);
-
     /// @notice Returns the address of the pauser.
     function pauser() external view returns (address);
 
@@ -68,12 +55,6 @@ interface IPausableOwnable {
     ///////////////////////////////////////////////////////////////////////////
     //                         INTERACTIVE FUNCTIONS                         //
     ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * @notice Transfers the ownership of the contract to new address
-     * @param newOwner Address of the new owner
-     */
-    function transferOwnership(address newOwner) external;
 
     /**
      * @notice Transfers the pauser role to new address
