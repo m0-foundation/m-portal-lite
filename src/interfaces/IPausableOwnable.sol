@@ -14,12 +14,6 @@ interface IPausableOwnable {
      */
     event PauserTransferred(address indexed previousPauser, address indexed newPauser);
 
-    /// @notice Emitted when the pause is triggered.
-    event Paused();
-
-    /// @notice Emitted when the pause is lifted.
-    event Unpaused();
-
     ///////////////////////////////////////////////////////////////////////////
     //                             CUSTOM ERRORS                             //
     ///////////////////////////////////////////////////////////////////////////
@@ -33,15 +27,6 @@ interface IPausableOwnable {
      */
     error Unauthorized(address account);
 
-    /// @notice Thrown when calling a function isn't allowed when the contract is paused.
-    error OperationPaused();
-
-    /// @notice Thrown when calling `pause()` function if the contract is already paused.
-    error AlreadyPaused();
-
-    /// @notice Thrown when calling `unpause()` function if the contract isn't paused.
-    error NotPaused();
-
     ///////////////////////////////////////////////////////////////////////////
     //                          VIEW/PURE FUNCTIONS                          //
     ///////////////////////////////////////////////////////////////////////////
@@ -50,7 +35,7 @@ interface IPausableOwnable {
     function pauser() external view returns (address);
 
     /// @notice Returns `true` if the contract is paused, and `false` otherwise.
-    function paused() external view returns (bool);
+    //function paused() external view returns (bool);
 
     ///////////////////////////////////////////////////////////////////////////
     //                         INTERACTIVE FUNCTIONS                         //
