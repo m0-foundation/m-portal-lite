@@ -7,6 +7,17 @@ import { IMessageRecipient } from "./IMessageRecipient.sol";
 
 interface IHyperlaneBridge is IBridge, IMessageRecipient {
     ///////////////////////////////////////////////////////////////////////////
+    //                                 EVENTS                                //
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @notice Emitted when the address of Hyperlane bridge on the remote chain is set.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  peer               The the address of the bridge contract on the remote chain.
+     */
+    event PeerSet(uint256 destinationChainId, bytes32 peer);
+
+    ///////////////////////////////////////////////////////////////////////////
     //                             CUSTOM ERRORS                             //
     ///////////////////////////////////////////////////////////////////////////
 
@@ -14,13 +25,16 @@ interface IHyperlaneBridge is IBridge, IMessageRecipient {
     error ZeroMailbox();
 
     /// @notice Thrown when the remote chain id is 0.
-    error ZeroRemoteChain();
+    error ZeroDestinationChain();
 
     /// @notice Thrown when the remote bridge is 0x0.
-    error ZeroRemoteBridge();
+    error ZeroPeer();
 
     /// @notice Thrown when the caller is not the Hyperlane Mailbox.
     error NotMailbox();
+
+    /// @notice Thrown when the chain isn't supported.
+    error UnsupportedChain(uint256 chainId);
 
     ///////////////////////////////////////////////////////////////////////////
     //                          VIEW/PURE FUNCTIONS                          //
@@ -30,8 +44,16 @@ interface IHyperlaneBridge is IBridge, IMessageRecipient {
     function mailbox() external view returns (address);
 
     /// @notice Returns the address of Hyperlane Bridge contract on the remote chain.
-    function remoteBridge() external view returns (bytes32);
+    function peer(uint256 destinationChainId) external view returns (bytes32);
 
-    /// @notice Returns the remote chain id.
-    function remoteChainId() external view returns (uint32);
+    ///////////////////////////////////////////////////////////////////////////
+    //                         INTERACTIVE FUNCTIONS                         //
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @notice Sets an address of Hyperlane Bridge contract on the remote chain.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  peer               The address of of the bridge contract on the remote chain.
+     */
+    function setPeer(uint256 destinationChainId, bytes32 peer) external;
 }

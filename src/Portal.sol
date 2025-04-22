@@ -27,30 +27,29 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     address public immutable mToken;
 
     /// @inheritdoc IPortal
-    address public immutable remoteMToken;
-
-    /// @inheritdoc IPortal
     address public immutable registrar;
 
     /// @inheritdoc IPortal
     address public bridge;
 
     /// @inheritdoc IPortal
-    mapping(address sourceToken => mapping(address destinationToken => bool supported)) public supportedBridgingPath;
+    mapping(address sourceToken => mapping(uint256 destinationChainId => mapping(address destinationToken => bool supported)))
+        public supportedBridgingPath;
 
     /// @inheritdoc IPortal
-    mapping(PayloadType payloadType => uint256 gasLimit) public payloadGasLimit;
+    mapping(uint256 destinationChainId => address mToken) public destinationMToken;
+
+    /// @inheritdoc IPortal
+    mapping(uint256 destinationChainId => mapping(PayloadType payloadType => uint256 gasLimit)) public payloadGasLimit;
 
     constructor(
         address mToken_,
-        address remoteMToken_,
         address registrar_,
         address bridge_,
         address initialOwner_,
         address initialPauser_
     ) PausableOwnable(initialOwner_, initialPauser_) {
         if ((mToken = mToken_) == address(0)) revert ZeroMToken();
-        if ((remoteMToken = remoteMToken_) == address(0)) revert ZeroRemoteMToken();
         if ((registrar = registrar_) == address(0)) revert ZeroRegistrar();
         if ((bridge = bridge_) == address(0)) revert ZeroBridge();
     }
@@ -71,35 +70,39 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     /// @inheritdoc IPortal
     function transfer(
         uint256 amount_,
+        uint256 destinationChainId_,
         address recipient_,
         address refundAddress_
     ) external payable returns (bytes32 messageId_) {
-        return _transferMLikeToken(amount_, mToken, remoteMToken, recipient_, refundAddress_);
+        return _transferMLikeToken(
+            amount_, mToken, destinationChainId_, destinationMToken[destinationChainId_], recipient_, refundAddress_
+        );
     }
 
     /// @inheritdoc IPortal
     function transferMLikeToken(
         uint256 amount_,
         address sourceToken_,
+        uint256 destinationChainId_,
         address destinationToken_,
         address recipient_,
         address refundAddress_
     ) external payable returns (bytes32 messageId_) {
-        if (!supportedBridgingPath[sourceToken_][destinationToken_]) {
-            revert UnsupportedBridgingPath(sourceToken_, destinationToken_);
+        if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
+            revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
         }
 
-        return _transferMLikeToken(amount_, sourceToken_, destinationToken_, recipient_, refundAddress_);
+        return _transferMLikeToken(amount_, sourceToken_, destinationChainId_, destinationToken_, recipient_, refundAddress_);
     }
 
     /// @inheritdoc IPortal
-    function receiveMessage(address sender_, bytes calldata payload_) external {
+    function receiveMessage(uint256 sourceChainId_, address sender_, bytes calldata payload_) external {
         if (msg.sender != bridge) revert NotBridge();
 
         PayloadType payloadType_ = payload_.getPayloadType();
 
         if (payloadType_ == PayloadType.Token) {
-            _receiveMLikeToken(sender_, payload_);
+            _receiveMLikeToken(sourceChainId_, sender_, payload_);
             return;
         }
 
@@ -119,22 +122,33 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     }
 
     /// @inheritdoc IPortal
+    function setDestinationMToken(uint256 destinationChainId_, address mToken_) external onlyOwner {
+        if (destinationChainId_ == block.chainid) revert InvalidDestinationChain(destinationChainId_);
+        if (mToken_ == address(0)) revert ZeroMToken();
+
+        destinationMToken[destinationChainId_] = mToken_;
+        emit DestinationMTokenSet(destinationChainId_, mToken_);
+    }
+
+    /// @inheritdoc IPortal
     function setSupportedBridgingPath(
         address sourceToken_,
+        uint256 destinationChainId_,
         address destinationToken_,
         bool supported_
     ) external onlyOwner {
         if (sourceToken_ == address(0)) revert ZeroSourceToken();
+        if (destinationChainId_ == block.chainid) revert InvalidDestinationChain(destinationChainId_);
         if (destinationToken_ == address(0)) revert ZeroDestinationToken();
 
-        supportedBridgingPath[sourceToken_][destinationToken_] = supported_;
-        emit SupportedBridgingPathSet(sourceToken_, destinationToken_, supported_);
+        supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_] = supported_;
+        emit SupportedBridgingPathSet(sourceToken_, destinationChainId_, destinationToken_, supported_);
     }
 
     /// @inheritdoc IPortal
-    function setPayloadGasLimit(PayloadType payloadType_, uint256 gasLimit_) external onlyOwner {
-        payloadGasLimit[payloadType_] = gasLimit_;
-        emit PayloadGasLimitSet(payloadType_, gasLimit_);
+    function setPayloadGasLimit(uint256 destinationChainId_, PayloadType payloadType_, uint256 gasLimit_) external onlyOwner {
+        payloadGasLimit[destinationChainId_][payloadType_] = gasLimit_;
+        emit PayloadGasLimitSet(destinationChainId_, payloadType_, gasLimit_);
     }
 
     /**
@@ -151,16 +165,18 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
 
     /**
      * @dev Transfers M or Wrapped M token to the remote chain.
-     * @param amount_           The amount of tokens to transfer.
-     * @param sourceToken_      The address of the source token.
-     * @param destinationToken_ The address of the destination token.
-     * @param recipient_        The address of the recipient.
-     * @param refundAddress_    The address to receive the fee refund.
-     * @return messageId_       The ID uniquely identifying the message.
+     * @param  amount_             The amount of tokens to transfer.
+     * @param  sourceToken_        The address of the source token.
+     * @param  destinationChainId_ The EVM chain Id of the destination chain.
+     * @param  destinationToken_   The address of the destination token.
+     * @param  recipient_          The address of the recipient.
+     * @param  refundAddress_      The address to receive the fee refund.
+     * @return messageId_          The ID uniquely identifying the message.
      */
     function _transferMLikeToken(
         uint256 amount_,
         address sourceToken_,
+        uint256 destinationChainId_,
         address destinationToken_,
         address recipient_,
         address refundAddress_
@@ -209,37 +225,44 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
 
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
-        messageId_ = _sendMessage(PayloadType.Token, refundAddress_, payload_);
+        messageId_ = _sendMessage(destinationChainId_, PayloadType.Token, refundAddress_, payload_);
+        // prevent stack too deep
+        uint256 transferAmount_ = amount_;
 
-        emit MTokenSent(sourceToken_, destinationToken_, msg.sender, recipient_, amount_, index_, messageId_);
+        emit MTokenSent(
+            sourceToken_, destinationChainId_, destinationToken_, msg.sender, recipient_, transferAmount_, index_, messageId_
+        );
     }
 
     /**
      * @dev   Sends a cross-chain message using bridge.
-     * @param payloadType_   The type of the payload.
-     * @param refundAddress_ The address to receive the fee refund.
-     * @param payload_       The message payload to send.
-     * @return messageId_    The ID uniquely identifying the message.
+     * @param destinationChainId_ The EVM chain Id of the destination chain.
+     * @param payloadType_        The type of the payload.
+     * @param refundAddress_      The address to receive the fee refund.
+     * @param payload_            The message payload to send.
+     * @return messageId_         The ID uniquely identifying the message.
      */
     function _sendMessage(
+        uint256 destinationChainId_,
         PayloadType payloadType_,
         address refundAddress_,
         bytes memory payload_
     ) internal returns (bytes32 messageId_) {
-        uint256 gasLimit_ = payloadGasLimit[payloadType_];
-        messageId_ = IBridge(bridge).sendMessage{ value: msg.value }(gasLimit_, refundAddress_, payload_);
+        return IBridge(bridge).sendMessage{ value: msg.value }(
+            destinationChainId_, payloadGasLimit[destinationChainId_][payloadType_], refundAddress_, payload_
+        );
     }
 
     /**
      * @dev   Handles token transfer message on the destination.
-     * @param sender_  The address of the message sender.
-     * @param payload_ The message payload.
+     * @param sourceChainId_ The EVM chain Id of the source chain.
+     * @param sender_        The address of the message sender.
+     * @param payload_       The message payload.
      */
-    function _receiveMLikeToken(address sender_, bytes memory payload_) private {
-        (uint256 amount_, address destinationToken_, address recipient_, uint128 index_) =
-            payload_.decodeTokenTransfer();
+    function _receiveMLikeToken(uint256 sourceChainId_, address sender_, bytes memory payload_) private {
+        (uint256 amount_, address destinationToken_, address recipient_, uint128 index_) = payload_.decodeTokenTransfer();
 
-        emit MTokenReceived(destinationToken_, sender_, recipient_, amount_, index_);
+        emit MTokenReceived(sourceChainId_, destinationToken_, sender_, recipient_, amount_, index_);
 
         address mToken_ = mToken;
         if (destinationToken_ == mToken_) {

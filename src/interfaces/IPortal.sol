@@ -16,16 +16,18 @@ interface IPortal {
 
     /**
      * @notice Emitted when M token is sent to a destination chain.
-     * @param  sourceToken      The address of the token on the source chain.
-     * @param  destinationToken The address of the token on the destination chain.
-     * @param  sender           The address that bridged the M tokens via the Portal.
-     * @param  recipient        The account receiving tokens on destination chain.
-     * @param  amount           The amount of tokens.
-     * @param  index            The M token index.
-     * @param  messageId        The unique identifier for the sent message.
+     * @param  sourceToken        The address of the token on the source chain.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  destinationToken   The address of the token on the destination chain.
+     * @param  sender             The address that bridged the M tokens via the Portal.
+     * @param  recipient          The account receiving tokens on destination chain.
+     * @param  amount             The amount of tokens.
+     * @param  index              The M token index.
+     * @param  messageId          The unique identifier for the sent message.
      */
     event MTokenSent(
         address indexed sourceToken,
+        uint256 destinationChainId,
         address destinationToken,
         address indexed sender,
         address indexed recipient,
@@ -36,6 +38,7 @@ interface IPortal {
 
     /**
      * @notice Emitted when M token is received from a source chain.
+     * @param  sourceChainId    The EVM chain Id of the source chain.
      * @param  destinationToken The address of the token on the destination chain.
      * @param  sender           The account sending tokens.
      * @param  recipient        The account receiving tokens.
@@ -43,6 +46,7 @@ interface IPortal {
      * @param  index            The M token index
      */
     event MTokenReceived(
+        uint256 sourceChainId,
         address indexed destinationToken,
         address indexed sender,
         address indexed recipient,
@@ -58,22 +62,38 @@ interface IPortal {
      */
     event WrapFailed(address indexed destinationWrappedToken, address indexed recipient, uint256 amount);
 
+    /**
+     * @notice Emitted when the Bridge contract responsible for cross-chain communication is set
+     * @param  previousBridge The address of the previous Bridge.
+     * @param  newBridge      The address of the new Bridge.
+     */
     event BridgeSet(address indexed previousBridge, address indexed newBridge);
 
     /**
-     * @notice Emitted when a bridging path support status is updated.
-     * @param  sourceToken       The address of the token on the current chain.
-     * @param  destinationToken  The address of the token on the destination chain.
-     * @param  supported         `True` if the token is supported, `false` otherwise.
+     * @notice Emitted when M token is set for the remote chain.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  mToken             The address of M token on the destination chain.
      */
-    event SupportedBridgingPathSet(address indexed sourceToken, address indexed destinationToken, bool supported);
+    event DestinationMTokenSet(uint256 indexed destinationChainId, address mToken);
+
+    /**
+     * @notice Emitted when a bridging path support status is updated.
+     * @param  sourceToken        The address of the token on the current chain.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  destinationToken   The address of the token on the destination chain.
+     * @param  supported          `True` if the token is supported, `false` otherwise.
+     */
+    event SupportedBridgingPathSet(
+        address indexed sourceToken, uint256 indexed destinationChainId, address indexed destinationToken, bool supported
+    );
 
     /**
      * @notice Emitted when the gas limit for a payload type is updated.
-     * @param  payloadType The type of payload.
-     * @param  gasLimit    The gas limit.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  payloadType        The type of payload.
+     * @param  gasLimit           The gas limit.
      */
-    event PayloadGasLimitSet(PayloadType indexed payloadType, uint256 gasLimit);
+    event PayloadGasLimitSet(uint256 indexed destinationChainId, PayloadType indexed payloadType, uint256 gasLimit);
 
     ///////////////////////////////////////////////////////////////////////////
     //                             CUSTOM ERRORS                             //
@@ -97,9 +117,6 @@ interface IPortal {
     /// @notice Thrown when the destination token address is 0x0.
     error ZeroDestinationToken();
 
-    /// @notice Thrown in `transferMLikeToken` function when bridging path is not supported
-    error UnsupportedBridgingPath(address sourceToken, address destinationToken);
-
     /// @notice Thrown when the transfer amount is 0.
     error ZeroAmount();
 
@@ -111,6 +128,12 @@ interface IPortal {
 
     /// @notice Thrown when `receiveMessage` function caller is not the bridge.
     error NotBridge();
+
+    /// @notice Emitted in `transferMLikeToken` function when bridging path is not supported
+    error UnsupportedBridgingPath(address sourceToken, uint256 destinationChainId, address destinationToken);
+
+    /// @notice Emitted when the destination chain id is equal to the source one.
+    error InvalidDestinationChain(uint256 destinationChainId);
 
     ///////////////////////////////////////////////////////////////////////////
     //                          VIEW/PURE FUNCTIONS                          //
@@ -128,27 +151,34 @@ interface IPortal {
     /// @notice The address of the Bridge contract responsible for cross-chain communication.
     function bridge() external view returns (address);
 
-    /// @notice The address of M token on the remote chain.
-    function remoteMToken() external view returns (address mToken);
+    /**
+     * @notice Returns the address of M token on the destination chain.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @return mToken             The address of M token on the destination chain.
+     */
+    function destinationMToken(uint256 destinationChainId) external view returns (address mToken);
 
     /**
      * @notice Indicates whether the provided bridging path is supported.
-     * @param  sourceToken      The address of the token on the current chain.
-     * @param  destinationToken The address of the token on the destination chain.
-     * @return supported        `True` if the token is supported, `false` otherwise.
+     * @param  sourceToken        The address of the token on the current chain.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  destinationToken   The address of the token on the destination chain.
+     * @return supported          `True` if the token is supported, `false` otherwise.
      */
     function supportedBridgingPath(
         address sourceToken,
+        uint256 destinationChainId,
         address destinationToken
     ) external view returns (bool supported);
 
     /**
      * @notice Returns the gas limit required to process a message
      *         with the specified payload type on the destination chain.
-     * @param  payloadType The type of payload.
-     * @return gasLimit    The gas limit.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  payloadType        The type of payload.
+     * @return gasLimit           The gas limit.
      */
-    function payloadGasLimit(PayloadType payloadType) external view returns (uint256 gasLimit);
+    function payloadGasLimit(uint256 destinationChainId, PayloadType payloadType) external view returns (uint256 gasLimit);
 
     ///////////////////////////////////////////////////////////////////////////
     //                         INTERACTIVE FUNCTIONS                         //
@@ -161,30 +191,46 @@ interface IPortal {
     function setBridge(address bridge) external;
 
     /**
-     * @notice Sets a bridging path support status.
-     * @param  sourceToken      The address of the token on the current chain.
-     * @param  destinationToken The address of the token on the destination chain.
-     * @param  supported        `True` if the bridging path is supported, `false` otherwise.
+     * @notice Sets M token address on the remote chain.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  mToken             The address of M token on the destination chain.
      */
-    function setSupportedBridgingPath(address sourceToken, address destinationToken, bool supported) external;
+    function setDestinationMToken(uint256 destinationChainId, address mToken) external;
+
+    /**
+     * @notice Sets a bridging path support status.
+     * @param  sourceToken        The address of the token on the current chain.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  destinationToken   The address of the token on the destination chain.
+     * @param  supported          `True` if the token is supported, `false` otherwise.
+     */
+    function setSupportedBridgingPath(
+        address sourceToken,
+        uint256 destinationChainId,
+        address destinationToken,
+        bool supported
+    ) external;
 
     /**
      * @notice Sets the gas limit required to process a message
      *         with the specified payload type on the destination chain.
-     * @param  payloadType The payload type.
-     * @param  gasLimit    The gas limit required to process the message.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  payloadType        The payload type.
+     * @param  gasLimit           The gas limit required to process the message.
      */
-    function setPayloadGasLimit(PayloadType payloadType, uint256 gasLimit) external;
+    function setPayloadGasLimit(uint256 destinationChainId, PayloadType payloadType, uint256 gasLimit) external;
 
     /**
      * @notice Transfers M token to the destination chain.
-     * @param  amount        The amount of tokens to transfer.
-     * @param  recipient     The account to receive tokens.
-     * @param  refundAddress The address to receive excess native gas on the source chain.
-     * @return messageId     The unique identifier of the message sent.
+     * @param  amount             The amount of tokens to transfer.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  recipient          The account to receive tokens.
+     * @param  refundAddress      The address to receive excess native gas on the source chain.
+     * @return messageId          The unique identifier of the message sent.
      */
     function transfer(
         uint256 amount,
+        uint256 destinationChainId,
         address recipient,
         address refundAddress
     ) external payable returns (bytes32 messageId);
@@ -192,16 +238,18 @@ interface IPortal {
     /**
      * @notice Transfers M or Wrapped M Token to the destination chain.
      * @dev    If wrapping on the destination fails, the recipient will receive $M token.
-     * @param  amount           The amount of tokens to transfer.
-     * @param  sourceToken      The address of the token (M or Wrapped M) on the source chain.
-     * @param  destinationToken The address of the token (M or Wrapped M) on the destination chain.
-     * @param  recipient        The account to receive tokens.
-     * @param  refundAddress    The address to receive excess native gas on the source chain.
-     * @return messageId        The unique identifier of the message sent.
+     * @param  amount             The amount of tokens to transfer.
+     * @param  sourceToken        The address of the token (M or Wrapped M) on the source chain.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  destinationToken   The address of the token (M or Wrapped M) on the destination chain.
+     * @param  recipient          The account to receive tokens.
+     * @param  refundAddress      The address to receive excess native gas on the source chain.
+     * @return messageId          The unique identifier of the message sent.
      */
     function transferMLikeToken(
         uint256 amount,
         address sourceToken,
+        uint256 destinationChainId,
         address destinationToken,
         address recipient,
         address refundAddress
@@ -209,8 +257,9 @@ interface IPortal {
 
     /**
      * @notice Receives a message from the bridge.
-     * @param  sender   The address of the message sender.
-     * @param  payload  The message payload.
+     * @param  sourceChainId The EVM chain Id of the source chain.
+     * @param  sender        The address of the message sender.
+     * @param  payload       The message payload.
      */
-    function receiveMessage(address sender, bytes calldata payload) external;
+    function receiveMessage(uint256 sourceChainId, address sender, bytes calldata payload) external;
 }

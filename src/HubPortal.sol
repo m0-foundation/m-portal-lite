@@ -27,39 +27,43 @@ contract HubPortal is Portal, IHubPortal {
 
     constructor(
         address mToken_,
-        address remoteMToken_,
         address registrar_,
         address bridge_,
         address initialOwner_,
         address initialPauser_
-    ) Portal(mToken_, remoteMToken_, registrar_, bridge_, initialOwner_, initialPauser_) { }
+    ) Portal(mToken_, registrar_, bridge_, initialOwner_, initialPauser_) { }
 
     ///////////////////////////////////////////////////////////////////////////
     //                     EXTERNAL INTERACTIVE FUNCTIONS                    //
     ///////////////////////////////////////////////////////////////////////////
 
     /// @inheritdoc IHubPortal
-    function sendMTokenIndex(address refundAddress_) external payable returns (bytes32 messageId_) {
+    function sendMTokenIndex(uint256 destinationChainId_, address refundAddress_) external payable returns (bytes32 messageId_) {
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeIndex(index_);
 
-        messageId_ = _sendMessage(PayloadType.Index, refundAddress_, payload_);
+        messageId_ = _sendMessage(destinationChainId_, PayloadType.Index, refundAddress_, payload_);
 
         emit MTokenIndexSent(messageId_, index_);
     }
 
     /// @inheritdoc IHubPortal
-    function sendRegistrarKey(bytes32 key_, address refundAddress_) external payable returns (bytes32 messageId_) {
+    function sendRegistrarKey(
+        uint256 destinationChainId_,
+        bytes32 key_,
+        address refundAddress_
+    ) external payable returns (bytes32 messageId_) {
         bytes32 value_ = IRegistrarLike(registrar).get(key_);
         bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_);
 
-        messageId_ = _sendMessage(PayloadType.Key, refundAddress_, payload_);
+        messageId_ = _sendMessage(destinationChainId_, PayloadType.Key, refundAddress_, payload_);
 
         emit RegistrarKeySent(messageId_, key_, value_);
     }
 
     /// @inheritdoc IHubPortal
     function sendRegistrarListStatus(
+        uint256 destinationChainId_,
         bytes32 listName_,
         address account_,
         address refundAddress_
@@ -67,7 +71,7 @@ contract HubPortal is Portal, IHubPortal {
         bool status_ = IRegistrarLike(registrar).listContains(listName_, account_);
         bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, status_);
 
-        messageId_ = _sendMessage(PayloadType.List, refundAddress_, payload_);
+        messageId_ = _sendMessage(destinationChainId_, PayloadType.List, refundAddress_, payload_);
 
         emit RegistrarListStatusSent(messageId_, listName_, account_, status_);
     }

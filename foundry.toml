@@ -14,6 +14,6 @@ no_match_coverage = "script|test"
 
 [fmt]
 bracket_spacing = true
-line_length = 120
+line_length = 130
 single_line_statement_block = "single"
 multiline_func_header = "params_first_multi"
