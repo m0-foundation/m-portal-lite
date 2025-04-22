@@ -7,11 +7,11 @@ interface IPausableOwnable {
     //                                 EVENTS                                //
     ///////////////////////////////////////////////////////////////////////////
 
-    /* 
-    * @notice Emitted when the pauser role is transferred.
-    * @param previousPauser The previous pauser.
-    * @param newPauser      The new pauser.
-    */
+    /**
+     * @notice Emitted when the pauser role is transferred.
+     * @param previousPauser The previous pauser.
+     * @param newPauser      The new pauser.
+     */
     event PauserTransferred(address indexed previousPauser, address indexed newPauser);
 
     /// @notice Emitted when the pause is triggered.

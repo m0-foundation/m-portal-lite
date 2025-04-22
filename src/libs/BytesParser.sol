@@ -17,20 +17,14 @@ library BytesParser {
         if (encoded_.length != expected_) revert LengthMismatch(encoded_.length, expected_);
     }
 
-    function asUint8Unchecked(
-        bytes memory encoded_,
-        uint256 offset_
-    ) internal pure returns (uint8 value_, uint256 nextOffset_) {
+    function asUint8Unchecked(bytes memory encoded_, uint256 offset_) internal pure returns (uint8 value_, uint256 nextOffset_) {
         assembly ("memory-safe") {
             nextOffset_ := add(offset_, 1)
             value_ := mload(add(encoded_, nextOffset_))
         }
     }
 
-    function asBoolUnchecked(
-        bytes memory encoded_,
-        uint256 offset_
-    ) internal pure returns (bool value_, uint256 nextOffset_) {
+    function asBoolUnchecked(bytes memory encoded_, uint256 offset_) internal pure returns (bool value_, uint256 nextOffset_) {
         uint8 uint8Value_;
         (uint8Value_, nextOffset_) = asUint8Unchecked(encoded_, offset_);
 

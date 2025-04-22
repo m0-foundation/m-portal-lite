@@ -139,11 +139,7 @@ library PayloadEncoder {
      * @param add_      Indicates whether to add or remove the account from the list.
      * @return encoded_ The encoded payload.
      */
-    function encodeListUpdate(
-        bytes32 listName_,
-        address account_,
-        bool add_
-    ) internal pure returns (bytes memory encoded_) {
+    function encodeListUpdate(bytes32 listName_, address account_, bool add_) internal pure returns (bytes memory encoded_) {
         encoded_ = abi.encodePacked(PayloadType.List, listName_, account_, add_);
     }
 
@@ -154,11 +150,7 @@ library PayloadEncoder {
      * @return account_  The address of the account.
      * @return add_      Indicates whether the account was added or removed from the list.
      */
-    function decodeListUpdate(bytes memory payload_)
-        internal
-        pure
-        returns (bytes32 listName_, address account_, bool add_)
-    {
+    function decodeListUpdate(bytes memory payload_) internal pure returns (bytes32 listName_, address account_, bool add_) {
         uint256 offset_ = PAYLOAD_TYPE_LENGTH;
 
         (listName_, offset_) = payload_.asBytes32Unchecked(offset_);

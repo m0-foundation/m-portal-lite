@@ -78,27 +78,35 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Sends the M token index to the destination chain.
-     * @param  refundAddress The refund address to receive excess native gas.
-     * @return messageId     The ID uniquely identifying the message.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  refundAddress      The refund address to receive excess native gas.
+     * @return messageId          The ID uniquely identifying the message.
      */
-    function sendMTokenIndex(address refundAddress) external payable returns (bytes32 messageId);
+    function sendMTokenIndex(uint256 destinationChainId, address refundAddress) external payable returns (bytes32 messageId);
 
     /**
      * @notice Sends the Registrar key to the destination chain.
-     * @param  key           The key to dispatch.
-     * @param  refundAddress The refund address to receive excess native gas.
-     * @return messageId     The ID uniquely identifying the message
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  key                The key to dispatch.
+     * @param  refundAddress      The refund address to receive excess native gas.
+     * @return messageId          The ID uniquely identifying the message
      */
-    function sendRegistrarKey(bytes32 key, address refundAddress) external payable returns (bytes32 messageId);
+    function sendRegistrarKey(
+        uint256 destinationChainId,
+        bytes32 key,
+        address refundAddress
+    ) external payable returns (bytes32 messageId);
 
     /**
      * @notice Sends the Registrar list status for an account to the destination chain.
-     * @param  listName      The name of the list.
-     * @param  account       The account.
-     * @param  refundAddress The refund address to receive excess native gas.
-     * @return messageId     The ID uniquely identifying the message.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  listName           The name of the list.
+     * @param  account            The account.
+     * @param  refundAddress      The refund address to receive excess native gas.
+     * @return messageId          The ID uniquely identifying the message.
      */
     function sendRegistrarListStatus(
+        uint256 destinationChainId,
         bytes32 listName,
         address account,
         address refundAddress

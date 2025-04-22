@@ -23,12 +23,11 @@ contract SpokePortal is Portal, ISpokePortal {
 
     constructor(
         address mToken_,
-        address remoteMToken_,
         address registrar_,
         address bridge_,
         address initialOwner_,
         address initialPauser_
-    ) Portal(mToken_, remoteMToken_, registrar_, bridge_, initialOwner_, initialPauser_) { }
+    ) Portal(mToken_, registrar_, bridge_, initialOwner_, initialPauser_) { }
 
     ///////////////////////////////////////////////////////////////////////////
     //                INTERNAL/PRIVATE INTERACTIVE FUNCTIONS                 //
