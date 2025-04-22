@@ -73,7 +73,7 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
         uint256 destinationChainId_,
         address recipient_,
         address refundAddress_
-    ) external payable returns (bytes32 messageId_) {
+    ) external payable whenNotPaused returns (bytes32 messageId_) {
         return _transferMLikeToken(
             amount_, mToken, destinationChainId_, destinationMToken[destinationChainId_], recipient_, refundAddress_
         );
@@ -87,7 +87,7 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
         address destinationToken_,
         address recipient_,
         address refundAddress_
-    ) external payable returns (bytes32 messageId_) {
+    ) external payable whenNotPaused returns (bytes32 messageId_) {
         if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
             revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
         }

@@ -3,6 +3,7 @@ pragma solidity 0.8.26;
 
 import { Test } from "../../../lib/forge-std/src/Test.sol";
 import { Ownable } from "../../../lib/openzeppelin/contracts/access/Ownable.sol";
+import { Pausable } from "../../../lib/openzeppelin/contracts/utils/Pausable.sol";
 
 import { IPausableOwnable } from "../../../src/interfaces/IPausableOwnable.sol";
 import { PausableOwnable } from "../../../src/access/PausableOwnable.sol";
@@ -52,7 +53,7 @@ contract PausableOwnableTest is Test {
     function test_pause() external {
         vm.prank(OWNER);
         vm.expectEmit(false, false, false, true);
-        emit IPausableOwnable.Paused();
+        emit Pausable.Paused(OWNER);
         pausable.pause();
         assertTrue(pausable.paused());
     }
@@ -75,7 +76,7 @@ contract PausableOwnableTest is Test {
 
         vm.prank(OWNER);
         vm.expectEmit(false, false, false, true);
-        emit IPausableOwnable.Unpaused();
+        emit Pausable.Unpaused(OWNER);
         pausable.unpause();
         assertFalse(pausable.paused());
     }
@@ -85,7 +86,7 @@ contract PausableOwnableTest is Test {
         vm.prank(OWNER);
         pausable.pause();
 
-        vm.expectRevert(IPausableOwnable.OperationPaused.selector);
+        vm.expectRevert(Pausable.EnforcedPause.selector);
         pausable.exampleFunction();
     }
 
@@ -95,13 +96,13 @@ contract PausableOwnableTest is Test {
         pausable.pause();
 
         vm.prank(OWNER);
-        vm.expectRevert(IPausableOwnable.AlreadyPaused.selector);
+        vm.expectRevert(Pausable.EnforcedPause.selector);
         pausable.pause();
     }
 
     function test_unpause_notPaused() external {
         vm.prank(OWNER);
-        vm.expectRevert(IPausableOwnable.NotPaused.selector);
+        vm.expectRevert(Pausable.ExpectedPause.selector);
         pausable.unpause();
     }
 }
