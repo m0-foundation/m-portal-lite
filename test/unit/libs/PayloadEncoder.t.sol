@@ -47,12 +47,7 @@ contract PayloadEncoderTest is Test {
         assertEq(payload_, abi.encodePacked(PayloadType.Token, amount_, token_, recipient_, index_));
     }
 
-    function testFuzz_encodeTokenTransfer(
-        uint256 amount_,
-        address token_,
-        address recipient_,
-        uint128 index_
-    ) external {
+    function testFuzz_encodeTokenTransfer(uint256 amount_, address token_, address recipient_, uint128 index_) external {
         bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, token_, recipient_, index_);
         assertEq(payload_, abi.encodePacked(PayloadType.Token, amount_, token_, recipient_, index_));
     }
@@ -74,12 +69,7 @@ contract PayloadEncoderTest is Test {
         assertEq(decodedIndex_, index_);
     }
 
-    function testFuzz_decodeTokenTransfer(
-        uint256 amount_,
-        address token_,
-        address recipient_,
-        uint128 index_
-    ) external {
+    function testFuzz_decodeTokenTransfer(uint256 amount_, address token_, address recipient_, uint128 index_) external {
         bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, token_, recipient_, index_);
         (uint256 decodedAmount_, address decodedToken_, address decodedRecipient_, uint128 decodedIndex_) =
             PayloadEncoder.decodeTokenTransfer(payload_);
@@ -162,8 +152,7 @@ contract PayloadEncoderTest is Test {
         address account_ = makeAddr("account");
         bool add_ = true;
         bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, add_);
-        (bytes32 decodedListName_, address decodedAccount_, bool decodedStatus_) =
-            PayloadEncoder.decodeListUpdate(payload_);
+        (bytes32 decodedListName_, address decodedAccount_, bool decodedStatus_) = PayloadEncoder.decodeListUpdate(payload_);
 
         assertEq(decodedListName_, listName_);
         assertEq(decodedAccount_, account_);
@@ -172,8 +161,7 @@ contract PayloadEncoderTest is Test {
 
     function testFuzz_decodeListUpdate(bytes32 listName_, address account_, bool add_) external {
         bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, add_);
-        (bytes32 decodedListName_, address decodedAccount_, bool decodedStatus_) =
-            PayloadEncoder.decodeListUpdate(payload_);
+        (bytes32 decodedListName_, address decodedAccount_, bool decodedStatus_) = PayloadEncoder.decodeListUpdate(payload_);
 
         assertEq(decodedListName_, listName_);
         assertEq(decodedAccount_, account_);
