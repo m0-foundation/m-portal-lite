@@ -3,6 +3,7 @@
 pragma solidity 0.8.26;
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
+import { IndexingMath } from "../lib/common/src/libs/IndexingMath.sol";
 
 import { IMTokenLike } from "./interfaces/IMTokenLike.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
@@ -24,6 +25,9 @@ contract HubPortal is Portal, IHubPortal {
 
     /// @inheritdoc IHubPortal
     uint128 public disableEarningIndex;
+
+    /// @inheritdoc IHubPortal
+    mapping(uint256 destinationChainId => uint256 principal) public bridgedPrincipal;
 
     constructor(
         address mToken_,
@@ -105,11 +109,31 @@ contract HubPortal is Portal, IHubPortal {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * @dev   Unlocks M tokens to `recipient_`.
-     * @param recipient_ The account to unlock/transfer M tokens to.
-     * @param amount_    The amount of M Token to unlock to the recipient.
+     * @dev   Updates principal amount bridged to the destination chain.
+     * @param destinationChainId_ The EVM id of the destination chain.
+     * @param amount_             The amount of M Token to transfer.
      */
-    function _mintOrUnlock(address recipient_, uint256 amount_, uint128) internal override {
+    function _burnOrLock(uint256 destinationChainId_, uint256 amount_) internal override {
+        bridgedPrincipal[destinationChainId_] += IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), _currentIndex());
+    }
+
+    /**
+     * @dev   Unlocks M tokens to `recipient_`.
+     * @param sourceChainId_ The EVM id of the source chain.
+     * @param recipient_     The account to unlock/transfer M tokens to.
+     * @param amount_        The amount of M Token to unlock to the recipient.
+     */
+    function _mintOrUnlock(uint256 sourceChainId_, address recipient_, uint256 amount_, uint128) internal override {
+        uint256 totalBridgedPrincipal = bridgedPrincipal[sourceChainId_];
+        uint256 principalAmount = IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), _currentIndex());
+
+        // Prevents unlocking more than was bridged to the Spoke
+        if (principalAmount > totalBridgedPrincipal) revert InsufficientBridgedBalance();
+
+        unchecked {
+            bridgedPrincipal[sourceChainId_] = totalBridgedPrincipal - principalAmount;
+        }
+
         if (recipient_ != address(this)) {
             IERC20(mToken).transfer(recipient_, amount_);
         }

@@ -221,8 +221,8 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
         }
 
         // Burn the actual amount of M tokens on Spoke.
-        // In case of Hub, do nothing, as tokens are already transferred.
-        _burnOrLock(actualAmount_);
+        // In case of Hub, only update the bridged principal amount as tokens already transferred.
+        _burnOrLock(destinationChainId_, actualAmount_);
 
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
@@ -268,10 +268,10 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
         address mToken_ = mToken;
         if (destinationToken_ == mToken_) {
             // mints or unlocks M Token to the recipient
-            _mintOrUnlock(recipient_, amount_, index_);
+            _mintOrUnlock(sourceChainId_, recipient_, amount_, index_);
         } else {
             // mints or unlocks M Token to the Portal
-            _mintOrUnlock(address(this), amount_, index_);
+            _mintOrUnlock(sourceChainId_, address(this), amount_, index_);
 
             // wraps M token and transfers it to the recipient
             _wrap(mToken_, destinationToken_, recipient_, amount_);
@@ -314,18 +314,20 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     /**
      * @dev   HubPortal:   unlocks and transfers `amount_` M tokens to `recipient_`.
      *        SpokePortal: mints `amount_` M tokens to `recipient_`.
-     * @param recipient_ The account receiving M tokens.
-     * @param amount_    The amount of M tokens to unlock/mint.
-     * @param index_     The index from the source chain.
+     * @param sourceChainId_ The EVM id of the source chain.
+     * @param recipient_     The account receiving M tokens.
+     * @param amount_        The amount of M tokens to unlock/mint.
+     * @param index_         The index from the source chain.
      */
-    function _mintOrUnlock(address recipient_, uint256 amount_, uint128 index_) internal virtual { }
+    function _mintOrUnlock(uint256 sourceChainId_, address recipient_, uint256 amount_, uint128 index_) internal virtual { }
 
     /**
      * @dev   HubPortal:   locks amount_` M tokens.
      *        SpokePortal: burns `amount_` M tokens.
-     * @param amount_ The amount of M tokens to lock/burn.
+     * @param destinationChainId_ The EVM id of the destination chain.
+     * @param amount_             The amount of M tokens to lock/burn.
      */
-    function _burnOrLock(uint256 amount_) internal virtual { }
+    function _burnOrLock(uint256 destinationChainId_, uint256 amount_) internal virtual { }
 
     ///////////////////////////////////////////////////////////////////////////
     //                 INTERNAL/PRIVATE VIEW/PURE FUNCTIONS                  //

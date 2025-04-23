@@ -62,15 +62,21 @@ interface IHubPortal is IPortal {
     /// @notice Thrown when performing an operation that is not allowed when earning is enabled.
     error EarningIsEnabled();
 
+    /// @notice Thrown when trying to unlock more tokens than was locked.
+    error InsufficientBridgedBalance();
+
     ///////////////////////////////////////////////////////////////////////////
     //                          VIEW/PURE FUNCTIONS                          //
     ///////////////////////////////////////////////////////////////////////////
 
     /// @notice Indicates whether earning for HubPortal was ever enabled.
-    function wasEarningEnabled() external returns (bool);
+    function wasEarningEnabled() external view returns (bool);
 
-    /// @notice Returns the value of M Token index when earning for HubPortal was disabled.
-    function disableEarningIndex() external returns (uint128);
+    /// @notice Returns the value of M token index when earning for HubPortal was disabled.
+    function disableEarningIndex() external view returns (uint128);
+
+    /// @notice Returns the principal amount of M tokens bridged to the destination chain.
+    function bridgedPrincipal(uint256 destinationChainId) external view returns (uint256 principal);
 
     ///////////////////////////////////////////////////////////////////////////
     //                         INTERACTIVE FUNCTIONS                         //
