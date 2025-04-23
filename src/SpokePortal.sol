@@ -21,13 +21,18 @@ import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
 contract SpokePortal is Portal, ISpokePortal {
     using PayloadEncoder for bytes;
 
+    uint256 public immutable hubChainId;
+
     constructor(
+        uint256 hubChainId_,
         address mToken_,
         address registrar_,
         address bridge_,
         address initialOwner_,
         address initialPauser_
-    ) Portal(mToken_, registrar_, bridge_, initialOwner_, initialPauser_) { }
+    ) Portal(mToken_, registrar_, bridge_, initialOwner_, initialPauser_) {
+        if ((hubChainId = hubChainId_) == 0) revert ZeroHubChain();
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     //                INTERNAL/PRIVATE INTERACTIVE FUNCTIONS                 //
@@ -82,7 +87,7 @@ contract SpokePortal is Portal, ISpokePortal {
      * @param amount_    The amount of M Token to mint to the recipient.
      * @param index_     The index from the source chain.
      */
-    function _mintOrUnlock(address recipient_, uint256 amount_, uint128 index_) internal override {
+    function _mintOrUnlock(uint256, address recipient_, uint256 amount_, uint128 index_) internal override {
         // Update M token index only if the index received from the remote chain is bigger
         if (index_ > _currentIndex()) {
             ISpokeMTokenLike(mToken).mint(recipient_, amount_, index_);
@@ -95,7 +100,7 @@ contract SpokePortal is Portal, ISpokePortal {
      * @dev Burns M Token.
      * @param amount_ The amount of M Token to burn from the SpokePortal.
      */
-    function _burnOrLock(uint256 amount_) internal override {
+    function _burnOrLock(uint256, uint256 amount_) internal override {
         ISpokeMTokenLike(mToken).burn(amount_);
     }
 
@@ -106,5 +111,10 @@ contract SpokePortal is Portal, ISpokePortal {
     /// @dev Returns the current M token index used by the Spoke Portal.
     function _currentIndex() internal view override returns (uint128) {
         return ISpokeMTokenLike(mToken).currentIndex();
+    }
+
+    /// @dev Reverts if the destination chain is the Hub chain
+    function _verifyDestinationChain(uint256 destinationChainId_) internal view override {
+        if (destinationChainId_ != hubChainId) revert UnsupportedDestinationChain(destinationChainId_);
     }
 }
