@@ -182,6 +182,7 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
         address refundAddress_
     ) private returns (bytes32 messageId_) {
         _verifyTransferAmount(amount_);
+        _verifyDestinationChain(destinationChainId_);
 
         if (destinationToken_ == address(0)) revert ZeroDestinationToken();
         if (recipient_ == address(0)) revert ZeroRecipient();
@@ -334,6 +335,9 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     function _verifyTransferAmount(uint256 amount_) private pure {
         if (amount_ == 0) revert ZeroAmount();
     }
+
+    /// @dev Overridden in SpokePortal to allow bringing only to the Hub chain
+    function _verifyDestinationChain(uint256 destinationChainId_) internal view virtual { }
 
     /// @inheritdoc Migratable
     function _getMigrator() internal pure override returns (address migrator_) {

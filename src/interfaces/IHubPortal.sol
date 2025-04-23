@@ -53,13 +53,13 @@ interface IHubPortal is IPortal {
     //                             CUSTOM ERRORS                             //
     ///////////////////////////////////////////////////////////////////////////
 
-    /// @notice Emitted when trying to enable earning after it has been explicitly disabled.
+    /// @notice Thrown when trying to enable earning after it has been explicitly disabled.
     error EarningCannotBeReenabled();
 
-    /// @notice Emitted when performing an operation that is not allowed when earning is disabled.
+    /// @notice Thrown when performing an operation that is not allowed when earning is disabled.
     error EarningIsDisabled();
 
-    /// @notice Emitted when performing an operation that is not allowed when earning is enabled.
+    /// @notice Thrown when performing an operation that is not allowed when earning is enabled.
     error EarningIsEnabled();
 
     ///////////////////////////////////////////////////////////////////////////

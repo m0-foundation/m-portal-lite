@@ -33,4 +33,14 @@ interface ISpokePortal is IPortal {
      * @param  status   Indicates if the account is added or removed from the list.
      */
     event RegistrarListStatusReceived(bytes32 indexed listName, address indexed account, bool status);
+
+    ///////////////////////////////////////////////////////////////////////////
+    //                             CUSTOM ERRORS                             //
+    ///////////////////////////////////////////////////////////////////////////
+
+    /// @notice Thrown when the Hub chain is 0.
+    error ZeroHubChain();
+
+    /// @notice Thrown when the destination chain isn't Hub chain.
+    error UnsupportedDestinationChain(uint256 destinationChainId);
 }

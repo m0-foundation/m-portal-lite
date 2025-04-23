@@ -129,10 +129,10 @@ interface IPortal {
     /// @notice Thrown when `receiveMessage` function caller is not the bridge.
     error NotBridge();
 
-    /// @notice Emitted in `transferMLikeToken` function when bridging path is not supported
+    /// @notice Thrown in `transferMLikeToken` function when bridging path is not supported
     error UnsupportedBridgingPath(address sourceToken, uint256 destinationChainId, address destinationToken);
 
-    /// @notice Emitted when the destination chain id is equal to the source one.
+    /// @notice Thrown when the destination chain id is equal to the source one.
     error InvalidDestinationChain(uint256 destinationChainId);
 
     ///////////////////////////////////////////////////////////////////////////
