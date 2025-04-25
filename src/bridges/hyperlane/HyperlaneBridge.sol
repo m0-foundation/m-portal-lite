@@ -14,7 +14,7 @@ import { IPortal } from "../../interfaces/IPortal.sol";
 import { TypeConverter } from "../../libs/TypeConverter.sol";
 
 /// @title  HyperLane Bridge
-/// @notice Sends and receives messages to and from a single remote chain using Hyperlane protocol
+/// @notice Sends and receives messages to and from remote chains using Hyperlane protocol
 contract HyperlaneBridge is Ownable, IHyperlaneBridge {
     using TypeConverter for *;
     using SafeCast for uint256;
@@ -88,7 +88,7 @@ contract HyperlaneBridge is Ownable, IHyperlaneBridge {
      */
     function _getPeer(uint256 destinationChainId_) private view returns (bytes32 peer_) {
         peer_ = peer[destinationChainId_];
-        if (peer_ == bytes32(0)) revert UnsupportedChain(destinationChainId_);
+        if (peer_ == bytes32(0)) revert UnsupportedDestinationChain(destinationChainId_);
     }
 
     /**

@@ -33,8 +33,8 @@ interface IHyperlaneBridge is IBridge, IMessageRecipient {
     /// @notice Thrown when the caller is not the Hyperlane Mailbox.
     error NotMailbox();
 
-    /// @notice Thrown when the chain isn't supported.
-    error UnsupportedChain(uint256 chainId);
+    /// @notice Thrown when the destination chain isn't supported.
+    error UnsupportedDestinationChain(uint256 destinationChainId);
 
     ///////////////////////////////////////////////////////////////////////////
     //                          VIEW/PURE FUNCTIONS                          //
