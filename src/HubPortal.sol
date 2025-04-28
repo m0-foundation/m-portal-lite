@@ -149,7 +149,10 @@ contract HubPortal is Portal, IHubPortal {
      * @param amount_             The amount of M Token to transfer.
      */
     function _burnOrLock(uint256 destinationChainId_, uint256 amount_) internal override {
-        bridgedPrincipal[destinationChainId_] += IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), _currentIndex());
+        // Won't overflow since `getPrincipalAmountRoundedDown` returns uint112
+        unchecked {
+            bridgedPrincipal[destinationChainId_] += IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), _currentIndex());
+        }
     }
 
     /**
