@@ -180,6 +180,16 @@ interface IPortal {
      */
     function payloadGasLimit(uint256 destinationChainId, PayloadType payloadType) external view returns (uint256 gasLimit);
 
+    /**
+     * @notice Returns the delivery fee for token transfer.
+     * @dev    The fee must be passed as mgs.value when calling `transfer` or `transferMLikeToken`.
+     * @param  amount             The amount of tokens to transfer.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  recipient          The account to receive tokens.
+     * @param  fee                The delivery fee.
+     */
+    function quoteTransfer(uint256 amount, uint256 destinationChainId, address recipient) external view returns (uint256 fee);
+
     ///////////////////////////////////////////////////////////////////////////
     //                         INTERACTIVE FUNCTIONS                         //
     ///////////////////////////////////////////////////////////////////////////

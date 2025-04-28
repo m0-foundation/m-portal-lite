@@ -63,6 +63,18 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
         return _currentIndex();
     }
 
+    /// @inheritdoc IPortal
+    function quoteTransfer(
+        uint256 amount_,
+        uint256 destinationChainId_,
+        address recipient_
+    ) external view returns (uint256 fee_) {
+        // NOTE: for quoting delivery only the payload size and destination chain matter.
+        address destinationToken_ = destinationMToken[destinationChainId_];
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, _currentIndex());
+        return IBridge(bridge).quote(destinationChainId_, payloadGasLimit[destinationChainId_][PayloadType.Token], payload_);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     //                     EXTERNAL INTERACTIVE FUNCTIONS                    //
     ///////////////////////////////////////////////////////////////////////////
