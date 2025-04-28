@@ -24,7 +24,7 @@ contract HubPortal is Portal, IHubPortal {
     bool public wasEarningEnabled;
 
     /// @inheritdoc IHubPortal
-    uint128 public disableEarningIndex;
+    uint128 public disableEarningIndex = IndexingMath.EXP_SCALED_ONE;
 
     /// @inheritdoc IHubPortal
     mapping(uint256 destinationChainId => uint256 principal) public bridgedPrincipal;
@@ -43,12 +43,14 @@ contract HubPortal is Portal, IHubPortal {
 
     /// @inheritdoc IHubPortal
     function sendMTokenIndex(uint256 destinationChainId_, address refundAddress_) external payable returns (bytes32 messageId_) {
+        _revertIfZeroRefundAddress(refundAddress_);
+
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeIndex(index_);
 
         messageId_ = _sendMessage(destinationChainId_, PayloadType.Index, refundAddress_, payload_);
 
-        emit MTokenIndexSent(messageId_, index_);
+        emit MTokenIndexSent(destinationChainId_, messageId_, index_);
     }
 
     /// @inheritdoc IHubPortal
@@ -57,12 +59,14 @@ contract HubPortal is Portal, IHubPortal {
         bytes32 key_,
         address refundAddress_
     ) external payable returns (bytes32 messageId_) {
+        _revertIfZeroRefundAddress(refundAddress_);
+
         bytes32 value_ = IRegistrarLike(registrar).get(key_);
         bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_);
 
         messageId_ = _sendMessage(destinationChainId_, PayloadType.Key, refundAddress_, payload_);
 
-        emit RegistrarKeySent(messageId_, key_, value_);
+        emit RegistrarKeySent(destinationChainId_, messageId_, key_, value_);
     }
 
     /// @inheritdoc IHubPortal
@@ -72,12 +76,14 @@ contract HubPortal is Portal, IHubPortal {
         address account_,
         address refundAddress_
     ) external payable returns (bytes32 messageId_) {
+        _revertIfZeroRefundAddress(refundAddress_);
+
         bool status_ = IRegistrarLike(registrar).listContains(listName_, account_);
         bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, status_);
 
         messageId_ = _sendMessage(destinationChainId_, PayloadType.List, refundAddress_, payload_);
 
-        emit RegistrarListStatusSent(messageId_, listName_, account_, status_);
+        emit RegistrarListStatusSent(destinationChainId_, messageId_, listName_, account_, status_);
     }
 
     /// @inheritdoc IHubPortal
@@ -151,6 +157,6 @@ contract HubPortal is Portal, IHubPortal {
 
     /// @dev Returns whether earning was enabled for HubPortal or not.
     function _isEarningEnabled() internal view returns (bool) {
-        return wasEarningEnabled && disableEarningIndex == 0;
+        return wasEarningEnabled && disableEarningIndex == IndexingMath.EXP_SCALED_ONE;
     }
 }

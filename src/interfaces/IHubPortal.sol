@@ -27,27 +27,32 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Emitted when the M token index is sent to a destination chain.
-     * @param  messageId The unique identifier for the sent message.
-     * @param  index     The the M token index.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  messageId          The unique identifier for the sent message.
+     * @param  index              The the M token index.
      */
-    event MTokenIndexSent(bytes32 messageId, uint128 index);
+    event MTokenIndexSent(uint256 destinationChainId, bytes32 messageId, uint128 index);
 
     /**
      * @notice Emitted when the Registrar key is sent to a destination chain.
-     * @param  messageId The unique identifier for the sent message.
-     * @param  key       The key that was sent.
-     * @param  value     The value that was sent.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  messageId          The unique identifier for the sent message.
+     * @param  key                The key that was sent.
+     * @param  value              The value that was sent.
      */
-    event RegistrarKeySent(bytes32 messageId, bytes32 indexed key, bytes32 value);
+    event RegistrarKeySent(uint256 destinationChainId, bytes32 messageId, bytes32 indexed key, bytes32 value);
 
     /**
      * @notice Emitted when the Registrar list status for an account is sent to a destination chain.
-     * @param  messageId The unique identifier for the sent message.
-     * @param  listName  The name of the list.
-     * @param  account   The account.
-     * @param  status    The status of the account in the list.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  messageId          The unique identifier for the sent message.
+     * @param  listName           The name of the list.
+     * @param  account            The account.
+     * @param  status             The status of the account in the list.
      */
-    event RegistrarListStatusSent(bytes32 messageId, bytes32 indexed listName, address indexed account, bool status);
+    event RegistrarListStatusSent(
+        uint256 destinationChainId, bytes32 messageId, bytes32 indexed listName, address indexed account, bool status
+    );
 
     ///////////////////////////////////////////////////////////////////////////
     //                             CUSTOM ERRORS                             //

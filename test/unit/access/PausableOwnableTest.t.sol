@@ -17,49 +17,49 @@ contract MockPausableOwnable is PausableOwnable {
 }
 
 contract PausableOwnableTest is Test {
-    address public constant OWNER = address(1);
-    address public constant PAUSER = address(2);
-    address public constant NEW_OWNER = address(3);
-    address public constant NEW_PAUSER = address(4);
+    address public owner = makeAddr("owner");
+    address public pauser = makeAddr("pauser");
+    address public newOwner = makeAddr("new owner");
+    address public newPauser = makeAddr("new pauser");
 
     MockPausableOwnable public pausable;
 
     function setUp() external {
-        pausable = new MockPausableOwnable(OWNER, PAUSER);
+        pausable = new MockPausableOwnable(owner, pauser);
     }
 
     // Test Initial State
     function test_initialState() external {
-        assertEq(pausable.owner(), OWNER);
-        assertEq(pausable.pauser(), PAUSER);
+        assertEq(pausable.owner(), owner);
+        assertEq(pausable.pauser(), pauser);
         assertFalse(pausable.paused());
     }
 
     // Pauser Role Tests
     function test_transferPauserRole() external {
-        vm.prank(OWNER);
-        pausable.transferPauserRole(NEW_PAUSER);
+        vm.prank(owner);
+        pausable.transferPauserRole(newPauser);
 
-        assertEq(pausable.pauser(), NEW_PAUSER);
+        assertEq(pausable.pauser(), newPauser);
     }
 
     function test_transferPauserRole_nonOwner() external {
         vm.prank(address(0xBAD));
         vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(0xBAD)));
-        pausable.transferPauserRole(NEW_PAUSER);
+        pausable.transferPauserRole(newPauser);
     }
 
     // Pause/Unpause Tests
     function test_pause() external {
-        vm.prank(OWNER);
+        vm.prank(owner);
         vm.expectEmit(false, false, false, true);
-        emit Pausable.Paused(OWNER);
+        emit Pausable.Paused(owner);
         pausable.pause();
         assertTrue(pausable.paused());
     }
 
     function test_pause_asPauser() external {
-        vm.prank(PAUSER);
+        vm.prank(pauser);
         pausable.pause();
         assertTrue(pausable.paused());
     }
@@ -71,19 +71,19 @@ contract PausableOwnableTest is Test {
     }
 
     function test_unpause() external {
-        vm.prank(OWNER);
+        vm.prank(owner);
         pausable.pause();
 
-        vm.prank(OWNER);
+        vm.prank(owner);
         vm.expectEmit(false, false, false, true);
-        emit Pausable.Unpaused(OWNER);
+        emit Pausable.Unpaused(owner);
         pausable.unpause();
         assertFalse(pausable.paused());
     }
 
     // Pause State Modifier
     function test_whenNotPausedModifier() external {
-        vm.prank(OWNER);
+        vm.prank(owner);
         pausable.pause();
 
         vm.expectRevert(Pausable.EnforcedPause.selector);
@@ -92,16 +92,16 @@ contract PausableOwnableTest is Test {
 
     // Edge Cases
     function test_pause_alreadyPaused() external {
-        vm.prank(OWNER);
+        vm.prank(owner);
         pausable.pause();
 
-        vm.prank(OWNER);
+        vm.prank(owner);
         vm.expectRevert(Pausable.EnforcedPause.selector);
         pausable.pause();
     }
 
     function test_unpause_notPaused() external {
-        vm.prank(OWNER);
+        vm.prank(owner);
         vm.expectRevert(Pausable.ExpectedPause.selector);
         pausable.unpause();
     }

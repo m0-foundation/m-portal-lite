@@ -10,7 +10,7 @@ evm_version = "cancun"
 
 ignored_warnings_from = ["lib", "test", "script"]
 
-no_match_coverage = "script|test"
+no_match_coverage = "script|test|src/bridges/hyperlane/libs/"
 
 [fmt]
 bracket_spacing = true
