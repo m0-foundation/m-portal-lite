@@ -19,7 +19,7 @@ When a user transfers tokens from the Hub chain to a Spoke chain, the tokens are
 
 To prevent unlocking more tokens on the Hub that were locked, `HubPortal` stores outstanding principal amounts of bridged out $M tokens for each supported chains, which is updated when transfer is sent and received.
 
-<img src="./assets/one-to-many.png"  width="800" height="740"/>
+<img src="./assets/one-to-many.png"  width="600" height="570"/>
 
 ### Earning Index Propagation
 
