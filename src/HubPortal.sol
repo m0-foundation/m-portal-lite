@@ -5,6 +5,7 @@ pragma solidity 0.8.26;
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
 import { IndexingMath } from "../lib/common/src/libs/IndexingMath.sol";
 
+import { IBridge } from "./interfaces/IBridge.sol";
 import { IMTokenLike } from "./interfaces/IMTokenLike.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { IHubPortal } from "./interfaces/IHubPortal.sol";
@@ -36,6 +37,34 @@ contract HubPortal is Portal, IHubPortal {
         address initialOwner_,
         address initialPauser_
     ) Portal(mToken_, registrar_, bridge_, initialOwner_, initialPauser_) { }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //                     EXTERNAL VIEW/PURE FUNCTIONS                      //
+    ///////////////////////////////////////////////////////////////////////////
+
+    /// @inheritdoc IHubPortal
+    function quoteSendIndex(uint256 destinationChainId_) external view returns (uint256 fee) {
+        bytes memory payload_ = PayloadEncoder.encodeIndex(_currentIndex());
+        return IBridge(bridge).quote(destinationChainId_, payloadGasLimit[destinationChainId_][PayloadType.Index], payload_);
+    }
+
+    /// @inheritdoc IHubPortal
+    function quoteSendRegistrarKey(uint256 destinationChainId_, bytes32 key_) external view returns (uint256 fee_) {
+        bytes32 value_ = IRegistrarLike(registrar).get(key_);
+        bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_);
+        return IBridge(bridge).quote(destinationChainId_, payloadGasLimit[destinationChainId_][PayloadType.Key], payload_);
+    }
+
+    /// @inheritdoc IHubPortal
+    function quoteSendRegistrarListStatus(
+        uint256 destinationChainId_,
+        bytes32 listName_,
+        address account_
+    ) external view returns (uint256 fee_) {
+        bool status_ = IRegistrarLike(registrar).listContains(listName_, account_);
+        bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, status_);
+        return IBridge(bridge).quote(destinationChainId_, payloadGasLimit[destinationChainId_][PayloadType.List], payload_);
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     //                     EXTERNAL INTERACTIVE FUNCTIONS                    //

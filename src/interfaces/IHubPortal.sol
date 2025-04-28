@@ -83,12 +83,43 @@ interface IHubPortal is IPortal {
     /// @notice Returns the principal amount of M tokens bridged to the destination chain.
     function bridgedPrincipal(uint256 destinationChainId) external view returns (uint256 principal);
 
+    /**
+     * @notice Returns the delivery fee for sending $M token index.
+     * @dev    The fee must be passed as mgs.value when calling `sendMTokenIndex`.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  fee                The delivery fee.
+     */
+    function quoteSendIndex(uint256 destinationChainId) external view returns (uint256 fee);
+
+    /**
+     * @notice Returns the delivery fee for sending Registrar key and value.
+     * @dev    The fee must be passed as mgs.value when calling `sendRegistrarKey`.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  key                The Registrar key to send.
+     * @param  fee                The delivery fee.
+     */
+    function quoteSendRegistrarKey(uint256 destinationChainId, bytes32 key) external view returns (uint256 fee);
+
+    /**
+     * @notice Returns the delivery fee for sending Registrar list status.
+     * @dev    The fee must be passed as mgs.value when calling `sendRegistrarListStatus`.
+     * @param  destinationChainId The EVM chain Id of the destination chain.
+     * @param  listName           The name of the list.
+     * @param  account            The account.
+     * @param  fee                The delivery fee.
+     */
+    function quoteSendRegistrarListStatus(
+        uint256 destinationChainId,
+        bytes32 listName,
+        address account
+    ) external view returns (uint256 fee);
+
     ///////////////////////////////////////////////////////////////////////////
     //                         INTERACTIVE FUNCTIONS                         //
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * @notice Sends the M token index to the destination chain.
+     * @notice Sends the $M token index to the destination chain.
      * @param  destinationChainId The EVM chain Id of the destination chain.
      * @param  refundAddress      The refund address to receive excess native gas.
      * @return messageId          The ID uniquely identifying the message.
@@ -98,7 +129,7 @@ interface IHubPortal is IPortal {
     /**
      * @notice Sends the Registrar key to the destination chain.
      * @param  destinationChainId The EVM chain Id of the destination chain.
-     * @param  key                The key to dispatch.
+     * @param  key                The key to send.
      * @param  refundAddress      The refund address to receive excess native gas.
      * @return messageId          The ID uniquely identifying the message
      */
