@@ -114,7 +114,7 @@ contract SpokePortal is Portal, ISpokePortal {
     }
 
     /// @dev Reverts if the destination chain is the Hub chain
-    function _verifyDestinationChain(uint256 destinationChainId_) internal view override {
+    function _revertIfUnsupportedDestinationChain(uint256 destinationChainId_) internal view override {
         if (destinationChainId_ != hubChainId) revert UnsupportedDestinationChain(destinationChainId_);
     }
 }

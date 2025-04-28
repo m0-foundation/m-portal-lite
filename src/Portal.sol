@@ -117,6 +117,7 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     function setBridge(address newBridge_) external onlyOwner {
         if (newBridge_ == address(0)) revert ZeroBridge();
         address previousBridge_ = bridge;
+
         bridge = newBridge_;
         emit BridgeSet(previousBridge_, newBridge_);
     }
@@ -181,12 +182,12 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
         address recipient_,
         address refundAddress_
     ) private returns (bytes32 messageId_) {
-        _verifyTransferAmount(amount_);
-        _verifyDestinationChain(destinationChainId_);
+        _revertIfZeroAmount(amount_);
+        _revertIfUnsupportedDestinationChain(destinationChainId_);
+        _revertIfZeroRefundAddress(refundAddress_);
 
         if (destinationToken_ == address(0)) revert ZeroDestinationToken();
         if (recipient_ == address(0)) revert ZeroRecipient();
-        if (refundAddress_ == address(0)) revert ZeroRefundAddress();
 
         IERC20 mToken_ = IERC20(mToken);
         uint256 startingBalance_ = mToken_.balanceOf(address(this));
@@ -215,7 +216,7 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
                 if (amount_ - actualAmount_ > _getMaxRoundingError()) {
                     amount_ = actualAmount_;
                     // Ensure that updated transfer amount is greater than 0
-                    _verifyTransferAmount(amount_);
+                    _revertIfZeroAmount(amount_);
                 }
             }
         }
@@ -227,7 +228,8 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
         messageId_ = _sendMessage(destinationChainId_, PayloadType.Token, refundAddress_, payload_);
-        // prevent stack too deep
+
+        // Prevent stack too deep
         uint256 transferAmount_ = amount_;
 
         emit MTokenSent(
@@ -236,7 +238,7 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     }
 
     /**
-     * @dev   Sends a cross-chain message using bridge.
+     * @dev   Sends a cross-chain message using the bridge.
      * @param destinationChainId_ The EVM chain Id of the destination chain.
      * @param payloadType_        The type of the payload.
      * @param refundAddress_      The address to receive the fee refund.
@@ -297,9 +299,9 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
 
         if (!success) {
             emit WrapFailed(destinationWrappedToken_, recipient_, amount_);
-            // reset approval to prevent a potential double-spend attack
+            // Reset approval to prevent a potential double-spend attack
             IERC20(mToken_).approve(destinationWrappedToken_, 0);
-            // transfer $M token to the recipient
+            // Transfer $M token to the recipient
             IERC20(mToken_).transfer(recipient_, amount_);
         }
     }
@@ -333,13 +335,18 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     //                 INTERNAL/PRIVATE VIEW/PURE FUNCTIONS                  //
     ///////////////////////////////////////////////////////////////////////////
 
-    /// @dev Verifies that the transfer amount isn't zero.
-    function _verifyTransferAmount(uint256 amount_) private pure {
+    /// @dev Reverts if `amount` is zero.
+    function _revertIfZeroAmount(uint256 amount_) private pure {
         if (amount_ == 0) revert ZeroAmount();
     }
 
+    /// @dev Reverts if `refundAddress` is zero address.
+    function _revertIfZeroRefundAddress(address refundAddress_) internal pure {
+        if (refundAddress_ == address(0)) revert ZeroRefundAddress();
+    }
+
     /// @dev Overridden in SpokePortal to allow bringing only to the Hub chain
-    function _verifyDestinationChain(uint256 destinationChainId_) internal view virtual { }
+    function _revertIfUnsupportedDestinationChain(uint256 destinationChainId_) internal view virtual { }
 
     /// @inheritdoc Migratable
     function _getMigrator() internal pure override returns (address migrator_) {
