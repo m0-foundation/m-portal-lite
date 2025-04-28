@@ -54,7 +54,9 @@ contract SpokePortal is Portal, ISpokePortal {
 
         emit MTokenIndexReceived(index_);
 
-        ISpokeMTokenLike(mToken).updateIndex(index_);
+        if (index_ > _currentIndex()) {
+            ISpokeMTokenLike(mToken).updateIndex(index_);
+        }
     }
 
     /// @notice Sets a Registrar key received from the Hub chain.
@@ -86,7 +88,12 @@ contract SpokePortal is Portal, ISpokePortal {
      * @param index_     The index from the source chain.
      */
     function _mintOrUnlock(uint256, address recipient_, uint256 amount_, uint128 index_) internal override {
-        ISpokeMTokenLike(mToken).mint(recipient_, amount_, index_);
+        // Update M token index only if the index received from the remote chain is bigger
+        if (index_ > _currentIndex()) {
+            ISpokeMTokenLike(mToken).mint(recipient_, amount_, index_);
+        } else {
+            ISpokeMTokenLike(mToken).mint(recipient_, amount_);
+        }
     }
 
     /**
