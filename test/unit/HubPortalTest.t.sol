@@ -45,7 +45,7 @@ contract HubPortalTest is Test {
     address public owner = makeAddr("owner");
     address public user = makeAddr("user");
 
-    function setUp() public {
+    function setUp() external {
         mToken = new MockMToken();
         wrappedMToken = new MockWrappedMToken(address(mToken));
         registrar = new MockHubRegistrar();
@@ -101,7 +101,6 @@ contract HubPortalTest is Test {
 
     function test_constructor_zeroOwner() external {
         vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableInvalidOwner.selector, address(0)));
-
         new HubPortal(address(mToken), address(registrar), address(bridge), address(0), owner);
     }
 
