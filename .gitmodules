@@ -16,3 +16,7 @@
 	path = lib/protocol
 	url = git@github.com:m0-foundation/protocol.git
 	branch = spoke
+[submodule "lib/ttg"]
+	path = lib/ttg
+	url = git@github.com:m0-foundation/ttg.git
+	branch = spoke
