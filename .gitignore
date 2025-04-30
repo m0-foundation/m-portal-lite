@@ -31,6 +31,9 @@ docs/
 # Mac OS files
 .DS_Store
 
+# VS Code
+.vscode
+
 # NPM modules
 node_modules
 
