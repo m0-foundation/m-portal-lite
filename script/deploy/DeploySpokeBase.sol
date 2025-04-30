@@ -2,6 +2,9 @@
 
 pragma solidity 0.8.26;
 
+import { MToken } from "../../lib/protocol/src/MToken.sol";
+import { Registrar } from "../../lib/ttg/src/Registrar.sol";
+
 import { SpokePortal } from "../../src/SpokePortal.sol";
 
 import { Chains } from "../config/Chains.sol";
@@ -25,10 +28,13 @@ contract DeploySpokeBase is DeployBase {
         }
 
         if (currentNonce_ != _SPOKE_REGISTRAR_NONCE) revert UnexpectedDeployerNonce();
+
+        return address(new Registrar(_computePortalAddress(deployer_)));
     }
 
-    function _deployMToken(address deployer_, uint64 currentNonce_, address registrar_) internal returns (address mToken_) {
+    function _deployMToken(uint64 currentNonce_, address registrar_) internal returns (address mToken_) {
         if (currentNonce_ != _SPOKE_M_TOKEN_NONCE) revert UnexpectedDeployerNonce();
+        return address(new MToken(registrar_));
     }
 
     function _deploySpokePortal(
@@ -41,12 +47,5 @@ contract DeploySpokeBase is DeployBase {
         uint256 hubChainId = Chains.getHubChainId(chainId_);
         SpokePortal implementation_ = new SpokePortal(hubChainId, mToken_, registrar_, bridge_, deployer_, deployer_);
         return _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, _PORTAL_CONTRACT_NAME));
-    }
-
-    function _burnNonces(address deployer_, uint64 currentNonce_, uint256 targetNonce) {
-        while (currentNonce_ < startNonce_) {
-            payable(deployer_).transfer(0);
-            ++currentNonce_;
-        }
     }
 }

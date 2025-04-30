@@ -7,6 +7,9 @@ optimizer = true
 optimizer-runs = 10_000
 verbosity = 3
 evm_version = "cancun"
+fs_permissions = [
+  { access = "read-write", path = "./deployments" }
+]
 
 ignored_warnings_from = ["lib", "test", "script"]
 

@@ -11,18 +11,21 @@ contract DeploySpoke is DeploySpokeBase {
 
         vm.startBroadcast(deployer_);
 
+        uint256 chainId_ = block.chainid;
         uint64 currentNonce_ = vm.getNonce(deployer_);
         address registrar_ = _deployRegistrar(deployer_, currentNonce_);
         currentNonce_ = vm.getNonce(deployer_);
-        address mToken_ = _deployMToken(deployer_, currentNonce_, registrar_);
-        address bridge_ = _deployHyperlaneBridge(block.chainid, deployer_);
-        address portal_ = _deploySpokePortal(bridge_, deployer_);
+        address mToken_ = _deployMToken(currentNonce_, registrar_);
+        address bridge_ = _deployHyperlaneBridge(chainId_, deployer_);
+        address portal_ = _deploySpokePortal(chainId_, mToken_, registrar_, bridge_, deployer_);
 
         vm.stopBroadcast();
 
-        console.log("Registrar:        ", registrar_);
         console.log("M Token:          ", mToken_);
-        console.log("Hyperlane Bridge: ", bridge_);
+        console.log("Registrar:        ", registrar_);
         console.log("Spoke Portal:     ", portal_);
+        console.log("Hyperlane Bridge: ", bridge_);
+
+        _writeDeployments(chainId_, bridge_, mToken_, portal_, registrar_);
     }
 }
