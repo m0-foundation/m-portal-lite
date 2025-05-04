@@ -36,6 +36,9 @@ interface IHyperlaneBridge is IBridge, IMessageRecipient {
     /// @notice Thrown when the destination chain isn't supported.
     error UnsupportedDestinationChain(uint256 destinationChainId);
 
+    /// @notice Thrown when the source chain isn't supported or configured peer doesn't match the sender.
+    error UnsupportedSender(bytes32 sender);
+
     ///////////////////////////////////////////////////////////////////////////
     //                          VIEW/PURE FUNCTIONS                          //
     ///////////////////////////////////////////////////////////////////////////

@@ -69,6 +69,7 @@ contract HyperlaneBridge is Ownable, IHyperlaneBridge {
     /// @inheritdoc IMessageRecipient
     function handle(uint32 sourceChainId_, bytes32 sender_, bytes calldata payload_) external payable {
         if (msg.sender != mailbox) revert NotMailbox();
+        if (sender_ != peer[sourceChainId_]) revert UnsupportedSender(sender_);
         IPortal(portal).receiveMessage(sourceChainId_, sender_.toAddress(), payload_);
     }
 

@@ -127,17 +127,24 @@ contract HyperlaneBridgeTest is Test {
     function test_handle() external {
         bytes memory payload_ = bytes("payload");
 
-        vm.expectCall(portal, abi.encodeCall(IPortal.receiveMessage, (REMOTE_CHAIN_ID, user, payload_)));
+        vm.expectCall(portal, abi.encodeCall(IPortal.receiveMessage, (REMOTE_CHAIN_ID, remotePeer.toAddress(), payload_)));
 
         vm.prank(mailbox);
-        bridge.handle(uint32(REMOTE_CHAIN_ID), user.toBytes32(), bytes("payload"));
+        bridge.handle(uint32(REMOTE_CHAIN_ID), remotePeer, bytes("payload"));
     }
 
     function test_handle_notMailbox() external {
         vm.expectRevert(IHyperlaneBridge.NotMailbox.selector);
 
         vm.prank(user);
+        bridge.handle(uint32(REMOTE_CHAIN_ID), remotePeer, bytes("payload"));
+    }
 
-        bridge.handle(uint32(REMOTE_CHAIN_ID), user.toBytes32(), bytes("payload"));
+    function test_handle_unsupportedSender() external {
+        bytes32 sender_ = bytes32("sender");
+        vm.expectRevert(abi.encodeWithSelector(IHyperlaneBridge.UnsupportedSender.selector, sender_));
+
+        vm.prank(mailbox);
+        bridge.handle(uint32(REMOTE_CHAIN_ID), sender_, bytes("payload"));
     }
 }
