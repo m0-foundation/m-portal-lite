@@ -7,6 +7,7 @@ import { UIntMath } from "../lib/common/src/libs/UIntMath.sol";
 import { ISpokeMTokenLike } from "./interfaces/ISpokeMTokenLike.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { ISpokePortal } from "./interfaces/ISpokePortal.sol";
+import { IPortal } from "./interfaces/IPortal.sol";
 
 import { Portal } from "./Portal.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
@@ -23,15 +24,20 @@ contract SpokePortal is Portal, ISpokePortal {
 
     uint256 public immutable hubChainId;
 
-    constructor(
-        uint256 hubChainId_,
-        address mToken_,
-        address registrar_,
-        address bridge_,
-        address initialOwner_,
-        address initialPauser_
-    ) Portal(mToken_, registrar_, bridge_, initialOwner_, initialPauser_) {
+    /**
+     * @notice Constructs SpokePortal Implementaion contract
+     * @dev    Sets immutable storage.
+     * @param  hubChainId_ The EVM chain Id of the Hub chain.
+     * @param  mToken_     The address of M token.
+     * @param  registrar_  The address of Registrar.
+     */
+    constructor(uint256 hubChainId_, address mToken_, address registrar_) Portal(mToken_, registrar_) {
         if ((hubChainId = hubChainId_) == 0) revert ZeroHubChain();
+    }
+
+    /// @inheritdoc IPortal
+    function initialize(address bridge_, address initialOwner_, address initialPauser_) external initializer {
+        _initialize(bridge_, initialOwner_, initialPauser_);
     }
 
     ///////////////////////////////////////////////////////////////////////////

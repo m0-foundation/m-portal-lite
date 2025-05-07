@@ -2,8 +2,10 @@
 pragma solidity 0.8.26;
 
 import { Test } from "../../lib/forge-std/src/Test.sol";
-import { Ownable } from "../../lib/openzeppelin/contracts/access/Ownable.sol";
-import { Pausable } from "../../lib/openzeppelin/contracts/utils/Pausable.sol";
+import { ERC1967Proxy } from "../../lib/openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { OwnableUpgradeable } from "../../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import { PausableUpgradeable } from "../../lib/openzeppelin-contracts-upgradeable/contracts/utils/PausableUpgradeable.sol";
+import { IndexingMath } from "../../lib/common/src/libs/IndexingMath.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IBridge } from "../../src/interfaces/IBridge.sol";
@@ -33,6 +35,7 @@ contract HubPortalTest is Test {
     /// @dev Registrar key holding value of whether the earners list can be ignored or not.
     bytes32 internal constant EARNERS_LIST_IGNORED = "earners_list_ignored";
 
+    HubPortal public implementation;
     HubPortal public hubPortal;
     MockMToken public mToken;
     MockWrappedMToken public wrappedMToken;
@@ -50,7 +53,11 @@ contract HubPortalTest is Test {
         wrappedMToken = new MockWrappedMToken(address(mToken));
         registrar = new MockHubRegistrar();
         bridge = new MockBridge();
-        hubPortal = new HubPortal(address(mToken), address(registrar), address(bridge), owner, owner);
+        implementation = new HubPortal(address(mToken), address(registrar));
+        ERC1967Proxy proxy_ = new ERC1967Proxy(
+            address(implementation), abi.encodeWithSelector(IPortal.initialize.selector, address(bridge), owner, owner)
+        );
+        hubPortal = HubPortal(address(proxy_));
 
         vm.startPrank(owner);
 
@@ -82,31 +89,41 @@ contract HubPortalTest is Test {
         assertEq(address(hubPortal.bridge()), address(bridge));
         assertEq(address(hubPortal.owner()), owner);
         assertEq(address(hubPortal.pauser()), owner);
+        assertEq(hubPortal.disableEarningIndex(), IndexingMath.EXP_SCALED_ONE);
+        assertEq(hubPortal.wasEarningEnabled(), false);
     }
 
     function test_constructor_zeroMToken() external {
         vm.expectRevert(IPortal.ZeroMToken.selector);
-        new HubPortal(address(0), address(registrar), address(bridge), owner, owner);
+        new HubPortal(address(0), address(registrar));
     }
 
     function test_constructor_zeroRegistrar() external {
         vm.expectRevert(IPortal.ZeroRegistrar.selector);
-        new HubPortal(address(mToken), address(0), address(bridge), owner, owner);
+        new HubPortal(address(mToken), address(0));
     }
 
-    function test_constructor_zeroBridge() external {
+    ///////////////////////////////////////////////////////////////////////////
+    //                              initialize                               //
+    ///////////////////////////////////////////////////////////////////////////
+
+    function test_initialize_zeroBridge() external {
         vm.expectRevert(IPortal.ZeroBridge.selector);
-        new HubPortal(address(mToken), address(registrar), address(0), owner, owner);
+        new ERC1967Proxy(address(implementation), abi.encodeWithSelector(IPortal.initialize.selector, address(0), owner, owner));
     }
 
-    function test_constructor_zeroOwner() external {
-        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableInvalidOwner.selector, address(0)));
-        new HubPortal(address(mToken), address(registrar), address(bridge), address(0), owner);
+    function test_initialize_zeroOwner() external {
+        vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableInvalidOwner.selector, address(0)));
+        new ERC1967Proxy(
+            address(implementation), abi.encodeWithSelector(IPortal.initialize.selector, address(bridge), address(0), owner)
+        );
     }
 
-    function test_constructor_zeroPauser() external {
+    function test_initialize_zeroPauser() external {
         vm.expectRevert(IPausableOwnable.ZeroPauser.selector);
-        new HubPortal(address(mToken), address(registrar), address(bridge), owner, address(0));
+        new ERC1967Proxy(
+            address(implementation), abi.encodeWithSelector(IPortal.initialize.selector, address(bridge), owner, address(0))
+        );
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -135,7 +152,7 @@ contract HubPortalTest is Test {
 
     function test_setBridge_notOwner() public {
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, user));
+        vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, user));
 
         hubPortal.setBridge(makeAddr("new bridge"));
     }
@@ -176,7 +193,7 @@ contract HubPortalTest is Test {
 
     function test_setDestinationMToken_notOwner() external {
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, user));
+        vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, user));
 
         hubPortal.setDestinationMToken(SPOKE_CHAIN_ID, spokeMToken);
     }
@@ -227,7 +244,7 @@ contract HubPortalTest is Test {
 
     function test_setSupportedBridgingPath_notOwner() external {
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, user));
+        vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, user));
         hubPortal.setSupportedBridgingPath(address(mToken), SPOKE_CHAIN_ID, spokeMToken, false);
     }
 
@@ -250,7 +267,7 @@ contract HubPortalTest is Test {
 
     function test_setPayloadGasLimit_notOwner() public {
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, user));
+        vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, user));
 
         hubPortal.setPayloadGasLimit(SPOKE_CHAIN_ID, PayloadType.Token, 200_000);
     }
@@ -462,7 +479,7 @@ contract HubPortalTest is Test {
         vm.prank(owner);
         hubPortal.pause();
 
-        vm.expectRevert(Pausable.EnforcedPause.selector);
+        vm.expectRevert(PausableUpgradeable.EnforcedPause.selector);
         vm.prank(user);
         hubPortal.transfer{ value: 0 }(1000, SPOKE_CHAIN_ID, user, user);
     }

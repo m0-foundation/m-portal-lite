@@ -2,8 +2,9 @@
 pragma solidity 0.8.26;
 
 import { Test } from "../../lib/forge-std/src/Test.sol";
-import { Ownable } from "../../lib/openzeppelin/contracts/access/Ownable.sol";
-import { Pausable } from "../../lib/openzeppelin/contracts/utils/Pausable.sol";
+import { ERC1967Proxy } from "../../lib/openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { OwnableUpgradeable } from "../../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import { PausableUpgradeable } from "../../lib/openzeppelin-contracts-upgradeable/contracts/utils/PausableUpgradeable.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IBridge } from "../../src/interfaces/IBridge.sol";
@@ -42,7 +43,12 @@ contract SpokePortalTest is Test {
         wrappedMToken = new MockWrappedMToken(address(mToken));
         registrar = new MockSpokeRegistrar();
         bridge = new MockBridge();
-        spokePortal = new SpokePortal(HUB_CHAIN_ID, address(mToken), address(registrar), address(bridge), owner, owner);
+
+        SpokePortal implementation_ = new SpokePortal(HUB_CHAIN_ID, address(mToken), address(registrar));
+        ERC1967Proxy proxy_ = new ERC1967Proxy(
+            address(implementation_), abi.encodeWithSelector(IPortal.initialize.selector, address(bridge), owner, owner)
+        );
+        spokePortal = SpokePortal(address(proxy_));
 
         vm.startPrank(owner);
 
@@ -76,7 +82,7 @@ contract SpokePortalTest is Test {
 
     function test_constructor_zeroHubChain() external {
         vm.expectRevert(ISpokePortal.ZeroHubChain.selector);
-        new SpokePortal(0, address(mToken), address(registrar), address(bridge), owner, owner);
+        new SpokePortal(0, address(mToken), address(registrar));
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@ import { IndexingMath } from "../lib/common/src/libs/IndexingMath.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IBridge } from "./interfaces/IBridge.sol";
-import { PausableOwnable } from "./access/PausableOwnable.sol";
+import { PausableOwnableUpgradeable } from "./access/PausableOwnableUpgradeable.sol";
 import { IWrappedMTokenLike } from "./interfaces/IWrappedMTokenLike.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { SafeCall } from "./libs/SafeCall.sol";
@@ -18,7 +18,7 @@ import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
  * @title  Base Portal contract inherited by HubPortal and SpokePortal.
  * @author M^0 Labs
  */
-abstract contract Portal is IPortal, PausableOwnable, Migratable {
+abstract contract Portal is IPortal, PausableOwnableUpgradeable, Migratable {
     using TypeConverter for *;
     using PayloadEncoder for bytes;
     using SafeCall for address;
@@ -42,16 +42,28 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     /// @inheritdoc IPortal
     mapping(uint256 destinationChainId => mapping(PayloadType payloadType => uint256 gasLimit)) public payloadGasLimit;
 
-    constructor(
-        address mToken_,
-        address registrar_,
-        address bridge_,
-        address initialOwner_,
-        address initialPauser_
-    ) PausableOwnable(initialOwner_, initialPauser_) {
+    /**
+     * @notice Constructs the Implementaion contract
+     * @dev    Sets immutable storage.
+     * @param  mToken_    The address of M token.
+     * @param  registrar_ The address of Registrar.
+     */
+    constructor(address mToken_, address registrar_) {
+        _disableInitializers();
+
         if ((mToken = mToken_) == address(0)) revert ZeroMToken();
         if ((registrar = registrar_) == address(0)) revert ZeroRegistrar();
+    }
+
+    /**
+     * @notice Initializes the Proxy's storage
+     * @param  bridge_        The address of M token.
+     * @param  initialOwner_  The address of the owner.
+     * @param  initialPauser_ The address of the pauser.
+     */
+    function _initialize(address bridge_, address initialOwner_, address initialPauser_) internal onlyInitializing {
         if ((bridge = bridge_) == address(0)) revert ZeroBridge();
+        __PausableOwnable_init(initialOwner_, initialPauser_);
     }
 
     ///////////////////////////////////////////////////////////////////////////

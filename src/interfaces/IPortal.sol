@@ -195,6 +195,14 @@ interface IPortal {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
+     * @notice Initializes the Proxy's storage
+     * @param  bridge_        The address of the Bridge contract.
+     * @param  initialOwner_  The address of the owner.
+     * @param  initialPauser_ The address of the pauser.
+     */
+    function initialize(address bridge_, address initialOwner_, address initialPauser_) external;
+
+    /**
      * @notice Sets address of the Bridge contract responsible for cross-chain communication.
      * @param  bridge The address of the Bridge.
      */
