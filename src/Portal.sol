@@ -245,9 +245,9 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, Migratable {
             }
         }
 
-        // Burn the actual amount of M tokens on Spoke.
+        // Burn M tokens on Spoke.
         // In case of Hub, only update the bridged principal amount as tokens already transferred.
-        _burnOrLock(destinationChainId_, actualAmount_);
+        _burnOrLock(destinationChainId_, amount_);
 
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
