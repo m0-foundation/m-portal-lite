@@ -89,7 +89,7 @@ contract HubPortalForkTest is Test {
         vm.stopPrank();
 
         assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(address(hubPortal)), 999_999);
-        
+
         // Bridged principal = amount/index
         assertEq(hubPortal.bridgedPrincipal(HYPEREVM_CHAIN_ID), 959_443);
 
@@ -103,5 +103,44 @@ contract HubPortalForkTest is Test {
 
         // Bridged Principal isn't zero since the index has increased
         assertEq(hubPortal.bridgedPrincipal(HYPEREVM_CHAIN_ID), 1);
+    }
+
+    function test_transfer_insufficientBalance() external {
+        uint256 amount_ = 1000;
+        uint256 fee_ = hubPortal.quoteTransfer(amount_, HYPEREVM_CHAIN_ID, alice);
+        uint128 index_ = IMTokenLike(ETHEREUM_M_TOKEN).currentIndex();
+
+        vm.prank(M_HOLDER);
+        IERC20(ETHEREUM_M_TOKEN).transfer(alice, amount_);
+
+        assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(alice), amount_);
+        assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(address(hubPortal)), 0);
+
+        vm.startPrank(alice);
+        IERC20(ETHEREUM_M_TOKEN).approve(address(hubPortal), amount_);
+        hubPortal.transfer{ value: fee_ }(amount_, HYPEREVM_CHAIN_ID, alice, alice);
+        vm.stopPrank();
+
+        assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(alice), 0);
+        // The amount is rounded down when transferring from a non-earner to the earner HubPortal
+        assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(address(hubPortal)), 999);
+
+        // Simulte transfer from Spoke back to Hub
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, ETHEREUM_M_TOKEN, alice, index_);
+        vm.prank(ETHEREUM_MAILBOX);
+
+        // HubPortal doesn't have enough balance to fulfill transfer
+        vm.expectRevert(abi.encodeWithSelector(IMTokenLike.InsufficientBalance.selector, address(hubPortal), 959, 960));
+        hubBridge.handle(uint32(HYPEREVM_CHAIN_ID), spokeBridge, payload_);
+
+        // Simulate time passage to increase M token index
+        vm.warp(block.timestamp + 5 days);
+
+        // HubPortal has enough balance to fulfill transfer
+        vm.prank(ETHEREUM_MAILBOX);
+        hubBridge.handle(uint32(HYPEREVM_CHAIN_ID), spokeBridge, payload_);
+
+        assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(alice), amount_);
+        assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(address(hubPortal)), 0);
     }
 }
