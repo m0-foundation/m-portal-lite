@@ -4,6 +4,7 @@ pragma solidity 0.8.26;
 import { Test } from "../../lib/forge-std/src/Test.sol";
 
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
+import { IndexingMath } from "../../lib/common/src/libs/IndexingMath.sol";
 import { ERC1967Proxy } from "../../lib/openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
@@ -142,5 +143,50 @@ contract HubPortalForkTest is Test {
 
         assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(alice), amount_);
         assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(address(hubPortal)), 0);
+    }
+
+    function test_stopEarning_fromMToken() external {
+        assertTrue(IMTokenLike(ETHEREUM_M_TOKEN).isEarning(address(hubPortal)));
+
+        // Remove HubPortal from the Earner list
+        vm.mockCall(
+            ETHEREUM_REGISTRAR,
+            abi.encodeWithSelector(IRegistrarLike.listContains.selector, bytes32("earners"), address(hubPortal)),
+            abi.encode(false)
+        );
+
+        // Stop earning
+        IMTokenLike(ETHEREUM_M_TOKEN).stopEarning(address(hubPortal));
+
+        assertEq(hubPortal.currentIndex(), IMTokenLike(ETHEREUM_M_TOKEN).currentIndex());
+        // disableEarningIndex isn't set
+        assertEq(hubPortal.disableEarningIndex(), IndexingMath.EXP_SCALED_ONE);
+
+        hubPortal.disableEarning();
+        assertEq(hubPortal.disableEarningIndex(), IMTokenLike(ETHEREUM_M_TOKEN).currentIndex());
+
+        // Simulate time passage to increase M token index
+        vm.warp(block.timestamp + 5 days);
+
+        assertLt(hubPortal.disableEarningIndex(), IMTokenLike(ETHEREUM_M_TOKEN).currentIndex());
+    }
+
+    function test_disableEarning_fromHubPortal() external {
+        assertTrue(IMTokenLike(ETHEREUM_M_TOKEN).isEarning(address(hubPortal)));
+
+        // Remove HubPortal from the Earner list
+        vm.mockCall(
+            ETHEREUM_REGISTRAR,
+            abi.encodeWithSelector(IRegistrarLike.listContains.selector, bytes32("earners"), address(hubPortal)),
+            abi.encode(false)
+        );
+
+        hubPortal.disableEarning();
+        assertEq(hubPortal.disableEarningIndex(), IMTokenLike(ETHEREUM_M_TOKEN).currentIndex());
+
+        // Simulate time passage to increase M token index
+        vm.warp(block.timestamp + 5 days);
+
+        assertLt(hubPortal.disableEarningIndex(), IMTokenLike(ETHEREUM_M_TOKEN).currentIndex());
     }
 }
