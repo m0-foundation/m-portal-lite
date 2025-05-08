@@ -83,7 +83,8 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, Migratable {
     ) external view returns (uint256 fee_) {
         // NOTE: for quoting delivery only the payload size and destination chain matter.
         address destinationToken_ = destinationMToken[destinationChainId_];
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, _currentIndex());
+        bytes memory payload_ =
+            PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, msg.sender, recipient_, _currentIndex());
         return IBridge(bridge).quote(destinationChainId_, payloadGasLimit[destinationChainId_][PayloadType.Token], payload_);
     }
 
@@ -120,13 +121,13 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, Migratable {
     }
 
     /// @inheritdoc IPortal
-    function receiveMessage(uint256 sourceChainId_, address sender_, bytes calldata payload_) external {
+    function receiveMessage(uint256 sourceChainId_, bytes calldata payload_) external {
         if (msg.sender != bridge) revert NotBridge();
 
         PayloadType payloadType_ = payload_.getPayloadType();
 
         if (payloadType_ == PayloadType.Token) {
-            _receiveMLikeToken(sourceChainId_, sender_, payload_);
+            _receiveMLikeToken(sourceChainId_, payload_);
             return;
         }
 
@@ -250,7 +251,7 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, Migratable {
         _burnOrLock(destinationChainId_, amount_);
 
         uint128 index_ = _currentIndex();
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, msg.sender, recipient_, index_);
         messageId_ = _sendMessage(destinationChainId_, PayloadType.Token, refundAddress_, payload_);
 
         // Prevent stack too deep
@@ -283,11 +284,11 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, Migratable {
     /**
      * @dev   Handles token transfer message on the destination.
      * @param sourceChainId_ The EVM chain Id of the source chain.
-     * @param sender_        The address of the message sender.
      * @param payload_       The message payload.
      */
-    function _receiveMLikeToken(uint256 sourceChainId_, address sender_, bytes memory payload_) private {
-        (uint256 amount_, address destinationToken_, address recipient_, uint128 index_) = payload_.decodeTokenTransfer();
+    function _receiveMLikeToken(uint256 sourceChainId_, bytes memory payload_) private {
+        (uint256 amount_, address destinationToken_, address sender_, address recipient_, uint128 index_) =
+            payload_.decodeTokenTransfer();
 
         emit MTokenReceived(sourceChainId_, destinationToken_, sender_, recipient_, amount_, index_);
 

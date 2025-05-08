@@ -77,6 +77,7 @@ contract HubPortalForkTest is Test {
 
     function test_transfer_bridgedPrincipal() external {
         uint256 amount_ = 1e6;
+        address sender_ = M_HOLDER;
         address recipient_ = M_HOLDER;
         address refundAddress_ = M_HOLDER;
         uint256 fee_ = hubPortal.quoteTransfer(amount_, HYPEREVM_CHAIN_ID, recipient_);
@@ -98,7 +99,7 @@ contract HubPortalForkTest is Test {
         vm.warp(block.timestamp + 10 minutes);
 
         // Simulte transfer from Spoke back to Hub
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, ETHEREUM_M_TOKEN, recipient_, index_);
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, ETHEREUM_M_TOKEN, sender_, recipient_, index_);
         vm.prank(ETHEREUM_MAILBOX);
         hubBridge.handle(uint32(HYPEREVM_CHAIN_ID), spokeBridge, payload_);
 
@@ -127,7 +128,7 @@ contract HubPortalForkTest is Test {
         assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(address(hubPortal)), 999);
 
         // Simulte transfer from Spoke back to Hub
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, ETHEREUM_M_TOKEN, alice, index_);
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, ETHEREUM_M_TOKEN, alice, alice, index_);
         vm.prank(ETHEREUM_MAILBOX);
 
         // HubPortal doesn't have enough balance to fulfill transfer

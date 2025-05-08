@@ -127,7 +127,7 @@ contract HyperlaneBridgeTest is Test {
     function test_handle() external {
         bytes memory payload_ = bytes("payload");
 
-        vm.expectCall(portal, abi.encodeCall(IPortal.receiveMessage, (REMOTE_CHAIN_ID, remotePeer.toAddress(), payload_)));
+        vm.expectCall(portal, abi.encodeCall(IPortal.receiveMessage, (REMOTE_CHAIN_ID, payload_)));
 
         vm.prank(mailbox);
         bridge.handle(uint32(REMOTE_CHAIN_ID), remotePeer, bytes("payload"));

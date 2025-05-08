@@ -113,7 +113,7 @@ contract SpokePortalTest is Test {
         vm.expectCall(address(mToken), abi.encodeCall(ISpokeMTokenLike.updateIndex, (hubIndex_)));
 
         vm.prank(address(bridge));
-        spokePortal.receiveMessage(HUB_CHAIN_ID, user, payload_);
+        spokePortal.receiveMessage(HUB_CHAIN_ID, payload_);
 
         assertEq(spokePortal.currentIndex(), hubIndex_);
     }
@@ -129,7 +129,7 @@ contract SpokePortalTest is Test {
         vm.expectCall(address(registrar), abi.encodeCall(IRegistrarLike.setKey, (key_, value_)));
 
         vm.prank(address(bridge));
-        spokePortal.receiveMessage(HUB_CHAIN_ID, user, payload_);
+        spokePortal.receiveMessage(HUB_CHAIN_ID, payload_);
     }
 
     function test_receiveMessage_listUpdate() external {
@@ -145,7 +145,7 @@ contract SpokePortalTest is Test {
         vm.expectCall(address(registrar), abi.encodeCall(IRegistrarLike.addToList, (listName_, account_)));
 
         vm.prank(address(bridge));
-        spokePortal.receiveMessage(HUB_CHAIN_ID, user, payload_);
+        spokePortal.receiveMessage(HUB_CHAIN_ID, payload_);
 
         // Remove from list
         add_ = false;
@@ -156,6 +156,6 @@ contract SpokePortalTest is Test {
         vm.expectCall(address(registrar), abi.encodeCall(IRegistrarLike.removeFromList, (listName_, account_)));
 
         vm.prank(address(bridge));
-        spokePortal.receiveMessage(HUB_CHAIN_ID, user, payload_);
+        spokePortal.receiveMessage(HUB_CHAIN_ID, payload_);
     }
 }

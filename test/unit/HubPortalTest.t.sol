@@ -448,8 +448,9 @@ contract HubPortalTest is Test {
         uint256 fee_ = 1;
         bytes32 messageId_ = bytes32("id");
         address destinationToken_ = spokeMToken;
+        address sender_ = user;
         address recipient_ = user;
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, sender_, recipient_, index_);
 
         mToken.mint(user, amount_);
 
@@ -466,7 +467,9 @@ contract HubPortalTest is Test {
             address(bridge), abi.encodeCall(IBridge.sendMessage, (SPOKE_CHAIN_ID, TOKEN_TRANSFER_GAS_LIMIT, user, payload_))
         );
         vm.expectEmit();
-        emit IPortal.MTokenSent(address(mToken), SPOKE_CHAIN_ID, destinationToken_, user, recipient_, amount_, index_, messageId_);
+        emit IPortal.MTokenSent(
+            address(mToken), SPOKE_CHAIN_ID, destinationToken_, sender_, recipient_, amount_, index_, messageId_
+        );
 
         vm.prank(user);
         hubPortal.transfer{ value: fee_ }(amount_, SPOKE_CHAIN_ID, recipient_, user);
@@ -524,8 +527,9 @@ contract HubPortalTest is Test {
         bytes32 messageId_ = bytes32("id");
         address sourceToken_ = address(wrappedMToken);
         address destinationToken_ = spokeMToken;
+        address sender_ = user;
         address recipient_ = user;
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, sender_, recipient_, index_);
 
         mToken.mint(user, amount_);
         registrar.setListContains(EARNERS_LIST, address(hubPortal), true);
@@ -546,7 +550,7 @@ contract HubPortalTest is Test {
             address(bridge), abi.encodeCall(IBridge.sendMessage, (SPOKE_CHAIN_ID, TOKEN_TRANSFER_GAS_LIMIT, user, payload_))
         );
         vm.expectEmit();
-        emit IPortal.MTokenSent(sourceToken_, SPOKE_CHAIN_ID, destinationToken_, user, recipient_, amount_, index_, messageId_);
+        emit IPortal.MTokenSent(sourceToken_, SPOKE_CHAIN_ID, destinationToken_, sender_, recipient_, amount_, index_, messageId_);
 
         vm.prank(user);
         hubPortal.transferMLikeToken{ value: fee_ }(amount_, sourceToken_, SPOKE_CHAIN_ID, destinationToken_, recipient_, user);
@@ -563,8 +567,9 @@ contract HubPortalTest is Test {
         uint128 index_ = 1_100000068703;
         uint256 amount_ = 1000;
         address destinationToken_ = address(mToken);
+        address sender_ = user;
         address recipient_ = user;
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, sender_, recipient_, index_);
 
         mToken.setCurrentIndex(index_);
         mToken.mint(user, amount_);
@@ -581,10 +586,10 @@ contract HubPortalTest is Test {
         assertEq(mToken.balanceOf(user), 0);
 
         vm.expectEmit();
-        emit IPortal.MTokenReceived(SPOKE_CHAIN_ID, destinationToken_, user, recipient_, amount_, index_);
+        emit IPortal.MTokenReceived(SPOKE_CHAIN_ID, destinationToken_, sender_, recipient_, amount_, index_);
 
         vm.prank(address(bridge));
-        hubPortal.receiveMessage(SPOKE_CHAIN_ID, user, payload_);
+        hubPortal.receiveMessage(SPOKE_CHAIN_ID, payload_);
 
         assertEq(mToken.balanceOf(address(hubPortal)), 0);
         assertEq(mToken.balanceOf(user), amount_);
@@ -594,8 +599,9 @@ contract HubPortalTest is Test {
         uint128 index_ = 1_100000068703;
         uint256 amount_ = 1000;
         address destinationToken_ = address(wrappedMToken);
+        address sender_ = user;
         address recipient_ = user;
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, sender_, recipient_, index_);
 
         mToken.setCurrentIndex(index_);
         mToken.mint(user, amount_);
@@ -613,10 +619,10 @@ contract HubPortalTest is Test {
         assertEq(wrappedMToken.balanceOf(user), 0);
 
         vm.expectEmit();
-        emit IPortal.MTokenReceived(SPOKE_CHAIN_ID, destinationToken_, user, recipient_, amount_, index_);
+        emit IPortal.MTokenReceived(SPOKE_CHAIN_ID, destinationToken_, sender_, recipient_, amount_, index_);
 
         vm.prank(address(bridge));
-        hubPortal.receiveMessage(SPOKE_CHAIN_ID, user, payload_);
+        hubPortal.receiveMessage(SPOKE_CHAIN_ID, payload_);
 
         assertEq(mToken.balanceOf(address(hubPortal)), 0);
         assertEq(mToken.balanceOf(user), 0);
@@ -627,8 +633,9 @@ contract HubPortalTest is Test {
         uint128 index_ = 1_100000068703;
         uint256 amount_ = 1000;
         address destinationToken_ = spokeMToken;
+        address sender_ = user;
         address recipient_ = user;
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, sender_, recipient_, index_);
 
         mToken.setCurrentIndex(index_);
         mToken.mint(user, amount_);
@@ -645,12 +652,12 @@ contract HubPortalTest is Test {
         assertEq(mToken.balanceOf(user), 0);
 
         vm.expectEmit();
-        emit IPortal.MTokenReceived(SPOKE_CHAIN_ID, destinationToken_, user, recipient_, amount_, index_);
+        emit IPortal.MTokenReceived(SPOKE_CHAIN_ID, destinationToken_, sender_, recipient_, amount_, index_);
         vm.expectEmit();
         emit IPortal.WrapFailed(destinationToken_, recipient_, amount_);
 
         vm.prank(address(bridge));
-        hubPortal.receiveMessage(SPOKE_CHAIN_ID, user, payload_);
+        hubPortal.receiveMessage(SPOKE_CHAIN_ID, payload_);
 
         assertEq(mToken.balanceOf(address(hubPortal)), 0);
         assertEq(mToken.balanceOf(user), amount_);
@@ -658,6 +665,6 @@ contract HubPortalTest is Test {
 
     function test_receiveMessage_notBridge() external {
         vm.expectRevert(IPortal.NotBridge.selector);
-        hubPortal.receiveMessage(SPOKE_CHAIN_ID, user, bytes("payload"));
+        hubPortal.receiveMessage(SPOKE_CHAIN_ID, bytes("payload"));
     }
 }
