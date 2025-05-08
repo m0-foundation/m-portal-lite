@@ -5,6 +5,7 @@ pragma solidity 0.8.26;
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
 import { Migratable } from "../lib/common/src/Migratable.sol";
 import { IndexingMath } from "../lib/common/src/libs/IndexingMath.sol";
+import { ReentrancyGuardUpgradeable } from "../lib/openzeppelin-contracts-upgradeable/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IBridge } from "./interfaces/IBridge.sol";
@@ -18,7 +19,7 @@ import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
  * @title  Base Portal contract inherited by HubPortal and SpokePortal.
  * @author M^0 Labs
  */
-abstract contract Portal is IPortal, PausableOwnableUpgradeable, Migratable {
+abstract contract Portal is IPortal, PausableOwnableUpgradeable, ReentrancyGuardUpgradeable, Migratable {
     using TypeConverter for *;
     using PayloadEncoder for bytes;
     using SafeCall for address;
@@ -64,6 +65,7 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, Migratable {
     function _initialize(address bridge_, address initialOwner_, address initialPauser_) internal onlyInitializing {
         if ((bridge = bridge_) == address(0)) revert ZeroBridge();
         __PausableOwnable_init(initialOwner_, initialPauser_);
+        __ReentrancyGuard_init();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -98,7 +100,7 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, Migratable {
         uint256 destinationChainId_,
         address recipient_,
         address refundAddress_
-    ) external payable whenNotPaused returns (bytes32 messageId_) {
+    ) external payable whenNotPaused nonReentrant returns (bytes32 messageId_) {
         return _transferMLikeToken(
             amount_, mToken, destinationChainId_, destinationMToken[destinationChainId_], recipient_, refundAddress_
         );
@@ -112,7 +114,7 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, Migratable {
         address destinationToken_,
         address recipient_,
         address refundAddress_
-    ) external payable whenNotPaused returns (bytes32 messageId_) {
+    ) external payable whenNotPaused nonReentrant returns (bytes32 messageId_) {
         if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
             revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
         }
