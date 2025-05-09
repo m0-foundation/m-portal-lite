@@ -5,6 +5,7 @@ pragma solidity 0.8.26;
 import { MToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar } from "../../lib/ttg/src/Registrar.sol";
 
+import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
 
 import { Chains } from "../config/Chains.sol";
@@ -45,7 +46,8 @@ contract DeploySpokeBase is DeployBase {
         address deployer_
     ) internal returns (address portal_) {
         uint256 hubChainId = Chains.getHubChainId(chainId_);
-        SpokePortal implementation_ = new SpokePortal(hubChainId, mToken_, registrar_, bridge_, deployer_, deployer_);
-        return _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, _PORTAL_CONTRACT_NAME));
+        SpokePortal implementation_ = new SpokePortal(hubChainId, mToken_, registrar_);
+        bytes memory initializeCall = abi.encodeWithSelector(IPortal.initialize.selector, bridge_, deployer_, deployer_);
+        return _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, _PORTAL_CONTRACT_NAME), initializeCall);
     }
 }

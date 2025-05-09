@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.26;
 
-import { Proxy } from "../../lib/common/src/Proxy.sol";
+import { ERC1967Proxy } from "../../lib/openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import { HyperlaneBridge } from "../../src/bridges/hyperlane/HyperlaneBridge.sol";
 
@@ -46,9 +46,9 @@ contract DeployBase is ScriptBase {
         }
     }
 
-    function _deployCreate3Proxy(address implementation_, bytes32 salt_) internal returns (address) {
+    function _deployCreate3Proxy(address implementation_, bytes32 salt_, bytes memory data_) internal returns (address) {
         return ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
-            salt_, abi.encodePacked(type(Proxy).creationCode, abi.encode(address(implementation_)))
+            salt_, abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(address(implementation_), data_))
         );
     }
 
