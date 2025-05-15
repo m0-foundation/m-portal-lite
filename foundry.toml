@@ -26,3 +26,7 @@ ethereum = "${ETHEREUM_RPC}"
 hyperevm = "${HYPEREVM_RPC}"
 sepolia = "${SEPOLIA_RPC}"
 hyperevm_testnet = "${HYPEREVM_TESTNET_RPC}"
+
+[etherscan]
+ethereum = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/api" }
+sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }
