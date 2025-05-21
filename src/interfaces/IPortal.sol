@@ -195,6 +195,14 @@ interface IPortal {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
+     * @notice Initializes the Proxy's storage
+     * @param  bridge_        The address of the Bridge contract.
+     * @param  initialOwner_  The address of the owner.
+     * @param  initialPauser_ The address of the pauser.
+     */
+    function initialize(address bridge_, address initialOwner_, address initialPauser_) external;
+
+    /**
      * @notice Sets address of the Bridge contract responsible for cross-chain communication.
      * @param  bridge The address of the Bridge.
      */
@@ -268,8 +276,7 @@ interface IPortal {
     /**
      * @notice Receives a message from the bridge.
      * @param  sourceChainId The EVM chain Id of the source chain.
-     * @param  sender        The address of the message sender.
      * @param  payload       The message payload.
      */
-    function receiveMessage(uint256 sourceChainId, address sender, bytes calldata payload) external;
+    function receiveMessage(uint256 sourceChainId, bytes calldata payload) external;
 }

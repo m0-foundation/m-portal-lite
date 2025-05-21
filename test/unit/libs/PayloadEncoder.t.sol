@@ -40,42 +40,58 @@ contract PayloadEncoderTest is Test {
     function test_encodeTokenTransfer() external {
         uint256 amount_ = 1e6;
         address token_ = makeAddr("destinationToken");
+        address sender_ = makeAddr("sender");
         address recipient_ = makeAddr("recipient");
         uint128 index_ = 1.2e12;
 
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, token_, recipient_, index_);
-        assertEq(payload_, abi.encodePacked(PayloadType.Token, amount_, token_, recipient_, index_));
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, token_, sender_, recipient_, index_);
+        assertEq(payload_, abi.encodePacked(PayloadType.Token, amount_, token_, sender_, recipient_, index_));
     }
 
-    function testFuzz_encodeTokenTransfer(uint256 amount_, address token_, address recipient_, uint128 index_) external {
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, token_, recipient_, index_);
-        assertEq(payload_, abi.encodePacked(PayloadType.Token, amount_, token_, recipient_, index_));
+    function testFuzz_encodeTokenTransfer(
+        uint256 amount_,
+        address token_,
+        address sender_,
+        address recipient_,
+        uint128 index_
+    ) external {
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, token_, sender_, recipient_, index_);
+        assertEq(payload_, abi.encodePacked(PayloadType.Token, amount_, token_, sender_, recipient_, index_));
     }
 
     function test_decodeTokenTransfer() external {
         uint256 amount_ = 1e6;
         address token_ = makeAddr("destinationToken");
         address recipient_ = makeAddr("recipient");
+        address sender_ = makeAddr("sender");
         uint128 index_ = 1.2e12;
 
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, token_, recipient_, index_);
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, token_, sender_, recipient_, index_);
 
-        (uint256 decodedAmount_, address decodedToken_, address decodedRecipient_, uint128 decodedIndex_) =
-            PayloadEncoder.decodeTokenTransfer(payload_);
+        (uint256 decodedAmount_, address decodedToken_, address decodedSender_, address decodedRecipient_, uint128 decodedIndex_)
+        = PayloadEncoder.decodeTokenTransfer(payload_);
 
         assertEq(decodedAmount_, amount_);
         assertEq(decodedToken_, token_);
+        assertEq(decodedSender_, sender_);
         assertEq(decodedRecipient_, recipient_);
         assertEq(decodedIndex_, index_);
     }
 
-    function testFuzz_decodeTokenTransfer(uint256 amount_, address token_, address recipient_, uint128 index_) external {
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, token_, recipient_, index_);
-        (uint256 decodedAmount_, address decodedToken_, address decodedRecipient_, uint128 decodedIndex_) =
-            PayloadEncoder.decodeTokenTransfer(payload_);
+    function testFuzz_decodeTokenTransfer(
+        uint256 amount_,
+        address token_,
+        address sender_,
+        address recipient_,
+        uint128 index_
+    ) external {
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, token_, sender_, recipient_, index_);
+        (uint256 decodedAmount_, address decodedToken_, address decodedSender_, address decodedRecipient_, uint128 decodedIndex_)
+        = PayloadEncoder.decodeTokenTransfer(payload_);
 
         assertEq(decodedAmount_, amount_);
         assertEq(decodedToken_, token_);
+        assertEq(decodedSender_, sender_);
         assertEq(decodedRecipient_, recipient_);
         assertEq(decodedIndex_, index_);
     }

@@ -8,3 +8,7 @@
 	path = lib/openzeppelin
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts.git
 	branch = release-v5.3
+[submodule "lib/openzeppelin-contracts-upgradeable"]
+	path = lib/openzeppelin-contracts-upgradeable
+	url = git@github.com:OpenZeppelin/openzeppelin-contracts-upgradeable.git
+	branch = release-v5.3

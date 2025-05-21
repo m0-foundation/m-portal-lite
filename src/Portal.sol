@@ -5,10 +5,11 @@ pragma solidity 0.8.26;
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
 import { Migratable } from "../lib/common/src/Migratable.sol";
 import { IndexingMath } from "../lib/common/src/libs/IndexingMath.sol";
+import { ReentrancyGuardUpgradeable } from "../lib/openzeppelin-contracts-upgradeable/contracts/utils/ReentrancyGuardUpgradeable.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IBridge } from "./interfaces/IBridge.sol";
-import { PausableOwnable } from "./access/PausableOwnable.sol";
+import { PausableOwnableUpgradeable } from "./access/PausableOwnableUpgradeable.sol";
 import { IWrappedMTokenLike } from "./interfaces/IWrappedMTokenLike.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { SafeCall } from "./libs/SafeCall.sol";
@@ -18,7 +19,7 @@ import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
  * @title  Base Portal contract inherited by HubPortal and SpokePortal.
  * @author M^0 Labs
  */
-abstract contract Portal is IPortal, PausableOwnable, Migratable {
+abstract contract Portal is IPortal, PausableOwnableUpgradeable, ReentrancyGuardUpgradeable, Migratable {
     using TypeConverter for *;
     using PayloadEncoder for bytes;
     using SafeCall for address;
@@ -42,16 +43,29 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     /// @inheritdoc IPortal
     mapping(uint256 destinationChainId => mapping(PayloadType payloadType => uint256 gasLimit)) public payloadGasLimit;
 
-    constructor(
-        address mToken_,
-        address registrar_,
-        address bridge_,
-        address initialOwner_,
-        address initialPauser_
-    ) PausableOwnable(initialOwner_, initialPauser_) {
+    /**
+     * @notice Constructs the Implementaion contract
+     * @dev    Sets immutable storage.
+     * @param  mToken_    The address of M token.
+     * @param  registrar_ The address of Registrar.
+     */
+    constructor(address mToken_, address registrar_) {
+        _disableInitializers();
+
         if ((mToken = mToken_) == address(0)) revert ZeroMToken();
         if ((registrar = registrar_) == address(0)) revert ZeroRegistrar();
+    }
+
+    /**
+     * @notice Initializes the Proxy's storage
+     * @param  bridge_        The address of M token.
+     * @param  initialOwner_  The address of the owner.
+     * @param  initialPauser_ The address of the pauser.
+     */
+    function _initialize(address bridge_, address initialOwner_, address initialPauser_) internal onlyInitializing {
         if ((bridge = bridge_) == address(0)) revert ZeroBridge();
+        __PausableOwnable_init(initialOwner_, initialPauser_);
+        __ReentrancyGuard_init();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -71,7 +85,8 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     ) external view returns (uint256 fee_) {
         // NOTE: for quoting delivery only the payload size and destination chain matter.
         address destinationToken_ = destinationMToken[destinationChainId_];
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, _currentIndex());
+        bytes memory payload_ =
+            PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, msg.sender, recipient_, _currentIndex());
         return IBridge(bridge).quote(destinationChainId_, payloadGasLimit[destinationChainId_][PayloadType.Token], payload_);
     }
 
@@ -85,7 +100,7 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
         uint256 destinationChainId_,
         address recipient_,
         address refundAddress_
-    ) external payable whenNotPaused returns (bytes32 messageId_) {
+    ) external payable whenNotPaused nonReentrant returns (bytes32 messageId_) {
         return _transferMLikeToken(
             amount_, mToken, destinationChainId_, destinationMToken[destinationChainId_], recipient_, refundAddress_
         );
@@ -99,7 +114,7 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
         address destinationToken_,
         address recipient_,
         address refundAddress_
-    ) external payable whenNotPaused returns (bytes32 messageId_) {
+    ) external payable whenNotPaused nonReentrant returns (bytes32 messageId_) {
         if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
             revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
         }
@@ -108,13 +123,13 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     }
 
     /// @inheritdoc IPortal
-    function receiveMessage(uint256 sourceChainId_, address sender_, bytes calldata payload_) external {
+    function receiveMessage(uint256 sourceChainId_, bytes calldata payload_) external {
         if (msg.sender != bridge) revert NotBridge();
 
         PayloadType payloadType_ = payload_.getPayloadType();
 
         if (payloadType_ == PayloadType.Token) {
-            _receiveMLikeToken(sourceChainId_, sender_, payload_);
+            _receiveMLikeToken(sourceChainId_, payload_);
             return;
         }
 
@@ -233,12 +248,12 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
             }
         }
 
-        // Burn the actual amount of M tokens on Spoke.
+        // Burn M tokens on Spoke.
         // In case of Hub, only update the bridged principal amount as tokens already transferred.
-        _burnOrLock(destinationChainId_, actualAmount_);
+        _burnOrLock(destinationChainId_, amount_);
 
         uint128 index_ = _currentIndex();
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, recipient_, index_);
+        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, destinationToken_, msg.sender, recipient_, index_);
         messageId_ = _sendMessage(destinationChainId_, PayloadType.Token, refundAddress_, payload_);
 
         // Prevent stack too deep
@@ -271,11 +286,11 @@ abstract contract Portal is IPortal, PausableOwnable, Migratable {
     /**
      * @dev   Handles token transfer message on the destination.
      * @param sourceChainId_ The EVM chain Id of the source chain.
-     * @param sender_        The address of the message sender.
      * @param payload_       The message payload.
      */
-    function _receiveMLikeToken(uint256 sourceChainId_, address sender_, bytes memory payload_) private {
-        (uint256 amount_, address destinationToken_, address recipient_, uint128 index_) = payload_.decodeTokenTransfer();
+    function _receiveMLikeToken(uint256 sourceChainId_, bytes memory payload_) private {
+        (uint256 amount_, address destinationToken_, address sender_, address recipient_, uint128 index_) =
+            payload_.decodeTokenTransfer();
 
         emit MTokenReceived(sourceChainId_, destinationToken_, sender_, recipient_, amount_, index_);
 

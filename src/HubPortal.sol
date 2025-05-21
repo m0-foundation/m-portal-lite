@@ -8,6 +8,7 @@ import { IndexingMath } from "../lib/common/src/libs/IndexingMath.sol";
 import { IBridge } from "./interfaces/IBridge.sol";
 import { IMTokenLike } from "./interfaces/IMTokenLike.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
+import { IPortal } from "./interfaces/IPortal.sol";
 import { IHubPortal } from "./interfaces/IHubPortal.sol";
 
 import { Portal } from "./Portal.sol";
@@ -25,18 +26,24 @@ contract HubPortal is Portal, IHubPortal {
     bool public wasEarningEnabled;
 
     /// @inheritdoc IHubPortal
-    uint128 public disableEarningIndex = IndexingMath.EXP_SCALED_ONE;
+    uint128 public disableEarningIndex;
 
     /// @inheritdoc IHubPortal
     mapping(uint256 destinationChainId => uint256 principal) public bridgedPrincipal;
 
-    constructor(
-        address mToken_,
-        address registrar_,
-        address bridge_,
-        address initialOwner_,
-        address initialPauser_
-    ) Portal(mToken_, registrar_, bridge_, initialOwner_, initialPauser_) { }
+    /**
+     * @notice Constructs HubPortal Implementaion contract
+     * @dev    Sets immutable storage.
+     * @param  mToken_    The address of M token.
+     * @param  registrar_ The address of Registrar.
+     */
+    constructor(address mToken_, address registrar_) Portal(mToken_, registrar_) { }
+
+    /// @inheritdoc IPortal
+    function initialize(address bridge_, address initialOwner_, address initialPauser_) external initializer {
+        _initialize(bridge_, initialOwner_, initialPauser_);
+        disableEarningIndex = IndexingMath.EXP_SCALED_ONE;
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     //                     EXTERNAL VIEW/PURE FUNCTIONS                      //

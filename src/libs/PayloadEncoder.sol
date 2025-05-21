@@ -49,6 +49,7 @@ library PayloadEncoder {
      * @dev    Encoded values are packed using `abi.encodePacked`.
      * @param amount_           The amount of tokens to transfer.
      * @param destinationToken_ The address of the destination token.
+     * @param sender_           The address of the sender.
      * @param recipient_        The address of the recipient.
      * @param index_            The M token index.
      * @return encoded_         The encoded payload.
@@ -56,10 +57,11 @@ library PayloadEncoder {
     function encodeTokenTransfer(
         uint256 amount_,
         address destinationToken_,
+        address sender_,
         address recipient_,
         uint128 index_
     ) internal pure returns (bytes memory encoded_) {
-        encoded_ = abi.encodePacked(PayloadType.Token, amount_, destinationToken_, recipient_, index_);
+        encoded_ = abi.encodePacked(PayloadType.Token, amount_, destinationToken_, sender_, recipient_, index_);
     }
 
     /**
@@ -67,18 +69,20 @@ library PayloadEncoder {
      * @param payload_           The payload to decode.
      * @return amount_           The amount of tokens to transfer.
      * @return destinationToken_ The address of the destination token.
+     * @return sender_           The address of the sender.
      * @return recipient_        The address of the recipient.
      * @return index_            The M token index.
      */
     function decodeTokenTransfer(bytes memory payload_)
         internal
         pure
-        returns (uint256 amount_, address destinationToken_, address recipient_, uint128 index_)
+        returns (uint256 amount_, address destinationToken_, address sender_, address recipient_, uint128 index_)
     {
         uint256 offset_ = PAYLOAD_TYPE_LENGTH;
 
         (amount_, offset_) = payload_.asUint256Unchecked(offset_);
         (destinationToken_, offset_) = payload_.asAddressUnchecked(offset_);
+        (sender_, offset_) = payload_.asAddressUnchecked(offset_);
         (recipient_, offset_) = payload_.asAddressUnchecked(offset_);
         (index_, offset_) = payload_.asUint128Unchecked(offset_);
 
