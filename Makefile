@@ -25,8 +25,8 @@ deploy-hub-sepolia: deploy-hub
 deploy-spoke: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
-	--skip test --broadcast --slow --non-interactive -v --verify \
-    --verifier sourcify --verifier-url https://sourcify.parsec.finance/verify
+    --skip test --broadcast --slow --non-interactive -v --verify \
+    --verifier blockscout --verifier-url 'https://www.hyperscan.com/api/'
 
 deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 deploy-spoke-hyper-evm: deploy-spoke

@@ -10,8 +10,8 @@ contract DeploySpoke is DeploySpokeBase {
         address deployer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
         address migrationAdmin_ = vm.envAddress("MIGRATION_ADMIN");
 
-        console.log("Deployer:         ", deployer_);
-        console.log("Migration admin:  ", migrationAdmin_);
+        console.log("Deployer:          ", deployer_);
+        console.log("Migration admin:   ", migrationAdmin_);
 
         vm.startBroadcast(deployer_);
 
