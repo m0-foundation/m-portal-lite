@@ -16,7 +16,7 @@ contract DeployBase is ScriptBase {
     string internal constant _HYPERLANE_BRIDGE_CONTRACT_NAME = "Hyperlane Bridge";
 
     // Same address across all supported mainnet and testnets networks.
-    address internal constant _CREATE_X_FACTORY = 0x2A58f3b8Bb5b9c04CfEeA3Cfd7BBA773d7a9620E;
+    address internal constant _CREATE_X_FACTORY = 0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed;
 
     function _computeSalt(address deployer_, string memory contractName_) internal pure returns (bytes32) {
         return bytes32(

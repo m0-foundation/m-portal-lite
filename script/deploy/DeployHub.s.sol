@@ -9,11 +9,16 @@ contract DeployHub is DeployHubBase {
     function run() external {
         address deployer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
 
+        console.log("Deployer:         ", deployer_);
+
         vm.startBroadcast(deployer_);
 
         uint256 chainId_ = block.chainid;
         address bridge_ = _deployHyperlaneBridge(chainId_, deployer_);
         address portal_ = _deployHubPortal(bridge_, deployer_);
+
+        // HubPortal is already an approve earner
+        IHubPortal(portal_).enableEarning();
 
         vm.stopBroadcast();
 
