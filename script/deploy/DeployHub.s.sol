@@ -3,6 +3,9 @@
 pragma solidity 0.8.26;
 
 import { console } from "../../lib/forge-std/src/console.sol";
+
+import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
+
 import { DeployHubBase } from "./DeployHubBase.sol";
 
 contract DeployHub is DeployHubBase {

@@ -35,8 +35,9 @@ deploy-spoke-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
 deploy-spoke-hyper-evm-testnet: deploy-spoke
 
 #
-# Configure
+# Configure. 
 #
+# make configure-ethereum PEERS="[999]"
 
 configure: PEERS ?= []
 configure:
@@ -79,18 +80,56 @@ send-index-sepolia: RPC_URL=$(SEPOLIA_RPC)
 send-index-sepolia: send-index
 
 #
+# Send Earner Status
+#
+
+send-earner-status: SCRIPT=script/execute/SendEarnerStatus.s.sol:SendEarnerStatus
+send-earner-status: execute
+
+send-earner-status-ethereum: RPC_URL=$(ETHEREUM_RPC)
+send-earner-status-ethereum: send-earner-status
+
+send-earner-status-sepolia: RPC_URL=$(SEPOLIA_RPC)
+send-earner-status-sepolia: send-earner-status
+
+#
+# Send Registrar Key
+#
+
+send-registrar-key: SCRIPT=script/execute/SendRegistrarKey.s.sol:SendRegistrarKey
+send-registrar-key: execute
+
+send-registrar-key-ethereum: RPC_URL=$(ETHEREUM_RPC)
+send-registrar-key-ethereum: send-registrar-key
+
+send-registrar-key-sepolia: RPC_URL=$(SEPOLIA_RPC)
+send-registrar-key-sepolia: send-registrar-key
+
+#
 # Transfer
 #
 
 transfer: SCRIPT=script/execute/Transfer.s.sol:Transfer
 transfer: execute
 
-send-index-ethereum: RPC_URL=$(ETHEREUM_RPC)
-send-index-ethereum: transfer
+transfer-ethereum: RPC_URL=$(ETHEREUM_RPC)
+transfer-ethereum: transfer
 
-transfer-sepolia: RPC_URL=$(SEPOLIA_RPC)
-transfer-sepolia: transfer
+transfer-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
+transfer-hyper-evm: transfer
 
+#
+# Transfer M like token
+#
+
+transfer-m-like-token: SCRIPT=script/execute/TransferMLikeToken.s.sol:TransferMLikeToken
+transfer-m-like-token: execute
+
+transfer-m-like-token-ethereum: RPC_URL=$(ETHEREUM_RPC)
+transfer-m-like-token-ethereum: transfer-m-like-token
+
+transfer-m-like-token-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
+transfer-m-like-token-hyper-evm: transfer-m-like-token
 
 
 
