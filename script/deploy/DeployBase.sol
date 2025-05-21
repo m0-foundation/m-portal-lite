@@ -12,8 +12,9 @@ import { ICreateXLike } from "./interfaces/ICreateXLike.sol";
 
 contract DeployBase is ScriptBase {
     /// @dev Contract names used for deterministic deployment
-    string internal constant _PORTAL_CONTRACT_NAME = "Portal Lite";
     string internal constant _HYPERLANE_BRIDGE_CONTRACT_NAME = "Hyperlane Bridge";
+    /// @dev Using pre-approved earner address for Portal
+    string internal constant _PORTAL_CONTRACT_NAME = "EarnerAlpha";
 
     // Same address across all supported mainnet and testnets networks.
     address internal constant _CREATE_X_FACTORY = 0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed;
