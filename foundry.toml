@@ -7,6 +7,9 @@ optimizer = true
 optimizer-runs = 10_000
 verbosity = 3
 evm_version = "cancun"
+fs_permissions = [
+  { access = "read-write", path = "./deployments" }
+]
 
 ignored_warnings_from = ["lib", "test", "script"]
 
@@ -23,3 +26,7 @@ ethereum = "${ETHEREUM_RPC}"
 hyperevm = "${HYPEREVM_RPC}"
 sepolia = "${SEPOLIA_RPC}"
 hyperevm_testnet = "${HYPEREVM_TESTNET_RPC}"
+
+[etherscan]
+ethereum = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/api" }
+sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }

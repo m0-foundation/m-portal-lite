@@ -47,6 +47,11 @@ contract HyperlaneBridge is Ownable, IHyperlaneBridge {
         fee_ = IMailbox(mailbox).quoteDispatch(destinationDomain_, peer_, payload_, metadata_);
     }
 
+    /// @dev Returns zero address, so Mailbox will use the default ISM
+    function interchainSecurityModule() external pure returns (address) {
+        return address(0);
+    }
+
     /// @inheritdoc IBridge
     function sendMessage(
         uint256 destinationChainId_,

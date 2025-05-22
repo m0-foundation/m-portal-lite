@@ -12,3 +12,11 @@
 	path = lib/openzeppelin-contracts-upgradeable
 	url = git@github.com:OpenZeppelin/openzeppelin-contracts-upgradeable.git
 	branch = release-v5.3
+[submodule "lib/protocol"]
+	path = lib/protocol
+	url = git@github.com:m0-foundation/protocol.git
+	branch = spoke-upgradeable
+[submodule "lib/ttg"]
+	path = lib/ttg
+	url = git@github.com:m0-foundation/ttg.git
+	branch = spoke

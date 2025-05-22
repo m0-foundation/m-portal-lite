@@ -17,7 +17,6 @@ out/
 /broadcast/Upgrade*/31337/
 /broadcast/Upgrade*/*/dry-run
 
-
 # Coverage files
 coverage/
 lcov.info
@@ -30,6 +29,9 @@ docs/
 
 # Mac OS files
 .DS_Store
+
+# VS Code
+.vscode
 
 # NPM modules
 node_modules

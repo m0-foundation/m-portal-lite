@@ -25,7 +25,7 @@ contract SpokePortal is Portal, ISpokePortal {
     uint256 public immutable hubChainId;
 
     /**
-     * @notice Constructs SpokePortal Implementaion contract
+     * @notice Constructs SpokePortal Implementation contract
      * @dev    Sets immutable storage.
      * @param  hubChainId_ The EVM chain Id of the Hub chain.
      * @param  mToken_     The address of M token.
