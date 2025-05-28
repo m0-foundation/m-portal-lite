@@ -26,16 +26,22 @@ deploy-spoke:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
     --skip test --broadcast --slow --non-interactive -v --verify \
-    --verifier blockscout --verifier-url 'https://www.hyperscan.com/api/'
+    --verifier blockscout --verifier-url $(VERIFIER_URL)
 
 deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
+deploy-spoke-hyper-evm: VERIFIER_URL='https://www.hyperscan.com/api/'
 deploy-spoke-hyper-evm: deploy-spoke
 
 deploy-spoke-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
+deploy-spoke-hyper-evm-testnet: VERIFIER_URL='https://www.hyperscan.com/api/'
 deploy-spoke-hyper-evm-testnet: deploy-spoke
 
+deploy-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
+deploy-spoke-plume-testnet: VERIFIER_URL='https://testnet-explorer.plume.org/api/'
+deploy-spoke-plume-testnet: deploy-spoke
+
 #
-# Configure. 
+# Configure
 #
 # make configure-ethereum PEERS="[999]"
 
@@ -58,6 +64,9 @@ configure-hyper-evm: configure
 
 configure-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
 configure-hyper-evm-testnet: configure
+
+configure-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
+configure-plume-testnet: configure
 
 #
 # Execute
@@ -117,6 +126,13 @@ transfer-ethereum: transfer
 
 transfer-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 transfer-hyper-evm: transfer
+
+transfer-sepolia: RPC_URL=$(SEPOLIA_RPC)
+transfer-sepolia: transfer
+
+transfer-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
+transfer-plume-testnet: transfer
+
 
 #
 # Transfer M like token
