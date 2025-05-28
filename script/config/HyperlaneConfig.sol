@@ -19,6 +19,7 @@ library HyperlaneConfig {
         // Testnet
         if (chainId_ == Chains.ETHEREUM_SEPOLIA) return 0xfFAEF09B3cd11D9b20d1a19bECca54EEC2884766;
         if (chainId_ == Chains.HYPER_EVM_TESTNET) return 0x589C201a07c26b4725A4A829d772f24423da480B;
+        if (chainId_ == Chains.PLUME_TESTNET) return 0xDDcFEcF17586D08A5740B7D91735fcCE3dfe3eeD;
 
         revert Chains.UnsupportedChain(chainId_);
     }
