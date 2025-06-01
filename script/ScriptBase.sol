@@ -10,6 +10,8 @@ contract ScriptBase is Script {
         address mToken;
         address portal;
         address registrar;
+        address vault;
+        address wrappedMToken;
     }
 
     function _deployOutputPath(uint256 chainId_) internal view returns (string memory) {
@@ -21,19 +23,23 @@ contract ScriptBase is Script {
         address bridge_,
         address mToken_,
         address portal_,
-        address registrar_
+        address registrar_,
+        address vault_,
+        address wrappedMToken_
     ) internal {
         string memory root = "";
 
         vm.serializeAddress(root, "bridge", bridge_);
         vm.serializeAddress(root, "m_token", mToken_);
         vm.serializeAddress(root, "portal", portal_);
-        vm.writeJson(vm.serializeAddress(root, "registrar", registrar_), _deployOutputPath(chainId_));
+        vm.serializeAddress(root, "registrar", registrar_);
+        vm.serializeAddress(root, "vault", vault_);
+        vm.writeJson(vm.serializeAddress(root, "wrappedMToken", wrappedMToken_), _deployOutputPath(chainId_));
     }
 
     function _readDeployment(uint256 chainId_)
         internal
-        returns (address bridge, address mToken_, address portal_, address registrar_)
+        returns (address bridge_, address mToken_, address portal_, address registrar_, address vault_, address wrappedMToken_)
     {
         if (!vm.isFile(_deployOutputPath(chainId_))) {
             revert("Deployment artifacts not found");
@@ -41,6 +47,13 @@ contract ScriptBase is Script {
 
         bytes memory data = vm.parseJson(vm.readFile(_deployOutputPath(chainId_)));
         Deployment memory deployment_ = abi.decode(data, (Deployment));
-        return (deployment_.bridge, deployment_.mToken, deployment_.portal, deployment_.registrar);
+        return (
+            deployment_.bridge,
+            deployment_.mToken,
+            deployment_.portal,
+            deployment_.registrar,
+            deployment_.vault,
+            deployment_.wrappedMToken
+        );
     }
 }

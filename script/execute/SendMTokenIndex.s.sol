@@ -8,7 +8,7 @@ import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 
 contract SendMTokenIndex is ExecuteBase {
     function run() external {
-        (address bridge_,, address portal_,) = _readDeployment(block.chainid);
+        (address bridge_,, address portal_,,,) = _readDeployment(block.chainid);
         uint256 destinationChainId_ = _promptForDestinationChainId(bridge_);
         uint256 fee_ = IHubPortal(portal_).quoteSendIndex(destinationChainId_);
         address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));

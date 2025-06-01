@@ -28,6 +28,6 @@ contract DeployHub is DeployHubBase {
         console.log("Hyperlane Bridge: ", bridge_);
         console.log("Hub Portal:       ", portal_);
 
-        _writeDeployments(chainId_, bridge_, _M_TOKEN, portal_, _REGISTRAR);
+        _writeDeployments(chainId_, bridge_, _M_TOKEN, portal_, _REGISTRAR, _VAULT, _WRAPPED_M_TOKEN);
     }
 }
