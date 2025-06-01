@@ -17,8 +17,9 @@ import { SafeCall } from "./libs/SafeCall.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
 
 /**
- * @title  Base Portal contract inherited by HubPortal and SpokePortal.
+ * @title  Portal
  * @author M^0 Labs
+ * @notice Base Portal contract inherited by HubPortal and SpokePortal.
  */
 abstract contract Portal is IPortal, PausableOwnableUpgradeable, ReentrancyGuardUpgradeable, Migratable {
     using TypeConverter for *;
@@ -45,7 +46,7 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, ReentrancyGuard
     mapping(uint256 destinationChainId => mapping(PayloadType payloadType => uint256 gasLimit)) public payloadGasLimit;
 
     /**
-     * @notice Constructs the Implementaion contract
+     * @notice Constructs the Implementation contract
      * @dev    Sets immutable storage.
      * @param  mToken_    The address of M token.
      * @param  registrar_ The address of Registrar.

@@ -32,7 +32,7 @@ contract HubPortal is Portal, IHubPortal {
     mapping(uint256 destinationChainId => uint256 principal) public bridgedPrincipal;
 
     /**
-     * @notice Constructs HubPortal Implementaion contract
+     * @notice Constructs HubPortal Implementation contract
      * @dev    Sets immutable storage.
      * @param  mToken_    The address of M token.
      * @param  registrar_ The address of Registrar.
