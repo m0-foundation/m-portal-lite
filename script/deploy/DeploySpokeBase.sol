@@ -17,8 +17,10 @@ contract DeploySpokeBase is DeployBase {
     uint64 internal constant _SPOKE_M_TOKEN_IMPLEMENTATION_NONCE = 6;
     uint64 internal constant _SPOKE_REGISTRAR_NONCE = 7;
     uint64 internal constant _SPOKE_M_TOKEN_NONCE = 8;
-    uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_NONCE = 39;
-    uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE = 40;
+    uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE = 39;
+    uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_NONCE = 40;
+
+    address internal constant _EXPECTED_WRAPPED_M_TOKEN_ADDRESS = 0x437cc33344a0B27A429f795ff6B469C72698B291;
 
     error DeployerNonceTooHigh();
     error UnexpectedDeployerNonce();
@@ -63,5 +65,48 @@ contract DeploySpokeBase is DeployBase {
         SpokePortal implementation_ = new SpokePortal(hubChainId, mToken_, registrar_);
         bytes memory initializeCall = abi.encodeCall(IPortal.initialize, (bridge_, deployer_, deployer_));
         return _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, _PORTAL_CONTRACT_NAME), initializeCall);
+    }
+
+    function _deployVault(
+        address deployer_,
+        address spokePortal_,
+        address hubVault_,
+        uint256 hubChainId_,
+        address migrationAdmin_
+    ) internal returns (address spokeVaultImplementation_, address spokeVaultProxy_) {
+        spokeVaultImplementation_ = address(new SpokeVault(spokePortal_, hubVault_, hubChainId_, migrationAdmin_));
+
+        spokeVaultProxy_ =
+            _deployCreate3Proxy(address(spokeVaultImplementation_), _computeSalt(deployer_, _VAULT_CONTRACT_NAME), "");
+    }
+
+    function _deployWrappedMToken(
+        address deployer_,
+        address mToken_,
+        address registrar_,
+        address vault_,
+        address migrationAdmin_
+    ) internal returns (address wrappedMTokenImplementation_, address wrappedMTokenProxy_) {
+        uint64 deployerNonce_ = vm.getNonce(deployer_);
+
+        if (currentNonce_ > _SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE) revert DeployerNonceTooHigh();
+
+        while (currentNonce_ < _SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE) {
+            payable(deployer_).transfer(0);
+            ++currentNonce_;
+        }
+
+        if (currentNonce_ != _SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE) revert UnexpectedDeployerNonce();
+
+        wrappedMTokenImplementation_ = address(new WrappedMToken(mToken_, registrar_, vault_, migrationAdmin_));
+
+        deployerNonce_ = vm.getNonce(deployer_);
+        if (deployerNonce_ != _SPOKE_WRAPPED_M_TOKEN_NONCE) revert DeployerNonceTooHigh();
+
+        wrappedMTokenProxy_ = address(new ERC1967Proxy(spokeWrappedMTokenImplementation_), "");
+
+        if (wrappedMTokenProxy_ != _EXPECTED_WRAPPED_M_TOKEN_ADDRESS) {
+            revert ExpectedAddressMismatch(expectedWrappedMTokenProxy_, spokeWrappedMTokenProxy_);
+        }
     }
 }
