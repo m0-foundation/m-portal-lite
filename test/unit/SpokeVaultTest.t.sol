@@ -27,18 +27,9 @@ contract SpokeVaultTest is Test {
         mToken = new MockMToken();
         spokePortal = new MockPortal();
 
-        vm.mockCall(
-            address(spokePortal),
-            abi.encodeWithSelector(IPortal.mToken.selector),
-            abi.encode(address(mToken))
-        );
-        
-        spokeVault = new SpokeVault(
-            address(spokePortal),
-            hubVault,
-            HUB_CHAIN_ID,
-            migrationAdmin
-        );
+        vm.mockCall(address(spokePortal), abi.encodeWithSelector(IPortal.mToken.selector), abi.encode(address(mToken)));
+
+        spokeVault = new SpokeVault(address(spokePortal), hubVault, HUB_CHAIN_ID, migrationAdmin);
 
         vm.deal(user, 10 ether);
         vm.deal(address(spokeVault), 5 ether);
@@ -83,17 +74,15 @@ contract SpokeVaultTest is Test {
     function test_transferExcessM_success() external {
         uint256 amount = 1e6;
         bytes32 expectedMessageId = bytes32(0);
-        
+
         // Mint tokens to the vault
         mToken.mint(address(spokeVault), amount);
-        
-        vm.expectCall(
-            address(spokePortal), abi.encodeCall(IPortal.transfer, (amount, HUB_CHAIN_ID, hubVault, refundAddress))
-        );
+
+        vm.expectCall(address(spokePortal), abi.encodeCall(IPortal.transfer, (amount, HUB_CHAIN_ID, hubVault, refundAddress)));
 
         vm.expectEmit(true, false, false, true);
         emit ISpokeVault.ExcessMTokenSent(amount, expectedMessageId);
-        
+
         vm.prank(user);
         spokeVault.transferExcessM{ value: 0.0001 ether }(refundAddress);
     }
@@ -101,10 +90,10 @@ contract SpokeVaultTest is Test {
     function test_transferExcessM_noTokensReturnsZero() external {
         // No tokens in vault
         assertEq(mToken.balanceOf(address(spokeVault)), 0);
-        
+
         vm.prank(user);
         bytes32 messageId = spokeVault.transferExcessM{ value: 1 ether }(refundAddress);
-        
+
         assertEq(messageId, bytes32(0));
     }
 }

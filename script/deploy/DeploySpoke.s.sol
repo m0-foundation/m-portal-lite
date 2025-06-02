@@ -29,6 +29,6 @@ contract DeploySpoke is DeploySpokeBase {
         console.log("Spoke Portal:      ", portal_);
         console.log("Hyperlane Bridge:  ", bridge_);
 
-        _writeDeployments(chainId_, bridge_, mToken_, portal_, registrar_);
+        _writeDeployments(chainId_, bridge_, mToken_, portal_, registrar_, address(0), address(0));
     }
 }

@@ -8,7 +8,7 @@ import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 
 contract SendRegistrarKey is ExecuteBase {
     function run() external {
-        (address bridge_,, address portal_,) = _readDeployment(block.chainid);
+        (address bridge_,, address portal_,,,) = _readDeployment(block.chainid);
         uint256 destinationChainId_ = _promptForDestinationChainId(bridge_);
         bytes32 key_ = vm.parseBytes32(vm.prompt("Enter Registrar key"));
         uint256 fee_ = IHubPortal(portal_).quoteSendRegistrarKey(destinationChainId_, key_);

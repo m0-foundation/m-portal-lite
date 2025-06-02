@@ -11,7 +11,7 @@ import { ExecuteBase } from "./ExecuteBase.sol";
 contract Transfer is ExecuteBase {
     function run() external {
         address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
-        (address bridge_, address mToken_, address portal_,) = _readDeployment(block.chainid);
+        (address bridge_, address mToken_, address portal_,,,) = _readDeployment(block.chainid);
         uint256 destinationChainId_ = _promptForDestinationChainId(bridge_);
         address recipient_ = signer_;
         address refundAddress_ = recipient_;

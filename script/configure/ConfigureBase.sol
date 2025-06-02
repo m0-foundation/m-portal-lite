@@ -13,6 +13,7 @@ import { PayloadType } from "../../src/libs/PayloadEncoder.sol";
 struct PeerConfig {
     uint256 chainId;
     address mToken;
+    address wrappedM;
     address bridge;
 }
 
@@ -25,7 +26,13 @@ contract ConfigureBase is ScriptBase {
     uint256 internal constant _LIST_UPDATE_GAS_LIMIT = 50_000;
     uint256 internal constant _TOKEN_TRANSFER_GAS_LIMIT = 100_000;
 
-    function _configurePeers(address portal_, address mToken_, address bridge_, PeerConfig[] memory peers_) internal {
+    function _configurePeers(
+        address portal_,
+        address mToken_,
+        address wrappedMToken_,
+        address bridge_,
+        PeerConfig[] memory peers_
+    ) internal {
         uint256 peersCount_ = peers_.length;
 
         for (uint256 i; i < peersCount_; i++) {
@@ -47,6 +54,15 @@ contract ConfigureBase is ScriptBase {
             // Supported Bridging Paths
             // M => M
             IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.mToken, true);
+
+            // M => WrappedM
+            IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.wrappedM, true);
+
+            // WrappedM => M
+            IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.mToken, true);
+
+            // WrappedM => WrappedM
+            IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.wrappedM, true);
         }
     }
 }
