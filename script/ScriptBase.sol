@@ -11,7 +11,7 @@ contract ScriptBase is Script {
         address portal;
         address registrar;
         address vault;
-        address wrappedMToken;
+        address wrappedM;
     }
 
     function _deployOutputPath(uint256 chainId_) internal view returns (string memory) {
@@ -34,7 +34,7 @@ contract ScriptBase is Script {
         vm.serializeAddress(root, "portal", portal_);
         vm.serializeAddress(root, "registrar", registrar_);
         vm.serializeAddress(root, "vault", vault_);
-        vm.writeJson(vm.serializeAddress(root, "wrappedMToken", wrappedMToken_), _deployOutputPath(chainId_));
+        vm.writeJson(vm.serializeAddress(root, "wrapped_m", wrappedMToken_), _deployOutputPath(chainId_));
     }
 
     function _readDeployment(uint256 chainId_)
@@ -53,7 +53,7 @@ contract ScriptBase is Script {
             deployment_.portal,
             deployment_.registrar,
             deployment_.vault,
-            deployment_.wrappedMToken
+            deployment_.wrappedM
         );
     }
 }

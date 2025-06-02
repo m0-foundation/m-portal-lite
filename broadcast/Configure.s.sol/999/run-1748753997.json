@@ -1,0 +1,83 @@
+{
+  "transactions": [
+    {
+      "hash": null,
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
+      "function": "setSupportedBridgingPath(address,uint256,address,bool)",
+      "arguments": [
+        "0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b",
+        "1",
+        "0x437cc33344a0B27A429f795ff6B469C72698B291",
+        "true"
+      ],
+      "transaction": {
+        "from": "0xf2f1acbe0ba726fee8d75f3e32900526874740bb",
+        "to": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
+        "gas": "0xc55b",
+        "value": "0x0",
+        "input": "0xb3c2c214000000000000000000000000866a2bf4e572cbcf37d5071a7a58503bfb36be1b0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000437cc33344a0b27a429f795ff6b469c72698b2910000000000000000000000000000000000000000000000000000000000000001",
+        "nonce": "0x29",
+        "chainId": "0x3e7"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    },
+    {
+      "hash": null,
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
+      "function": "setSupportedBridgingPath(address,uint256,address,bool)",
+      "arguments": [
+        "0x437cc33344a0B27A429f795ff6B469C72698B291",
+        "1",
+        "0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b",
+        "true"
+      ],
+      "transaction": {
+        "from": "0xf2f1acbe0ba726fee8d75f3e32900526874740bb",
+        "to": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
+        "gas": "0x125c2",
+        "value": "0x0",
+        "input": "0xb3c2c214000000000000000000000000437cc33344a0b27a429f795ff6b469c72698b2910000000000000000000000000000000000000000000000000000000000000001000000000000000000000000866a2bf4e572cbcf37d5071a7a58503bfb36be1b0000000000000000000000000000000000000000000000000000000000000001",
+        "nonce": "0x2a",
+        "chainId": "0x3e7"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    },
+    {
+      "hash": null,
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
+      "function": "setSupportedBridgingPath(address,uint256,address,bool)",
+      "arguments": [
+        "0x437cc33344a0B27A429f795ff6B469C72698B291",
+        "1",
+        "0x437cc33344a0B27A429f795ff6B469C72698B291",
+        "true"
+      ],
+      "transaction": {
+        "from": "0xf2f1acbe0ba726fee8d75f3e32900526874740bb",
+        "to": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
+        "gas": "0x125c2",
+        "value": "0x0",
+        "input": "0xb3c2c214000000000000000000000000437cc33344a0b27a429f795ff6b469c72698b2910000000000000000000000000000000000000000000000000000000000000001000000000000000000000000437cc33344a0b27a429f795ff6b469c72698b2910000000000000000000000000000000000000000000000000000000000000001",
+        "nonce": "0x2b",
+        "chainId": "0x3e7"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [],
+  "returns": {},
+  "timestamp": 1748753997,
+  "chain": 999,
+  "commit": "8f3961a"
+}

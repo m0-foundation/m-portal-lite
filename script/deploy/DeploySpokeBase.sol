@@ -6,14 +6,18 @@ import { ERC1967Proxy } from "../../lib/openzeppelin/contracts/proxy/ERC1967/ERC
 import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
 import { MToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar } from "../../lib/ttg/src/Registrar.sol";
+import { WrappedMToken } from "../../lib/wrapped-m-token/src/WrappedMToken.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
+import { SpokeVault } from "../../src/SpokeVault.sol";
 
 import { Chains } from "../config/Chains.sol";
 import { DeployBase } from "./DeployBase.sol";
 
 contract DeploySpokeBase is DeployBase {
+    string internal constant _VAULT_CONTRACT_NAME = "Vault";
+
     uint64 internal constant _SPOKE_M_TOKEN_IMPLEMENTATION_NONCE = 6;
     uint64 internal constant _SPOKE_REGISTRAR_NONCE = 7;
     uint64 internal constant _SPOKE_M_TOKEN_NONCE = 8;
@@ -24,6 +28,7 @@ contract DeploySpokeBase is DeployBase {
 
     error DeployerNonceTooHigh();
     error UnexpectedDeployerNonce();
+    error ExpectedAddressMismatch(address expected, address actual);
 
     function _deployMTokenImplementation(
         address migrationAdmin_,
@@ -87,7 +92,7 @@ contract DeploySpokeBase is DeployBase {
         address vault_,
         address migrationAdmin_
     ) internal returns (address wrappedMTokenImplementation_, address wrappedMTokenProxy_) {
-        uint64 deployerNonce_ = vm.getNonce(deployer_);
+        uint64 currentNonce_ = vm.getNonce(deployer_);
 
         if (currentNonce_ > _SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE) revert DeployerNonceTooHigh();
 
@@ -100,13 +105,13 @@ contract DeploySpokeBase is DeployBase {
 
         wrappedMTokenImplementation_ = address(new WrappedMToken(mToken_, registrar_, vault_, migrationAdmin_));
 
-        deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_WRAPPED_M_TOKEN_NONCE) revert DeployerNonceTooHigh();
+        currentNonce_ = vm.getNonce(deployer_);
+        if (currentNonce_ != _SPOKE_WRAPPED_M_TOKEN_NONCE) revert DeployerNonceTooHigh();
 
-        wrappedMTokenProxy_ = address(new ERC1967Proxy(spokeWrappedMTokenImplementation_), "");
+        wrappedMTokenProxy_ = address(new ERC1967Proxy(wrappedMTokenImplementation_, ""));
 
         if (wrappedMTokenProxy_ != _EXPECTED_WRAPPED_M_TOKEN_ADDRESS) {
-            revert ExpectedAddressMismatch(expectedWrappedMTokenProxy_, spokeWrappedMTokenProxy_);
+            revert ExpectedAddressMismatch(_EXPECTED_WRAPPED_M_TOKEN_ADDRESS, wrappedMTokenProxy_);
         }
     }
 }

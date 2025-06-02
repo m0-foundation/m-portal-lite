@@ -29,16 +29,27 @@ deploy-spoke:
     --verifier blockscout --verifier-url $(VERIFIER_URL)
 
 deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
-deploy-spoke-hyper-evm: VERIFIER_URL='https://www.hyperscan.com/api/'
+deploy-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-hyper-evm: deploy-spoke
 
 deploy-spoke-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
-deploy-spoke-hyper-evm-testnet: VERIFIER_URL='https://www.hyperscan.com/api/'
+deploy-spoke-hyper-evm-testnet: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-hyper-evm-testnet: deploy-spoke
 
 deploy-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
-deploy-spoke-plume-testnet: VERIFIER_URL='https://testnet-explorer.plume.org/api/'
+deploy-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
 deploy-spoke-plume-testnet: deploy-spoke
+
+
+deploy-spoke-wrapped_m:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM --rpc-url $(RPC_URL) \
+	--skip test --broadcast --slow --non-interactive -v --verify \
+    --verifier blockscout --verifier-url $(VERIFIER_URL)
+
+deploy-spoke-wrapped_m-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
+deploy-spoke-wrapped_m-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
+deploy-spoke-wrapped_m-hyper-evm: deploy-spoke-wrapped_m
 
 #
 # Configure

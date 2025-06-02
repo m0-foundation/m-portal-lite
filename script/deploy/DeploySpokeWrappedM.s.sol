@@ -10,7 +10,7 @@ contract DeploySpokeWrappedM is DeploySpokeBase {
         address deployer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
         address migrationAdmin_ = vm.envAddress("MIGRATION_ADMIN");
         address hubVault_ = vm.envAddress("HUB_VAULT");
-        address hubChainId_ = vm.envUint("HUB_CHAIN_ID");
+        uint256 hubChainId_ = vm.envUint("HUB_CHAIN_ID");
 
         (address bridge_, address mToken_, address portal_, address registrar_,,) = _readDeployment(block.chainid);
 
@@ -21,13 +21,13 @@ contract DeploySpokeWrappedM is DeploySpokeBase {
 
         uint256 chainId_ = block.chainid;
 
-        address vault_ = _deployVault(deployer_, portal, hubVault_, hubChainId_);
-        address wrappedMToken_ = _deployWrappedMToken(deployer_, mToken_, registrar_, vault_, migrationAdmin_);
+        (, address vault_ )= _deployVault(deployer_, portal_, hubVault_, hubChainId_, migrationAdmin_);
+        (, address wrappedMToken_) = _deployWrappedMToken(deployer_, mToken_, registrar_, vault_, migrationAdmin_);
 
         vm.stopBroadcast();
 
-        console.log("Vault:          ", vault_);
-        console.log("Wrapped M Token:", wrappedMToken_);
+        console.log("Vault:             ", vault_);
+        console.log("Wrapped M Token:   ", wrappedMToken_);
 
         _writeDeployments(chainId_, bridge_, mToken_, portal_, registrar_, vault_, wrappedMToken_);
     }
