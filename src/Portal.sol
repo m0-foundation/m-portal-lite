@@ -226,7 +226,9 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, ReentrancyGuard
 
         // if the source token isn't M token, unwrap it
         if (sourceToken_ != address(mToken_)) {
-            IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
+            // NOTE: using low-level call to allow unwrap functions with and without return value
+            bool success = sourceToken_.safeCall(abi.encodeCall(IWrappedMTokenLike.unwrap, (address(this), amount_)));
+            if (!success) revert UnwrapFailed(sourceToken_, amount_);
         }
 
         // The actual amount of M tokens that Portal received from the sender.

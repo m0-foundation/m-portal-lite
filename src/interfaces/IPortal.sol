@@ -135,6 +135,9 @@ interface IPortal {
     /// @notice Thrown when the destination chain id is equal to the source one.
     error InvalidDestinationChain(uint256 destinationChainId);
 
+    /// @notice Thrown when unwrapping `sourceToken` to M fails.
+    error UnwrapFailed(address sourceToken, uint256 amount);
+
     ///////////////////////////////////////////////////////////////////////////
     //                          VIEW/PURE FUNCTIONS                          //
     ///////////////////////////////////////////////////////////////////////////
