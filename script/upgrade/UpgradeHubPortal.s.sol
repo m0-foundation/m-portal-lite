@@ -4,9 +4,9 @@ pragma solidity 0.8.26;
 
 import { console } from "../../lib/forge-std/src/console.sol";
 
-import { UpgradeSpokePortalBase } from "./UpgradeSpokePortalBase.sol";
+import { UpgradeHubPortalBase } from "./UpgradeHubPortalBase.sol";
 
-contract UpgradeSpokePortal is UpgradeSpokePortalBase {
+contract UpgradeHubPortal is UpgradeHubPortalBase {
     function run() external {
         address deployer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
         (, address mToken_, address portal_, address registrar_,,) = _readDeployment(block.chainid);
@@ -14,7 +14,7 @@ contract UpgradeSpokePortal is UpgradeSpokePortalBase {
         console.log("Deployer:", deployer_);
         vm.startBroadcast(deployer_);
 
-        _upgradeSpokePortal(block.chainid, portal_, mToken_, registrar_, deployer_);
+        _upgradeHubPortal(portal_, mToken_, registrar_, deployer_);
 
         vm.stopBroadcast();
     }

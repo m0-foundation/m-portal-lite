@@ -25,7 +25,6 @@ contract SpokePortalForkTest is Test, UpgradeSpokePortalBase {
 
     // The same addresses on Hyperevm and Ethereum
     address public constant PORTAL = 0x36f586A30502AE3afb555b8aA4dCc05d233c2ecE;
-    address public constant BRIDGE = 0x51DcE104E5ba88fabC19A2C519f955bb834b0DC3;
     address public constant REGISTRAR = 0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c;
     address public constant M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
     address public constant WRAPPED_M_TOKEN = 0x437cc33344a0B27A429f795ff6B469C72698B291;
@@ -59,7 +58,7 @@ contract SpokePortalForkTest is Test, UpgradeSpokePortalBase {
 
     function test_upgradePortal_transferUSDHL() external {
         vm.startPrank(DEPLOYER);
-        _upgradeSpokePortal(HYPEREVM_CHAIN_ID, PORTAL, M_TOKEN, REGISTRAR, BRIDGE, DEPLOYER);
+        _upgradeSpokePortal(HYPEREVM_CHAIN_ID, PORTAL, M_TOKEN, REGISTRAR, DEPLOYER);
         vm.stopPrank();
 
         uint256 amount = 100;
