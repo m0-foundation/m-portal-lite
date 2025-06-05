@@ -108,6 +108,10 @@ upgrade-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 upgrade-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 upgrade-spoke-hyper-evm: upgrade-spoke
 
+upgrade-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
+upgrade-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
+upgrade-spoke-plume-testnet: upgrade-spoke
+
 #
 # Execute
 #
