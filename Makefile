@@ -51,6 +51,10 @@ deploy-spoke-wrapped_m-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 deploy-spoke-wrapped_m-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-wrapped_m-hyper-evm: deploy-spoke-wrapped_m
 
+deploy-spoke-wrapped_m-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
+deploy-spoke-wrapped_m-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
+deploy-spoke-wrapped_m-plume-testnet: deploy-spoke-wrapped_m
+
 #
 # Configure
 #
@@ -188,8 +192,14 @@ transfer-m-like-token: execute
 transfer-m-like-token-ethereum: RPC_URL=$(ETHEREUM_RPC)
 transfer-m-like-token-ethereum: transfer-m-like-token
 
+transfer-m-like-token-sepolia: RPC_URL=$(SEPOLIA_RPC)
+transfer-m-like-token-sepolia: transfer-m-like-token
+
 transfer-m-like-token-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 transfer-m-like-token-hyper-evm: transfer-m-like-token
+
+transfer-m-like-token-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
+transfer-m-like-token-plume-testnet: transfer-m-like-token
 
 
 
