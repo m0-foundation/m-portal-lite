@@ -15,6 +15,7 @@ library HyperlaneConfig {
         // Mainnet
         if (chainId_ == Chains.ETHEREUM) return 0xc005dc82818d67AF737725bD4bf75435d065D239;
         if (chainId_ == Chains.HYPER_EVM) return 0x3a464f746D23Ab22155710f44dB16dcA53e0775E;
+        if (chainId_ == Chains.PLUME) return 0x3a464f746D23Ab22155710f44dB16dcA53e0775E;
 
         // Testnet
         if (chainId_ == Chains.ETHEREUM_SEPOLIA) return 0xfFAEF09B3cd11D9b20d1a19bECca54EEC2884766;

@@ -9,6 +9,7 @@ library Chains {
     // Mainnet
     uint256 internal constant ETHEREUM = 1;
     uint256 internal constant HYPER_EVM = 999;
+    uint256 internal constant PLUME = 98866;
 
     // Testnet
     uint256 internal constant ETHEREUM_SEPOLIA = 11155111;
@@ -18,6 +19,7 @@ library Chains {
     function getHubChainId(uint256 spokeChainId_) internal returns (uint256 hubChainId_) {
         // Mainnet
         if (spokeChainId_ == HYPER_EVM) return ETHEREUM;
+        if (spokeChainId_ == PLUME) return ETHEREUM;
 
         // Testnet
         if (spokeChainId_ == HYPER_EVM_TESTNET) return ETHEREUM_SEPOLIA;

@@ -24,10 +24,8 @@ deploy-hub-sepolia: deploy-hub
 
 deploy-spoke: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
-	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
-    --skip test --broadcast --slow --non-interactive -v --verify \
-    --verifier blockscout --verifier-url $(VERIFIER_URL)
-
+	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL)
+	
 deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 deploy-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-hyper-evm: deploy-spoke
@@ -35,6 +33,10 @@ deploy-spoke-hyper-evm: deploy-spoke
 deploy-spoke-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
 deploy-spoke-hyper-evm-testnet: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-hyper-evm-testnet: deploy-spoke
+
+deploy-spoke-plume: RPC_URL=$(PLUME_RPC)
+deploy-spoke-plume: VERIFIER_URL=$(PLUME_EXPLORER)
+deploy-spoke-plume: deploy-spoke
 
 deploy-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 deploy-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
