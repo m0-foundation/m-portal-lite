@@ -24,7 +24,9 @@ deploy-hub-sepolia: deploy-hub
 
 deploy-spoke: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
-	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL)
+	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
+	--skip test --broadcast --slow --non-interactive -v --verify \
+    --verifier blockscout --verifier-url $(VERIFIER_URL)
 	
 deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 deploy-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
@@ -52,6 +54,10 @@ deploy-spoke-wrapped_m:
 deploy-spoke-wrapped_m-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 deploy-spoke-wrapped_m-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-wrapped_m-hyper-evm: deploy-spoke-wrapped_m
+
+deploy-spoke-wrapped_m-plume: RPC_URL=$(PLUME_RPC)
+deploy-spoke-wrapped_m-plume: VERIFIER_URL=$(PLUME_EXPLORER)
+deploy-spoke-wrapped_m-plume: deploy-spoke-wrapped_m
 
 deploy-spoke-wrapped_m-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 deploy-spoke-wrapped_m-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
@@ -81,6 +87,9 @@ configure-hyper-evm: configure
 
 configure-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
 configure-hyper-evm-testnet: configure
+
+configure-plume: RPC_URL=$(PLUME_RPC)
+configure-plume: configure
 
 configure-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 configure-plume-testnet: configure
@@ -180,6 +189,9 @@ transfer-hyper-evm: transfer
 transfer-sepolia: RPC_URL=$(SEPOLIA_RPC)
 transfer-sepolia: transfer
 
+transfer-plume: RPC_URL=$(PLUME_RPC)
+transfer-plume: transfer
+
 transfer-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 transfer-plume-testnet: transfer
 
@@ -199,6 +211,9 @@ transfer-m-like-token-sepolia: transfer-m-like-token
 
 transfer-m-like-token-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 transfer-m-like-token-hyper-evm: transfer-m-like-token
+
+transfer-m-like-token-plume: RPC_URL=$(PLUME_RPC)
+transfer-m-like-token-plume: transfer-m-like-token
 
 transfer-m-like-token-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 transfer-m-like-token-plume-testnet: transfer-m-like-token
