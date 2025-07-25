@@ -44,6 +44,9 @@ deploy-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 deploy-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
 deploy-spoke-plume-testnet: deploy-spoke
 
+deploy-spoke-linea-testnet: RPC_URL=$(LINEA_TESTNET_RPC)
+deploy-spoke-linea-testnet: VERIFIER_URL=$(LINEA_TESTNET_EXPLORER)
+deploy-spoke-linea-testnet: deploy-spoke
 
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
@@ -93,6 +96,9 @@ configure-plume: configure
 
 configure-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 configure-plume-testnet: configure
+
+configure-linea-testnet: RPC_URL=$(LINEA_TESTNET_RPC)
+configure-linea-testnet: configure
 
 #
 # Upgrade

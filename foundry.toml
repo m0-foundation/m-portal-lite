@@ -6,7 +6,7 @@ solc_version = "0.8.26"
 optimizer = true
 optimizer-runs = 10_000
 verbosity = 3
-evm_version = "cancun"
+evm_version = "london"
 fs_permissions = [
   { access = "read-write", path = "./deployments" }
 ]
