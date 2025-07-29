@@ -66,6 +66,10 @@ deploy-spoke-wrapped_m-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 deploy-spoke-wrapped_m-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
 deploy-spoke-wrapped_m-plume-testnet: deploy-spoke-wrapped_m
 
+deploy-spoke-wrapped_m-linea-testnet: RPC_URL=$(LINEA_TESTNET_RPC)
+deploy-spoke-wrapped_m-linea-testnet: VERIFIER_URL=$(LINEA_TESTNET_EXPLORER)
+deploy-spoke-wrapped_m-linea-testnet: deploy-spoke-wrapped_m
+
 #
 # Configure
 #
@@ -132,6 +136,10 @@ upgrade-spoke-hyper-evm: upgrade-spoke
 upgrade-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 upgrade-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
 upgrade-spoke-plume-testnet: upgrade-spoke
+
+upgrade-spoke-linea-testnet: RPC_URL=$(LINEA_TESTNET_RPC)
+upgrade-spoke-linea-testnet: VERIFIER_URL=$(LINEA_TESTNET_EXPLORER)
+upgrade-spoke-linea-testnet: upgrade-spoke
 
 #
 # Execute
@@ -201,6 +209,9 @@ transfer-plume: transfer
 transfer-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 transfer-plume-testnet: transfer
 
+transfer-linea-testnet: RPC_URL=$(LINEA_TESTNET_RPC)
+transfer-linea-testnet: transfer
+
 
 #
 # Transfer M like token
@@ -224,6 +235,8 @@ transfer-m-like-token-plume: transfer-m-like-token
 transfer-m-like-token-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 transfer-m-like-token-plume-testnet: transfer-m-like-token
 
+transfer-m-like-token-linea-testnet: RPC_URL=$(LINEA_TESTNET_RPC)
+transfer-m-like-token-linea-testnet: transfer-m-like-token
 
 
 
