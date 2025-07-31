@@ -25,25 +25,37 @@ deploy-hub-sepolia: deploy-hub
 deploy-spoke: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
-	--skip test --broadcast --slow --non-interactive -v --verify \
-    --verifier blockscout --verifier-url $(VERIFIER_URL)
+	--skip test --broadcast --slow --non-interactive -v \
+	--evm-version ${EVM_VERSION} \
+  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
 	
 deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
+deploy-spoke-hyper-evm: EVM_VERSION="cancun"
+deploy-spoke-hyper-evm: VERIFIER="blockscout"
 deploy-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-hyper-evm: deploy-spoke
 
 deploy-spoke-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
+deploy-spoke-hyper-evm-testnet: EVM_VERSION="cancun"
+deploy-spoke-hyper-evm-testnet: VERIFIER="blockscout"
 deploy-spoke-hyper-evm-testnet: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-hyper-evm-testnet: deploy-spoke
 
 deploy-spoke-plume: RPC_URL=$(PLUME_RPC)
+deploy-spoke-plume: EVM_VERSION="cancun"
+deploy-spoke-plume: VERIFIER="blockscout"
 deploy-spoke-plume: VERIFIER_URL=$(PLUME_EXPLORER)
 deploy-spoke-plume: deploy-spoke
 
 deploy-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
+deploy-spoke-plume-testnet: EVM_VERSION="cancun"
+deploy-spoke-plume-testnet: VERIFIER="blockscout"
 deploy-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
 deploy-spoke-plume-testnet: deploy-spoke
 
+deploy-spoke-linea: RPC_URL=$(LINEA_RPC)
+deploy-spoke-linea: EVM_VERSION="london"
+deploy-spoke-linea: deploy-spoke
 
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
@@ -93,6 +105,9 @@ configure-plume: configure
 
 configure-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 configure-plume-testnet: configure
+
+configure-linea: RPC_URL=$(LINEA_RPC)
+configure-linea: configure
 
 #
 # Upgrade
@@ -195,6 +210,8 @@ transfer-plume: transfer
 transfer-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 transfer-plume-testnet: transfer
 
+transfer-linea: RPC_URL=$(LINEA_RPC)
+transfer-linea: transfer
 
 #
 # Transfer M like token
@@ -218,6 +235,5 @@ transfer-m-like-token-plume: transfer-m-like-token
 transfer-m-like-token-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 transfer-m-like-token-plume-testnet: transfer-m-like-token
 
-
-
-
+transfer-m-like-token-linea: RPC_URL=$(LINEA_RPC)
+transfer-m-like-token-linea: transfer-m-like-token

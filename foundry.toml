@@ -7,9 +7,7 @@ optimizer = true
 optimizer-runs = 10_000
 verbosity = 3
 evm_version = "cancun"
-fs_permissions = [
-  { access = "read-write", path = "./deployments" }
-]
+fs_permissions = [{ access = "read-write", path = "./deployments" }]
 
 ignored_warnings_from = ["lib", "test", "script"]
 
@@ -24,6 +22,7 @@ multiline_func_header = "params_first_multi"
 [rpc_endpoints]
 ethereum = "${ETHEREUM_RPC}"
 hyperevm = "${HYPEREVM_RPC}"
+linea = "${LINEA_RPC}"
 sepolia = "${SEPOLIA_RPC}"
 hyperevm_testnet = "${HYPEREVM_TESTNET_RPC}"
 
