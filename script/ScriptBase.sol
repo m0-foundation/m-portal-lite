@@ -5,6 +5,9 @@ pragma solidity 0.8.26;
 import { Script } from "../lib/forge-std/src/Script.sol";
 
 contract ScriptBase is Script {
+    // Same address for all EVM chains
+    address internal constant _SWAP_FACILITY = 0xB6807116b3B1B321a390594e31ECD6e0076f6278;
+
     struct Deployment {
         address bridge;
         address mToken;

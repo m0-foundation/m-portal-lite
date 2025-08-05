@@ -18,6 +18,7 @@ import { PayloadType, PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { MockMToken } from "../mocks/MockMToken.sol";
 import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockHubRegistrar } from "../mocks/MockHubRegistrar.sol";
+import { MockSwapFacility } from "../mocks/MockSwapFacility.sol";
 import { MockBridge } from "../mocks/MockBridge.sol";
 
 contract HubPortalTest is Test {
@@ -40,6 +41,7 @@ contract HubPortalTest is Test {
     MockMToken public mToken;
     MockWrappedMToken public wrappedMToken;
     MockHubRegistrar public registrar;
+    MockSwapFacility public swapFacility;
     MockBridge public bridge;
 
     address public spokeMToken = makeAddr("spokeMToken");
@@ -52,8 +54,9 @@ contract HubPortalTest is Test {
         mToken = new MockMToken();
         wrappedMToken = new MockWrappedMToken(address(mToken));
         registrar = new MockHubRegistrar();
+        swapFacility = new MockSwapFacility(address(mToken));
         bridge = new MockBridge();
-        implementation = new HubPortal(address(mToken), address(registrar));
+        implementation = new HubPortal(address(mToken), address(registrar), address(swapFacility));
         ERC1967Proxy proxy_ = new ERC1967Proxy(
             address(implementation), abi.encodeWithSelector(IPortal.initialize.selector, address(bridge), owner, owner)
         );
@@ -86,6 +89,7 @@ contract HubPortalTest is Test {
     function test_constructor_initialState() external {
         assertEq(address(hubPortal.mToken()), address(mToken));
         assertEq(address(hubPortal.registrar()), address(registrar));
+        assertEq(address(hubPortal.swapFacility()), address(swapFacility));
         assertEq(address(hubPortal.bridge()), address(bridge));
         assertEq(address(hubPortal.owner()), owner);
         assertEq(address(hubPortal.pauser()), owner);
@@ -95,12 +99,17 @@ contract HubPortalTest is Test {
 
     function test_constructor_zeroMToken() external {
         vm.expectRevert(IPortal.ZeroMToken.selector);
-        new HubPortal(address(0), address(registrar));
+        new HubPortal(address(0), address(registrar), address(swapFacility));
     }
 
     function test_constructor_zeroRegistrar() external {
         vm.expectRevert(IPortal.ZeroRegistrar.selector);
-        new HubPortal(address(mToken), address(0));
+        new HubPortal(address(mToken), address(0), address(swapFacility));
+    }
+
+    function test_constructor_zeroSwapFacility() external {
+        vm.expectRevert(IPortal.ZeroSwapFacility.selector);
+        new HubPortal(address(mToken), address(registrar), address(0));
     }
 
     ///////////////////////////////////////////////////////////////////////////

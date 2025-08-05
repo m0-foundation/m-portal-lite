@@ -27,11 +27,17 @@ contract SpokePortal is Portal, ISpokePortal {
     /**
      * @notice Constructs SpokePortal Implementation contract
      * @dev    Sets immutable storage.
-     * @param  hubChainId_ The EVM chain Id of the Hub chain.
-     * @param  mToken_     The address of M token.
-     * @param  registrar_  The address of Registrar.
+     * @param  hubChainId_   The EVM chain Id of the Hub chain.
+     * @param  mToken_       The address of M token.
+     * @param  registrar_    The address of Registrar.
+     * @param  swapFacility_ The address of Swap Facility.
      */
-    constructor(uint256 hubChainId_, address mToken_, address registrar_) Portal(mToken_, registrar_) {
+    constructor(
+        uint256 hubChainId_,
+        address mToken_,
+        address registrar_,
+        address swapFacility_
+    ) Portal(mToken_, registrar_, swapFacility_) {
         if ((hubChainId = hubChainId_) == 0) revert ZeroHubChain();
     }
 

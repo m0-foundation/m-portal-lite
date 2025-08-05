@@ -11,7 +11,7 @@ import { ScriptBase } from "../ScriptBase.sol";
 
 abstract contract UpgradeHubPortalBase is ScriptBase {
     function _upgradeHubPortal(address portal_, address mToken_, address registrar_, address deployer_) internal {
-        HubPortal implementation_ = new HubPortal(mToken_, registrar_);
+        HubPortal implementation_ = new HubPortal(mToken_, registrar_, _SWAP_FACILITY);
         Migrator migrator_ = new Migrator(address(implementation_));
 
         HubPortal(portal_).migrate(address(migrator_));

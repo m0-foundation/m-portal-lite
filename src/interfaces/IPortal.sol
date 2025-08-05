@@ -108,6 +108,9 @@ interface IPortal {
     /// @notice Thrown when the Registrar address is 0x0.
     error ZeroRegistrar();
 
+    /// @notice Thrown when the Swap Facility address is 0x0.
+    error ZeroSwapFacility();
+
     /// @notice Thrown when the Bridge address is 0x0.
     error ZeroBridge();
 
@@ -153,6 +156,9 @@ interface IPortal {
 
     /// @notice The address of the Bridge contract responsible for cross-chain communication.
     function bridge() external view returns (address);
+
+    /// @notice The address of the Swap Facility contract.
+    function swapFacility() external view returns (address swapFacility);
 
     /**
      * @notice Returns the address of M token on the destination chain.

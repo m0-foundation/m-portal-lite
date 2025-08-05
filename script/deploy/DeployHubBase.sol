@@ -14,7 +14,7 @@ contract DeployHubBase is DeployBase {
     address internal constant _VAULT = 0xd7298f620B0F752Cf41BD818a16C756d9dCAA34f;
 
     function _deployHubPortal(address bridge_, address deployer_) internal returns (address portal_) {
-        HubPortal implementation_ = new HubPortal(_M_TOKEN, _REGISTRAR);
+        HubPortal implementation_ = new HubPortal(_M_TOKEN, _REGISTRAR, _SWAP_FACILITY);
         bytes memory initializeCall = abi.encodeWithSelector(IPortal.initialize.selector, bridge_, deployer_, deployer_);
         return _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, _PORTAL_CONTRACT_NAME), initializeCall);
     }

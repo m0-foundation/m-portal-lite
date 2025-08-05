@@ -14,7 +14,7 @@ contract UpgradeSpokePortal is UpgradeSpokePortalBase {
         console.log("Deployer:", deployer_);
         vm.startBroadcast(deployer_);
 
-        _upgradeSpokePortal(block.chainid, portal_, mToken_, registrar_, deployer_);
+        _upgradeSpokePortal(block.chainid, portal_, mToken_, registrar_, _SWAP_FACILITY, deployer_);
 
         vm.stopBroadcast();
     }

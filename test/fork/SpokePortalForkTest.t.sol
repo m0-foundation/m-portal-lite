@@ -16,6 +16,7 @@ import { SpokePortal } from "../../src/SpokePortal.sol";
 import { HyperlaneBridge } from "../../src/bridges/hyperlane/HyperlaneBridge.sol";
 import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
+import { MockSwapFacility } from "../mocks/MockSwapFacility.sol";
 
 contract SpokePortalForkTest is Test, UpgradeSpokePortalBase {
     uint256 public constant ETHEREUM_CHAIN_ID = 1;
@@ -58,7 +59,9 @@ contract SpokePortalForkTest is Test, UpgradeSpokePortalBase {
 
     function test_upgradePortal_transferUSDHL() external {
         vm.startPrank(DEPLOYER);
-        _upgradeSpokePortal(HYPEREVM_CHAIN_ID, PORTAL, M_TOKEN, REGISTRAR, DEPLOYER);
+        // TODO: use the actual swap facility address after deployment on HyperEVM
+        MockSwapFacility swapFacility_ = new MockSwapFacility(M_TOKEN);
+        _upgradeSpokePortal(HYPEREVM_CHAIN_ID, PORTAL, M_TOKEN, REGISTRAR, address(swapFacility_), DEPLOYER);
         vm.stopPrank();
 
         uint256 amount = 100;
