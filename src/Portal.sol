@@ -331,8 +331,8 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, ReentrancyGuard
         // NOTE: the call might fail with out-of-gas exception
         //       even if the destination token is the valid wrapped M token.
         //       Recipients must support both $M and wrapped $M transfers.
-        bool success =
-            swapFacility.safeCall(abi.encodeCall(ISwapFacilityLike.swapInM, (destinationWrappedToken_, amount_, recipient_)));
+        (bool success,) =
+            swapFacility.call(abi.encodeCall(ISwapFacilityLike.swapInM, (destinationWrappedToken_, amount_, recipient_)));
 
         if (!success) {
             emit WrapFailed(destinationWrappedToken_, recipient_, amount_);
