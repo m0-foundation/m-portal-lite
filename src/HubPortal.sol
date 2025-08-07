@@ -36,8 +36,9 @@ contract HubPortal is Portal, IHubPortal {
      * @dev    Sets immutable storage.
      * @param  mToken_    The address of M token.
      * @param  registrar_ The address of Registrar.
+     * @param  swapFacility_ The address of Swap Facility.
      */
-    constructor(address mToken_, address registrar_) Portal(mToken_, registrar_) { }
+    constructor(address mToken_, address registrar_, address swapFacility_) Portal(mToken_, registrar_, swapFacility_) { }
 
     /// @inheritdoc IPortal
     function initialize(address bridge_, address initialOwner_, address initialPauser_) external initializer {

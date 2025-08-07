@@ -24,6 +24,7 @@ contract HubPortalForkTest is Test {
     address public constant DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
     address public constant ETHEREUM_REGISTRAR = 0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c;
     address public constant ETHEREUM_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
+    address public constant ETHEREUM_SWAP_FACILITY = 0xB6807116b3B1B321a390594e31ECD6e0076f6278;
     address public constant HYPER_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
     address public constant ETHEREUM_MAILBOX = 0xc005dc82818d67AF737725bD4bf75435d065D239;
     address public constant M_HOLDER = 0x3f0376da3Ae4313E7a5F1dA184BAFC716252d759;
@@ -51,7 +52,7 @@ contract HubPortalForkTest is Test {
         uint256 nonce_ = vm.getNonce(DEPLOYER);
         address hubPortalAddress_ = vm.computeCreateAddress(DEPLOYER, nonce_ + 2);
         hubBridge = new HyperlaneBridge(ETHEREUM_MAILBOX, hubPortalAddress_, DEPLOYER);
-        HubPortal implementation = new HubPortal(ETHEREUM_M_TOKEN, ETHEREUM_REGISTRAR);
+        HubPortal implementation = new HubPortal(ETHEREUM_M_TOKEN, ETHEREUM_REGISTRAR, ETHEREUM_SWAP_FACILITY);
         ERC1967Proxy proxy_ = new ERC1967Proxy(
             address(implementation), abi.encodeWithSelector(IPortal.initialize.selector, address(hubBridge), DEPLOYER, DEPLOYER)
         );

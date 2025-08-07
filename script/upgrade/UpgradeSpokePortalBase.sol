@@ -16,9 +16,10 @@ abstract contract UpgradeSpokePortalBase is ScriptBase {
         address portal_,
         address mToken_,
         address registrar_,
+        address swapFacility_,
         address deployer_
     ) internal {
-        SpokePortal implementation_ = new SpokePortal(Chains.getHubChainId(chainId_), mToken_, registrar_);
+        SpokePortal implementation_ = new SpokePortal(Chains.getHubChainId(chainId_), mToken_, registrar_, swapFacility_);
         Migrator migrator_ = new Migrator(address(implementation_));
 
         SpokePortal(portal_).migrate(address(migrator_));

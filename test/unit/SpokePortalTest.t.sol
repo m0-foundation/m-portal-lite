@@ -18,6 +18,7 @@ import { PayloadType, PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
 import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
+import { MockSwapFacility } from "../mocks/MockSwapFacility.sol";
 import { MockBridge } from "../mocks/MockBridge.sol";
 
 contract SpokePortalTest is Test {
@@ -30,6 +31,7 @@ contract SpokePortalTest is Test {
     MockSpokeMToken public mToken;
     MockWrappedMToken public wrappedMToken;
     MockSpokeRegistrar public registrar;
+    MockSwapFacility public swapFacility;
     MockBridge public bridge;
 
     address public hubMToken = makeAddr("hubMToken");
@@ -42,9 +44,10 @@ contract SpokePortalTest is Test {
         mToken = new MockSpokeMToken();
         wrappedMToken = new MockWrappedMToken(address(mToken));
         registrar = new MockSpokeRegistrar();
+        swapFacility = new MockSwapFacility(address(mToken));
         bridge = new MockBridge();
 
-        SpokePortal implementation_ = new SpokePortal(HUB_CHAIN_ID, address(mToken), address(registrar));
+        SpokePortal implementation_ = new SpokePortal(HUB_CHAIN_ID, address(mToken), address(registrar), address(swapFacility));
         ERC1967Proxy proxy_ = new ERC1967Proxy(
             address(implementation_), abi.encodeWithSelector(IPortal.initialize.selector, address(bridge), owner, owner)
         );
@@ -75,6 +78,7 @@ contract SpokePortalTest is Test {
         assertEq(spokePortal.hubChainId(), HUB_CHAIN_ID);
         assertEq(address(spokePortal.mToken()), address(mToken));
         assertEq(address(spokePortal.registrar()), address(registrar));
+        assertEq(address(spokePortal.swapFacility()), address(swapFacility));
         assertEq(address(spokePortal.bridge()), address(bridge));
         assertEq(address(spokePortal.owner()), owner);
         assertEq(address(spokePortal.pauser()), owner);
@@ -82,7 +86,7 @@ contract SpokePortalTest is Test {
 
     function test_constructor_zeroHubChain() external {
         vm.expectRevert(ISpokePortal.ZeroHubChain.selector);
-        new SpokePortal(0, address(mToken), address(registrar));
+        new SpokePortal(0, address(mToken), address(registrar), address(swapFacility));
     }
 
     ///////////////////////////////////////////////////////////////////////////
