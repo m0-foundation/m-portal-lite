@@ -11,7 +11,6 @@ import { IPortal } from "./interfaces/IPortal.sol";
 import { IBridge } from "./interfaces/IBridge.sol";
 import { ISwapFacilityLike } from "./interfaces/ISwapFacilityLike.sol";
 import { PausableOwnableUpgradeable } from "./access/PausableOwnableUpgradeable.sol";
-import { IWrappedMTokenLike } from "./interfaces/IWrappedMTokenLike.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { SafeCall } from "./libs/SafeCall.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
