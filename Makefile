@@ -27,7 +27,7 @@ deploy-spoke:
 	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
 	--skip test --broadcast --slow --non-interactive -v \
 	--evm-version ${EVM_VERSION} \
-  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
+    --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
 	
 deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 deploy-spoke-hyper-evm: EVM_VERSION="cancun"
@@ -132,13 +132,18 @@ upgrade-spoke:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(RPC_URL) \
 	--skip test --broadcast --slow --non-interactive -v --verify \
-	--verifier blockscout --verifier-url $(VERIFIER_URL)
+	--verifier $(VERIFIER) --verifier-url $(VERIFIER_URL)
 	
 upgrade-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
+deploy-spoke-hyper-evm: VERIFIER=blockscout
 upgrade-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 upgrade-spoke-hyper-evm: upgrade-spoke
 
+upgrade-spoke-linea: RPC_URL=$(LINEA_RPC)
+upgrade-spoke-linea: upgrade-spoke
+
 upgrade-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
+upgrade-spoke-linea: VERIFIER=blockscout
 upgrade-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
 upgrade-spoke-plume-testnet: upgrade-spoke
 
