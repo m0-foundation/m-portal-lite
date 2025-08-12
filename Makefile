@@ -53,6 +53,7 @@ deploy-spoke-plume-testnet: VERIFIER="blockscout"
 deploy-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
 deploy-spoke-plume-testnet: deploy-spoke
 
+# Need to remove --verifier and --verifier-url params for Linea. Configured in foundry.toml
 deploy-spoke-linea: RPC_URL=$(LINEA_RPC)
 deploy-spoke-linea: EVM_VERSION="london"
 deploy-spoke-linea: deploy-spoke
@@ -60,20 +61,36 @@ deploy-spoke-linea: deploy-spoke
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM --rpc-url $(RPC_URL) \
-	--skip test --broadcast --slow --non-interactive -v --verify \
-    --verifier blockscout --verifier-url $(VERIFIER_URL)
+	--skip test --broadcast --slow --non-interactive -v \
+	--evm-version ${EVM_VERSION} \
+	--verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
 
 deploy-spoke-wrapped_m-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
+deploy-spoke-hyper-evm: EVM_VERSION="cancun"
+deploy-spoke-hyper-evm: VERIFIER="blockscout"
+deploy-spoke-wrapped_m-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
+deploy-spoke-wrapped_m-hyper-evm: deploy-spoke-wrapped_m
+
+deploy-spoke-wrapped_m-hyper-evm: RPC_URL=$(LINEA_RPC)
 deploy-spoke-wrapped_m-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-wrapped_m-hyper-evm: deploy-spoke-wrapped_m
 
 deploy-spoke-wrapped_m-plume: RPC_URL=$(PLUME_RPC)
+deploy-spoke-plume: EVM_VERSION="cancun"
+deploy-spoke-plume: VERIFIER="blockscout"
 deploy-spoke-wrapped_m-plume: VERIFIER_URL=$(PLUME_EXPLORER)
 deploy-spoke-wrapped_m-plume: deploy-spoke-wrapped_m
 
 deploy-spoke-wrapped_m-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
+deploy-spoke-plume-testnet: EVM_VERSION="cancun"
+deploy-spoke-plume-testnet: VERIFIER="blockscout"
 deploy-spoke-wrapped_m-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
 deploy-spoke-wrapped_m-plume-testnet: deploy-spoke-wrapped_m
+
+# Need to remove --verifier and --verifier-url params for Linea. Configured in foundry.toml
+deploy-spoke-wrapped_m-linea: RPC_URL=$(LINEA_RPC)
+deploy-spoke-wrapped_m-linea: EVM_VERSION="london"
+deploy-spoke-wrapped_m-linea: deploy-spoke-wrapped_m
 
 #
 # Configure
