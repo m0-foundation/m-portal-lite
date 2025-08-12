@@ -71,7 +71,7 @@ deploy-spoke-hyper-evm: VERIFIER="blockscout"
 deploy-spoke-wrapped_m-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-wrapped_m-hyper-evm: deploy-spoke-wrapped_m
 
-deploy-spoke-wrapped_m-hyper-evm: RPC_URL=$(LINEA_RPC)
+deploy-spoke-wrapped_m-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 deploy-spoke-wrapped_m-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
 deploy-spoke-wrapped_m-hyper-evm: deploy-spoke-wrapped_m
 
