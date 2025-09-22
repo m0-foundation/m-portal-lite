@@ -27,19 +27,11 @@ contract SpokePortal is Portal, ISpokePortal {
     /**
      * @notice Constructs SpokePortal Implementation contract
      * @dev    Sets immutable storage.
-     * @param  hubChainId_   The EVM chain Id of the Hub chain.
      * @param  mToken_       The address of M token.
      * @param  registrar_    The address of Registrar.
      * @param  swapFacility_ The address of Swap Facility.
      */
-    constructor(
-        uint256 hubChainId_,
-        address mToken_,
-        address registrar_,
-        address swapFacility_
-    ) Portal(mToken_, registrar_, swapFacility_) {
-        if ((hubChainId = hubChainId_) == 0) revert ZeroHubChain();
-    }
+    constructor(address mToken_, address registrar_, address swapFacility_) Portal(mToken_, registrar_, swapFacility_) { }
 
     /// @inheritdoc IPortal
     function initialize(address bridge_, address initialOwner_, address initialPauser_) external initializer {
@@ -99,7 +91,7 @@ contract SpokePortal is Portal, ISpokePortal {
      * @param amount_    The amount of M Token to mint to the recipient.
      * @param index_     The index from the source chain.
      */
-    function _mintOrUnlock(uint256, address recipient_, uint256 amount_, uint128 index_) internal override {
+    function _mintOrUnlock(address recipient_, uint256 amount_, uint128 index_) internal override {
         // Update M token index only if the index received from the remote chain is bigger
         if (index_ > _currentIndex()) {
             ISpokeMTokenLike(mToken).mint(recipient_, amount_, index_);
@@ -123,10 +115,5 @@ contract SpokePortal is Portal, ISpokePortal {
     /// @dev Returns the current M token index used by the Spoke Portal.
     function _currentIndex() internal view override returns (uint128) {
         return ISpokeMTokenLike(mToken).currentIndex();
-    }
-
-    /// @dev Reverts if the destination chain is the Hub chain
-    function _revertIfUnsupportedDestinationChain(uint256 destinationChainId_) internal view override {
-        if (destinationChainId_ != hubChainId) revert UnsupportedDestinationChain(destinationChainId_);
     }
 }

@@ -20,7 +20,7 @@ contract DeploySpoke is DeploySpokeBase {
         address registrar_ = _deployRegistrar(deployer_, vm.getNonce(deployer_));
         address mToken_ = _deployMToken(vm.getNonce(deployer_), mTokenImplementation_);
         address bridge_ = _deployHyperlaneBridge(chainId_, deployer_);
-        address portal_ = _deploySpokePortal(chainId_, mToken_, registrar_, bridge_, deployer_);
+        address portal_ = _deploySpokePortal(mToken_, registrar_, bridge_, deployer_);
 
         vm.stopBroadcast();
 

@@ -308,10 +308,10 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, ReentrancyLock,
         address mToken_ = mToken;
         if (destinationToken_ == mToken_) {
             // mints or unlocks M Token to the recipient
-            _mintOrUnlock(sourceChainId_, recipient_, amount_, index_);
+            _mintOrUnlock(recipient_, amount_, index_);
         } else {
             // mints or unlocks M Token to the Portal
-            _mintOrUnlock(sourceChainId_, address(this), amount_, index_);
+            _mintOrUnlock(address(this), amount_, index_);
 
             // wraps M token and transfers it to the recipient
             _wrap(mToken_, destinationToken_, recipient_, amount_);
@@ -355,12 +355,11 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, ReentrancyLock,
     /**
      * @dev   HubPortal:   unlocks and transfers `amount_` M tokens to `recipient_`.
      *        SpokePortal: mints `amount_` M tokens to `recipient_`.
-     * @param sourceChainId_ The EVM id of the source chain.
      * @param recipient_     The account receiving M tokens.
      * @param amount_        The amount of M tokens to unlock/mint.
      * @param index_         The index from the source chain.
      */
-    function _mintOrUnlock(uint256 sourceChainId_, address recipient_, uint256 amount_, uint128 index_) internal virtual { }
+    function _mintOrUnlock(address recipient_, uint256 amount_, uint128 index_) internal virtual { }
 
     /**
      * @dev   HubPortal:   locks amount_` M tokens.

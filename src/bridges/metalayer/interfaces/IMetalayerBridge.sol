@@ -79,4 +79,4 @@ interface IMetalayerBridge is IBridge, IMetalayerRecipient {
      * @param  domain  The custom domain ID to use for this chain.
      */
     function setDomainOverride(uint256 chainId, uint32 domain) external;
-} 
+}

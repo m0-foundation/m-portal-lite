@@ -61,7 +61,7 @@ contract SpokePortalForkTest is Test, UpgradeSpokePortalBase {
         vm.startPrank(DEPLOYER);
         // TODO: use the actual swap facility address after deployment on HyperEVM
         MockSwapFacility swapFacility_ = new MockSwapFacility(M_TOKEN);
-        _upgradeSpokePortal(HYPEREVM_CHAIN_ID, PORTAL, M_TOKEN, REGISTRAR, address(swapFacility_), DEPLOYER);
+        _upgradeSpokePortal(PORTAL, M_TOKEN, REGISTRAR, address(swapFacility_), DEPLOYER);
         vm.stopPrank();
 
         uint256 amount = 100;

@@ -110,7 +110,7 @@ contract MetalayerBridgeTest is Test {
 
         // Manual selector for: quoteDispatch(uint32,bytes32,ReadOperation[],bytes,FinalityState,uint256)
         bytes4 quoteSelector = bytes4(keccak256("quoteDispatch(uint32,bytes32,(uint32,address,bytes)[],bytes,uint8,uint256)"));
-        
+
         vm.mockCall(
             router,
             abi.encodeWithSelector(
@@ -156,13 +156,7 @@ contract MetalayerBridgeTest is Test {
         vm.mockCall(
             router,
             abi.encodeWithSelector(
-                quoteSelector,
-                customDomain,
-                remotePeer,
-                emptyReads,
-                payload_,
-                FinalityState.INSTANT,
-                bridge.DEFAULT_GAS_LIMIT()
+                quoteSelector, customDomain, remotePeer, emptyReads, payload_, FinalityState.INSTANT, bridge.DEFAULT_GAS_LIMIT()
             ),
             abi.encode(1000)
         );
@@ -183,13 +177,7 @@ contract MetalayerBridgeTest is Test {
         vm.expectCall(
             router,
             abi.encodeWithSelector(
-                dispatchSelector,
-                uint32(REMOTE_CHAIN_ID),
-                remotePeer,
-                emptyReads,
-                payload_,
-                FinalityState.INSTANT,
-                gasLimit_
+                dispatchSelector, uint32(REMOTE_CHAIN_ID), remotePeer, emptyReads, payload_, FinalityState.INSTANT, gasLimit_
             )
         );
 
@@ -197,7 +185,7 @@ contract MetalayerBridgeTest is Test {
         vm.prank(portal);
 
         bytes32 messageId = bridge.sendMessage{ value: value_ }(REMOTE_CHAIN_ID, gasLimit_, user, payload_);
-        
+
         // Verify that a messageId was generated
         assertTrue(messageId != bytes32(0));
     }
@@ -230,13 +218,7 @@ contract MetalayerBridgeTest is Test {
         vm.expectCall(
             router,
             abi.encodeWithSelector(
-                dispatchSelector,
-                customDomain,
-                remotePeer,
-                emptyReads,
-                payload_,
-                FinalityState.INSTANT,
-                gasLimit_
+                dispatchSelector, customDomain, remotePeer, emptyReads, payload_, FinalityState.INSTANT, gasLimit_
             )
         );
 
@@ -286,4 +268,4 @@ contract MetalayerBridgeTest is Test {
         // Without override, should return 0
         assertEq(bridge.domainOverride(REMOTE_CHAIN_ID), 0);
     }
-} 
+}

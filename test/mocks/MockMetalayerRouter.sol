@@ -16,14 +16,7 @@ contract MockMetalayerRouter {
         return 0;
     }
 
-    function dispatch(
-        uint32,
-        bytes32,
-        ReadOperation[] calldata,
-        bytes calldata,
-        FinalityState,
-        uint256
-    ) external payable {
+    function dispatch(uint32, bytes32, ReadOperation[] calldata, bytes calldata, FinalityState, uint256) external payable {
         // Mock dispatch function - does nothing but consumes gas
     }
-} 
+}

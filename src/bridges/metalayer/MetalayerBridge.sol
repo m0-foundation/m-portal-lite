@@ -46,11 +46,12 @@ contract MetalayerBridge is Ownable, IMetalayerBridge {
     /// @inheritdoc IBridge
     function quote(uint256 destinationChainId_, uint256 gasLimit_, bytes memory payload_) external view returns (uint256 fee_) {
         bytes32 peer_ = _getPeer(destinationChainId_);
-        uint32 destinationDomain_ = _getMetalayerDomain(destinationChainId_);   
+        uint32 destinationDomain_ = _getMetalayerDomain(destinationChainId_);
 
-        fee_ = IMetalayerRouter(router).quoteDispatch(destinationDomain_, peer_, new ReadOperation[](0), payload_, FinalityState.INSTANT, DEFAULT_GAS_LIMIT);
+        fee_ = IMetalayerRouter(router).quoteDispatch(
+            destinationDomain_, peer_, new ReadOperation[](0), payload_, FinalityState.INSTANT, DEFAULT_GAS_LIMIT
+        );
     }
-
 
     /// @inheritdoc IBridge
     function sendMessage(
@@ -68,12 +69,7 @@ contract MetalayerBridge is Ownable, IMetalayerBridge {
         // NOTE: The transaction reverts if msg.value isn't enough to cover the fee.
         //       If msg.value is greater than the required fee, the excess is sent to the refund address.
         IMetalayerRouter(router).dispatch{ value: msg.value }(
-            destinationDomain_, 
-            peer_, 
-            emptyReads_, 
-            payload_, 
-            FinalityState.INSTANT, 
-            gasLimit_
+            destinationDomain_, peer_, emptyReads_, payload_, FinalityState.INSTANT, gasLimit_
         );
 
         // Metalayer doesn't return a messageId, so we generate one from the transaction hash
@@ -82,8 +78,8 @@ contract MetalayerBridge is Ownable, IMetalayerBridge {
 
     /// @inheritdoc IMetalayerRecipient
     function handle(
-        uint32 sourceChainId_, 
-        bytes32 sender_, 
+        uint32 sourceChainId_,
+        bytes32 sender_,
         bytes calldata payload_,
         ReadOperation[] calldata reads_,
         bytes[] calldata readResults_

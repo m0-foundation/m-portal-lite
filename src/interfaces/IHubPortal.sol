@@ -80,9 +80,6 @@ interface IHubPortal is IPortal {
     /// @notice Returns the value of M token index when earning for HubPortal was disabled.
     function disableEarningIndex() external view returns (uint128);
 
-    /// @notice Returns the principal amount of M tokens bridged to the destination chain.
-    function bridgedPrincipal(uint256 destinationChainId) external view returns (uint256 principal);
-
     /**
      * @notice Returns the delivery fee for sending $M token index.
      * @dev    The fee must be passed as mgs.value when calling `sendMTokenIndex`.

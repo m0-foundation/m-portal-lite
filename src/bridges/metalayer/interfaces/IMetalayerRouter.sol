@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.26;
 
-import {ReadOperation} from "./IMetalayerRecipient.sol";
+import { ReadOperation } from "./IMetalayerRecipient.sol";
 
 /// @notice The finality state of the message.
 /// @author Caldera
@@ -94,8 +94,9 @@ interface IMetalayerRouter {
      * @param messageBody Raw bytes content of message body
      * @return fee The payment required to dispatch the message
      */
-    function quoteDispatch(uint32 destinationDomain, bytes32 recipientAddress, bytes calldata messageBody)
-        external
-        view
-        returns (uint256 fee);
+    function quoteDispatch(
+        uint32 destinationDomain,
+        bytes32 recipientAddress,
+        bytes calldata messageBody
+    ) external view returns (uint256 fee);
 }
