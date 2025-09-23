@@ -11,11 +11,13 @@ library Chains {
     uint256 internal constant HYPER_EVM = 999;
     uint256 internal constant PLUME = 98866;
     uint256 internal constant LINEA = 59144;
+    uint256 internal constant APECHAIN = 33139;
 
     // Testnet
     uint256 internal constant ETHEREUM_SEPOLIA = 11155111;
     uint256 internal constant HYPER_EVM_TESTNET = 998;
     uint256 internal constant PLUME_TESTNET = 98867;
+    uint256 internal constant APECHAIN_TESTNET = 33111;
 
     function getHubChainId(uint256 spokeChainId_) internal returns (uint256 hubChainId_) {
         // Mainnet
