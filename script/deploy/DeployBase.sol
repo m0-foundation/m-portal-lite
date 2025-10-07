@@ -5,16 +5,20 @@ pragma solidity 0.8.26;
 import { ERC1967Proxy } from "../../lib/openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import { HyperlaneBridge } from "../../src/bridges/hyperlane/HyperlaneBridge.sol";
+import { MetalayerBridge } from "../../src/bridges/metalayer/MetalayerBridge.sol";
 
 import { HyperlaneConfig } from "../config/HyperlaneConfig.sol";
+import { MetalayerConfig } from "../config/MetalayerConfig.sol";
 import { ScriptBase } from "../ScriptBase.sol";
 import { ICreateXLike } from "./interfaces/ICreateXLike.sol";
 
 contract DeployBase is ScriptBase {
     /// @dev Contract names used for deterministic deployment
     string internal constant _HYPERLANE_BRIDGE_CONTRACT_NAME = "Hyperlane Bridge";
+    /// @dev Contract names used for deterministic deployment
+    string internal constant _METALAYER_BRIDGE_CONTRACT_NAME = "Metalayer BridgeV2";
     /// @dev Using pre-approved earner address for Portal
-    string internal constant _PORTAL_CONTRACT_NAME = "EarnerAlpha";
+    string internal constant _PORTAL_CONTRACT_NAME = "Caldera Portal";
 
     // Same address across all supported mainnet and testnets networks.
     address internal constant _CREATE_X_FACTORY = 0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed;
@@ -71,6 +75,15 @@ contract DeployBase is ScriptBase {
         bytes memory bridgeInitCode_ =
             abi.encodePacked(type(HyperlaneBridge).creationCode, abi.encode(mailbox_, portal_, deployer_));
         bytes32 bridgeSalt_ = _computeSalt(deployer_, _HYPERLANE_BRIDGE_CONTRACT_NAME);
+        return _deployCreate3(bridgeInitCode_, bridgeSalt_);
+    }
+
+    function _deployMetalayerBridge(uint256 chainId_, address deployer_) internal returns (address metalayerBridge_) {
+        address portal_ = _computePortalAddress(deployer_);
+        address router_ = MetalayerConfig.getRouter(chainId_);
+        bytes memory bridgeInitCode_ =
+            abi.encodePacked(type(MetalayerBridge).creationCode, abi.encode(router_, portal_, deployer_));
+        bytes32 bridgeSalt_ = _computeSalt(deployer_, _METALAYER_BRIDGE_CONTRACT_NAME);
         return _deployCreate3(bridgeInitCode_, bridgeSalt_);
     }
 

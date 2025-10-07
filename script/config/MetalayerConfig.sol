@@ -5,7 +5,6 @@ pragma solidity 0.8.26;
 import { Chains } from "./Chains.sol";
 
 library MetalayerConfig {
-
     address internal constant _MAINNET_ROUTER = 0x09cE71C24EE2098e351C0cF2dC6431B414d247f3;
     address internal constant _TESTNET_ROUTER = 0x6F23B0211056035A22430a10fD27DED8547dc377;
 

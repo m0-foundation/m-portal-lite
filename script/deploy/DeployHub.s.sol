@@ -17,7 +17,7 @@ contract DeployHub is DeployHubBase {
         vm.startBroadcast(deployer_);
 
         uint256 chainId_ = block.chainid;
-        address bridge_ = _deployHyperlaneBridge(chainId_, deployer_);
+        address bridge_ = _deployMetalayerBridge(chainId_, deployer_);
         address portal_ = _deployHubPortal(bridge_, deployer_);
 
         // HubPortal is already an approve earner
@@ -25,7 +25,7 @@ contract DeployHub is DeployHubBase {
 
         vm.stopBroadcast();
 
-        console.log("Hyperlane Bridge: ", bridge_);
+        console.log("Metalayer Bridge: ", bridge_);
         console.log("Hub Portal:       ", portal_);
 
         _writeDeployments(chainId_, bridge_, _M_TOKEN, portal_, _REGISTRAR, _VAULT, _WRAPPED_M_TOKEN);

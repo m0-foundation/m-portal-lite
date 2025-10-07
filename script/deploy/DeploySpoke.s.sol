@@ -19,7 +19,7 @@ contract DeploySpoke is DeploySpokeBase {
         address mTokenImplementation_ = _deployMTokenImplementation(migrationAdmin_, deployer_, vm.getNonce(deployer_));
         address registrar_ = _deployRegistrar(deployer_, vm.getNonce(deployer_));
         address mToken_ = _deployMToken(vm.getNonce(deployer_), mTokenImplementation_);
-        address bridge_ = _deployHyperlaneBridge(chainId_, deployer_);
+        address bridge_ = _deployMetalayerBridge(chainId_, deployer_);
         address portal_ = _deploySpokePortal(mToken_, registrar_, bridge_, deployer_);
 
         vm.stopBroadcast();
@@ -27,7 +27,7 @@ contract DeploySpoke is DeploySpokeBase {
         console.log("M Token:           ", mToken_);
         console.log("Registrar:         ", registrar_);
         console.log("Spoke Portal:      ", portal_);
-        console.log("Hyperlane Bridge:  ", bridge_);
+        console.log("Metalayer Bridge:  ", bridge_);
 
         _writeDeployments(chainId_, bridge_, mToken_, portal_, registrar_, address(0), address(0));
     }

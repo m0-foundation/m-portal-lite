@@ -25,37 +25,23 @@ deploy-hub-sepolia: deploy-hub
 deploy-spoke: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
-	--skip test --broadcast --slow --non-interactive -v \
-	--evm-version ${EVM_VERSION} \
-  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
-	
-deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
-deploy-spoke-hyper-evm: EVM_VERSION="cancun"
-deploy-spoke-hyper-evm: VERIFIER="blockscout"
-deploy-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
-deploy-spoke-hyper-evm: deploy-spoke
+	--skip test  --broadcast  --slow --non-interactive -v \
+    --etherscan-api-key $(ETHERSCAN_API_KEY) --verify
 
-deploy-spoke-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
-deploy-spoke-hyper-evm-testnet: EVM_VERSION="cancun"
-deploy-spoke-hyper-evm-testnet: VERIFIER="blockscout"
-deploy-spoke-hyper-evm-testnet: VERIFIER_URL=$(HYPEREVM_EXPLORER)
-deploy-spoke-hyper-evm-testnet: deploy-spoke
+deploy-spoke-apechain-testnet: RPC_URL=$(APECHAIN_TESTNET_RPC)
+deploy-spoke-apechain-testnet: deploy-spoke
 
-deploy-spoke-plume: RPC_URL=$(PLUME_RPC)
-deploy-spoke-plume: EVM_VERSION="cancun"
-deploy-spoke-plume: VERIFIER="blockscout"
-deploy-spoke-plume: VERIFIER_URL=$(PLUME_EXPLORER)
-deploy-spoke-plume: deploy-spoke
+deploy-bridge: 
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/deploy/DeployBridge.s.sol:DeployBridge --rpc-url $(RPC_URL) \
+	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test \
+	--slow --non-interactive -v --verify --broadcast
 
-deploy-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
-deploy-spoke-plume-testnet: EVM_VERSION="cancun"
-deploy-spoke-plume-testnet: VERIFIER="blockscout"
-deploy-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
-deploy-spoke-plume-testnet: deploy-spoke
+deploy-bridge-sepolia: RPC_URL=$(SEPOLIA_RPC)
+deploy-bridge-sepolia: deploy-bridge
 
-deploy-spoke-linea: RPC_URL=$(LINEA_RPC)
-deploy-spoke-linea: EVM_VERSION="london"
-deploy-spoke-linea: deploy-spoke
+deploy-bridge-apechain-testnet: RPC_URL=$(APECHAIN_TESTNET_RPC)
+deploy-bridge-apechain-testnet: deploy-bridge
 
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
@@ -94,20 +80,8 @@ configure-ethereum: configure
 configure-sepolia: RPC_URL=$(SEPOLIA_RPC)
 configure-sepolia: configure
 
-configure-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
-configure-hyper-evm: configure
-
-configure-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
-configure-hyper-evm-testnet: configure
-
-configure-plume: RPC_URL=$(PLUME_RPC)
-configure-plume: configure
-
-configure-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
-configure-plume-testnet: configure
-
-configure-linea: RPC_URL=$(LINEA_RPC)
-configure-linea: configure
+configure-apechain-testnet: RPC_URL=$(APECHAIN_TESTNET_RPC)
+configure-apechain-testnet: configure
 
 #
 # Upgrade
@@ -198,20 +172,11 @@ transfer: execute
 transfer-ethereum: RPC_URL=$(ETHEREUM_RPC)
 transfer-ethereum: transfer
 
-transfer-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
-transfer-hyper-evm: transfer
-
 transfer-sepolia: RPC_URL=$(SEPOLIA_RPC)
 transfer-sepolia: transfer
 
-transfer-plume: RPC_URL=$(PLUME_RPC)
-transfer-plume: transfer
-
-transfer-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
-transfer-plume-testnet: transfer
-
-transfer-linea: RPC_URL=$(LINEA_RPC)
-transfer-linea: transfer
+transfer-apechain-testnet: RPC_URL=$(APECHAIN_TESTNET_RPC)
+transfer-apechain-testnet: transfer
 
 #
 # Transfer M like token
@@ -226,14 +191,4 @@ transfer-m-like-token-ethereum: transfer-m-like-token
 transfer-m-like-token-sepolia: RPC_URL=$(SEPOLIA_RPC)
 transfer-m-like-token-sepolia: transfer-m-like-token
 
-transfer-m-like-token-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
-transfer-m-like-token-hyper-evm: transfer-m-like-token
 
-transfer-m-like-token-plume: RPC_URL=$(PLUME_RPC)
-transfer-m-like-token-plume: transfer-m-like-token
-
-transfer-m-like-token-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
-transfer-m-like-token-plume-testnet: transfer-m-like-token
-
-transfer-m-like-token-linea: RPC_URL=$(LINEA_RPC)
-transfer-m-like-token-linea: transfer-m-like-token

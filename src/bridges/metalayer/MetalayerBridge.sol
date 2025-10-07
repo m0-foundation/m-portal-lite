@@ -18,9 +18,6 @@ contract MetalayerBridge is Ownable, IMetalayerBridge {
     using TypeConverter for *;
     using SafeCast for uint256;
 
-    /// @notice Default gas limit for Metalayer operations
-    uint256 public constant DEFAULT_GAS_LIMIT = 200_000;
-
     /// @inheritdoc IMetalayerBridge
     address public immutable router;
 
@@ -49,7 +46,7 @@ contract MetalayerBridge is Ownable, IMetalayerBridge {
         uint32 destinationDomain_ = _getMetalayerDomain(destinationChainId_);
 
         fee_ = IMetalayerRouter(router).quoteDispatch(
-            destinationDomain_, peer_, new ReadOperation[](0), payload_, FinalityState.INSTANT, DEFAULT_GAS_LIMIT
+            destinationDomain_, peer_, new ReadOperation[](0), payload_, FinalityState.INSTANT, gasLimit_
         );
     }
 

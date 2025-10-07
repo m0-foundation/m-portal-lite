@@ -99,4 +99,6 @@ interface IMetalayerRouter {
         bytes32 recipientAddress,
         bytes calldata messageBody
     ) external view returns (uint256 fee);
+
+    function routerAddresses(uint32 chainDomainId) external view returns (address routerAddress);
 }

@@ -40,7 +40,7 @@ contract ConfigureBase is ScriptBase {
             uint256 destinationChainId_ = peer_.chainId;
 
             IHyperlaneBridge(bridge_).setPeer(destinationChainId_, peer_.bridge.toBytes32());
-            IPortal(portal_).setDestinationMToken(destinationChainId_, peer_.mToken);
+            /*IPortal(portal_).setDestinationMToken(destinationChainId_, peer_.mToken);
 
             // Set Payload Gas limit
             IPortal(portal_).setPayloadGasLimit(destinationChainId_, PayloadType.Token, _TOKEN_TRANSFER_GAS_LIMIT);
@@ -56,13 +56,13 @@ contract ConfigureBase is ScriptBase {
             IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.mToken, true);
 
             // M => WrappedM
-            IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.wrappedM, true);
+            //IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.wrappedM, true);
 
             // WrappedM => M
-            IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.mToken, true);
+            //IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.mToken, true);
 
             // WrappedM => WrappedM
-            IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.wrappedM, true);
+            //IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.wrappedM, true);*/
         }
     }
 }
