@@ -5,7 +5,6 @@ pragma solidity 0.8.26;
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
 import { Migratable } from "../lib/common/src/Migratable.sol";
 import { IndexingMath } from "../lib/common/src/libs/IndexingMath.sol";
-import { ReentrancyLock } from "../lib/uniswap-v4-periphery/src/base/ReentrancyLock.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IBridge } from "./interfaces/IBridge.sol";
@@ -14,6 +13,7 @@ import { PausableOwnableUpgradeable } from "./access/PausableOwnableUpgradeable.
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { SafeCall } from "./libs/SafeCall.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
+import { ReentrancyLock } from "./libs/ReentrancyLock.sol";
 
 /**
  * @title  Portal
