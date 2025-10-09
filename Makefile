@@ -66,6 +66,12 @@ deploy-spoke-linea: RPC_URL=$(LINEA_RPC)
 deploy-spoke-linea: EVM_VERSION="london"
 deploy-spoke-linea: deploy-spoke
 
+deploy-spoke-soneium-testnet: RPC_URL=$(SONEIUM_TESTNET_RPC)
+deploy-spoke-soneium-testnet: EVM_VERSION="cancun"
+deploy-spoke-soneium-testnet: VERIFIER="blockscout"
+deploy-spoke-soneium-testnet: VERIFIER_URL=$(SONEIUM_TESTNET_EXPLORER)
+deploy-spoke-soneium-testnet: deploy-spoke
+
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM --rpc-url $(RPC_URL) \
@@ -95,7 +101,6 @@ deploy-spoke-wrapped_m-plume-testnet: deploy-spoke-wrapped_m
 # Configure
 #
 # make configure-ethereum PEERS="[999]"
-
 configure: PEERS ?= []
 configure:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \

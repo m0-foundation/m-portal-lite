@@ -28,7 +28,10 @@
       "contractName": null,
       "contractAddress": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
       "function": "setDestinationMToken(uint256,address)",
-      "arguments": ["1946", "0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b"],
+      "arguments": [
+        "1946",
+        "0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b"
+      ],
       "transaction": {
         "from": "0xf2f1acbe0ba726fee8d75f3e32900526874740bb",
         "to": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
@@ -47,7 +50,11 @@
       "contractName": null,
       "contractAddress": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
       "function": "setPayloadGasLimit(uint256,uint8,uint256)",
-      "arguments": ["1946", "0", "100000"],
+      "arguments": [
+        "1946",
+        "0",
+        "100000"
+      ],
       "transaction": {
         "from": "0xf2f1acbe0ba726fee8d75f3e32900526874740bb",
         "to": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
@@ -66,7 +73,11 @@
       "contractName": null,
       "contractAddress": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
       "function": "setPayloadGasLimit(uint256,uint8,uint256)",
-      "arguments": ["1946", "1", "50000"],
+      "arguments": [
+        "1946",
+        "1",
+        "50000"
+      ],
       "transaction": {
         "from": "0xf2f1acbe0ba726fee8d75f3e32900526874740bb",
         "to": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
@@ -85,7 +96,11 @@
       "contractName": null,
       "contractAddress": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
       "function": "setPayloadGasLimit(uint256,uint8,uint256)",
-      "arguments": ["1946", "2", "50000"],
+      "arguments": [
+        "1946",
+        "2",
+        "50000"
+      ],
       "transaction": {
         "from": "0xf2f1acbe0ba726fee8d75f3e32900526874740bb",
         "to": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
@@ -104,7 +119,11 @@
       "contractName": null,
       "contractAddress": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
       "function": "setPayloadGasLimit(uint256,uint8,uint256)",
-      "arguments": ["1946", "3", "50000"],
+      "arguments": [
+        "1946",
+        "3",
+        "50000"
+      ],
       "transaction": {
         "from": "0xf2f1acbe0ba726fee8d75f3e32900526874740bb",
         "to": "0x36f586a30502ae3afb555b8aa4dcc05d233c2ece",
