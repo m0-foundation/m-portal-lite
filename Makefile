@@ -101,6 +101,7 @@ deploy-spoke-wrapped_m-plume-testnet: deploy-spoke-wrapped_m
 # Configure
 #
 # make configure-ethereum PEERS="[999]"
+
 configure: PEERS ?= []
 configure:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
