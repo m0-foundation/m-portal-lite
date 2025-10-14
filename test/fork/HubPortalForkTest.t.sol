@@ -75,38 +75,6 @@ contract HubPortalForkTest is Test {
         hubPortal.enableEarning();
     }
 
-    function test_transfer_bridgedPrincipal() external {
-        uint256 amount_ = 1e6;
-        address sender_ = M_HOLDER;
-        address recipient_ = M_HOLDER;
-        address refundAddress_ = M_HOLDER;
-        uint256 fee_ = hubPortal.quoteTransfer(amount_, HYPEREVM_CHAIN_ID, recipient_);
-        uint128 index_ = IMTokenLike(ETHEREUM_M_TOKEN).currentIndex();
-
-        assertEq(hubPortal.bridgedPrincipal(HYPEREVM_CHAIN_ID), 0);
-
-        vm.startPrank(M_HOLDER);
-        IERC20(ETHEREUM_M_TOKEN).approve(address(hubPortal), amount_);
-        hubPortal.transfer{ value: fee_ }(amount_, HYPEREVM_CHAIN_ID, recipient_, refundAddress_);
-        vm.stopPrank();
-
-        assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(address(hubPortal)), 999_999);
-
-        // Bridged principal = amount/index
-        assertEq(hubPortal.bridgedPrincipal(HYPEREVM_CHAIN_ID), 959_443);
-
-        // Simulate time passage to increase M token index
-        vm.warp(block.timestamp + 10 minutes);
-
-        // Simulte transfer from Spoke back to Hub
-        bytes memory payload_ = PayloadEncoder.encodeTokenTransfer(amount_, ETHEREUM_M_TOKEN, sender_, recipient_, index_);
-        vm.prank(ETHEREUM_MAILBOX);
-        hubBridge.handle(uint32(HYPEREVM_CHAIN_ID), spokeBridge, payload_);
-
-        // Bridged Principal isn't zero since the index has increased
-        assertEq(hubPortal.bridgedPrincipal(HYPEREVM_CHAIN_ID), 1);
-    }
-
     function test_transfer_insufficientBalance() external {
         uint256 amount_ = 1000;
         uint256 fee_ = hubPortal.quoteTransfer(amount_, HYPEREVM_CHAIN_ID, alice);

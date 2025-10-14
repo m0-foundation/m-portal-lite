@@ -67,9 +67,6 @@ interface IHubPortal is IPortal {
     /// @notice Thrown when performing an operation that is not allowed when earning is enabled.
     error EarningIsEnabled();
 
-    /// @notice Thrown when trying to unlock more tokens than was locked.
-    error InsufficientBridgedBalance();
-
     ///////////////////////////////////////////////////////////////////////////
     //                          VIEW/PURE FUNCTIONS                          //
     ///////////////////////////////////////////////////////////////////////////
@@ -79,9 +76,6 @@ interface IHubPortal is IPortal {
 
     /// @notice Returns the value of M token index when earning for HubPortal was disabled.
     function disableEarningIndex() external view returns (uint128);
-
-    /// @notice Returns the principal amount of M tokens bridged to the destination chain.
-    function bridgedPrincipal(uint256 destinationChainId) external view returns (uint256 principal);
 
     /**
      * @notice Returns the delivery fee for sending $M token index.

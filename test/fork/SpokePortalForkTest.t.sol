@@ -58,7 +58,7 @@ contract SpokePortalForkTest is Test, UpgradeSpokePortalBase {
 
     function test_upgradePortal_transferUSDHL() external {
         vm.startPrank(DEPLOYER);
-        _upgradeSpokePortal(HYPEREVM_CHAIN_ID, PORTAL, M_TOKEN, REGISTRAR, DEPLOYER);
+        _upgradeSpokePortal(PORTAL, M_TOKEN, REGISTRAR);
         vm.stopPrank();
 
         uint256 amount = 100;

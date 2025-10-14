@@ -28,9 +28,6 @@ contract HubPortal is Portal, IHubPortal {
     /// @inheritdoc IHubPortal
     uint128 public disableEarningIndex;
 
-    /// @inheritdoc IHubPortal
-    mapping(uint256 destinationChainId => uint256 principal) public bridgedPrincipal;
-
     /**
      * @notice Constructs HubPortal Implementation contract
      * @dev    Sets immutable storage.
@@ -151,34 +148,12 @@ contract HubPortal is Portal, IHubPortal {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * @dev   Updates principal amount bridged to the destination chain.
-     * @param destinationChainId_ The EVM id of the destination chain.
-     * @param amount_             The amount of M Token to transfer.
-     */
-    function _burnOrLock(uint256 destinationChainId_, uint256 amount_) internal override {
-        // Won't overflow since `getPrincipalAmountRoundedDown` returns uint112
-        unchecked {
-            bridgedPrincipal[destinationChainId_] += IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), _currentIndex());
-        }
-    }
-
-    /**
      * @dev   Unlocks M tokens to `recipient_`.
      * @param sourceChainId_ The EVM id of the source chain.
      * @param recipient_     The account to unlock/transfer M tokens to.
      * @param amount_        The amount of M Token to unlock to the recipient.
      */
     function _mintOrUnlock(uint256 sourceChainId_, address recipient_, uint256 amount_, uint128) internal override {
-        uint256 totalBridgedPrincipal = bridgedPrincipal[sourceChainId_];
-        uint256 principalAmount = IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), _currentIndex());
-
-        // Prevents unlocking more than was bridged to the Spoke
-        if (principalAmount > totalBridgedPrincipal) revert InsufficientBridgedBalance();
-
-        unchecked {
-            bridgedPrincipal[sourceChainId_] = totalBridgedPrincipal - principalAmount;
-        }
-
         if (recipient_ != address(this)) {
             IERC20(mToken).transfer(recipient_, amount_);
         }
