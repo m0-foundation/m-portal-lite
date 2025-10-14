@@ -25,10 +25,19 @@ deploy-hub-sepolia: deploy-hub
 deploy-spoke: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
-	--skip test --broadcast --slow --non-interactive -v \
+	--skip test --slow --non-interactive -v \
 	--evm-version ${EVM_VERSION} \
-  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
-	
+	--verifier ${VERIFIER} --verifier-url ${VERIFIER_URL} \
+    --etherscan-api-key $(ETHERSCAN_API_KEY) --broadcast --verify
+
+deploy-spoke-bnb: RPC_URL=$(BNB_RPC)
+deploy-spoke-bnb: EVM_VERSION="cancun"
+deploy-spoke-bnb: deploy-spoke	 
+
+deploy-spoke-bnb-testnet: RPC_URL=$(BNB_TESTNET_RPC)
+deploy-spoke-bnb-testnet: EVM_VERSION="cancun"
+deploy-spoke-bnb-testnet: deploy-spoke
+
 deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 deploy-spoke-hyper-evm: EVM_VERSION="cancun"
 deploy-spoke-hyper-evm: VERIFIER="blockscout"
@@ -60,8 +69,15 @@ deploy-spoke-linea: deploy-spoke
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM --rpc-url $(RPC_URL) \
-	--skip test --broadcast --slow --non-interactive -v --verify \
-    --verifier blockscout --verifier-url $(VERIFIER_URL)
+	--skip test --slow --non-interactive -v \
+	--verifier ${VERIFIER} --verifier-url ${VERIFIER_URL} \
+    --etherscan-api-key $(ETHERSCAN_API_KEY) --broadcast --verify
+
+deploy-spoke-wrapped_m-bnb: RPC_URL=$(BNB_RPC)
+deploy-spoke-wrapped_m-bnb: deploy-spoke-wrapped_m
+
+deploy-spoke-wrapped_m-bnb-testnet: RPC_URL=$(BNB_TESTNET_RPC)
+deploy-spoke-wrapped_m-bnb-testnet: deploy-spoke-wrapped_m
 
 deploy-spoke-wrapped_m-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 deploy-spoke-wrapped_m-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
@@ -108,6 +124,23 @@ configure-plume-testnet: configure
 
 configure-linea: RPC_URL=$(LINEA_RPC)
 configure-linea: configure
+
+configure-bnb-testnet: RPC_URL=$(BNB_TESTNET_RPC)
+configure-bnb-testnet: configure
+
+configure-bnb: RPC_URL=$(BNB_RPC)
+configure-bnb: configure
+
+propose-configure: PEERS ?= []
+propose-configure:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/configure/ProposeConfigure.s.sol:ProposeConfigure \
+	--sig "run(uint256[])" $(PEERS) \
+	--rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --broadcast --ffi
+
+propose-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-configure-ethereum: propose-configure
 
 #
 # Upgrade
@@ -213,6 +246,12 @@ transfer-plume-testnet: transfer
 transfer-linea: RPC_URL=$(LINEA_RPC)
 transfer-linea: transfer
 
+transfer-bnb-testnet: RPC_URL=$(BNB_TESTNET_RPC)
+transfer-bnb-testnet: transfer
+
+transfer-bnb: RPC_URL=$(BNB_RPC)
+transfer-bnb: transfer
+
 #
 # Transfer M like token
 #
@@ -237,3 +276,9 @@ transfer-m-like-token-plume-testnet: transfer-m-like-token
 
 transfer-m-like-token-linea: RPC_URL=$(LINEA_RPC)
 transfer-m-like-token-linea: transfer-m-like-token
+
+transfer-m-like-token-bnb-testnet: RPC_URL=$(BNB_TESTNET_RPC)
+transfer-m-like-token-bnb-testnet: transfer-m-like-token
+
+transfer-m-like-token-bnb: RPC_URL=$(BNB_RPC)
+transfer-m-like-token-bnb: transfer-m-like-token
