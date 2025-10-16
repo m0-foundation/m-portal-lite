@@ -29,7 +29,10 @@ contract HubPortal is Portal, IHubPortal {
     uint128 public disableEarningIndex;
 
     /// @inheritdoc IHubPortal
-    mapping(uint256 destinationChainId => uint256 principal) public bridgedPrincipal;
+    mapping(uint256 spokeChainId => uint256 principal) public bridgedPrincipal;
+
+    /// @inheritdoc IHubPortal
+    mapping(uint256 spokeChainId => bool enabled) public crossSpokeConnectionEnabled; 
 
     /**
      * @notice Constructs HubPortal Implementation contract
@@ -148,6 +151,23 @@ contract HubPortal is Portal, IHubPortal {
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //                     OWNER INTERACTIVE FUNCTIONS                       //
+    ///////////////////////////////////////////////////////////////////////////
+
+    /// @inheritdoc IHubPortal
+    function enableCrossSpokeConnection(uint256 spokeChainId_) external onlyOwner {
+        if (crossSpokeConnectionEnabled[spokeChainId_]) return;
+        
+        crossSpokeConnectionEnabled[spokeChainId_] = true;
+
+        // NOTE: Reset bridged principal, as tracking it 
+        //       for connected Spokes isn't possible on-chain.
+        bridgedPrincipal[spokeChainId_] = 0;
+
+        emit CrossSpokeConnectionEnabled(spokeChainId_);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     //                INTERNAL/PRIVATE INTERACTIVE FUNCTIONS                 //
     ///////////////////////////////////////////////////////////////////////////
 
@@ -157,6 +177,9 @@ contract HubPortal is Portal, IHubPortal {
      * @param amount_             The amount of M Token to transfer.
      */
     function _burnOrLock(uint256 destinationChainId_, uint256 amount_) internal override {
+        // Only track bridged principal for isolated Spokes
+        if (crossSpokeConnectionEnabled[destinationChainId_]) return;
+
         // Won't overflow since `getPrincipalAmountRoundedDown` returns uint112
         unchecked {
             bridgedPrincipal[destinationChainId_] += IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), _currentIndex());
@@ -170,18 +193,27 @@ contract HubPortal is Portal, IHubPortal {
      * @param amount_        The amount of M Token to unlock to the recipient.
      */
     function _mintOrUnlock(uint256 sourceChainId_, address recipient_, uint256 amount_, uint128) internal override {
-        uint256 totalBridgedPrincipal = bridgedPrincipal[sourceChainId_];
+        // Only track bridged principal for isolated Spokes
+        if (!crossSpokeConnectionEnabled[sourceChainId_]) {
+            _decreaseBridgedPrincipal(sourceChainId_, amount_);
+        }
+
+        if (recipient_ != address(this)) {
+            IERC20(mToken).transfer(recipient_, amount_);
+        }
+    }
+
+    /// @dev Decreases the principal amount bridged when receiving transfer from a Spoke chain.
+    ///      Reverts when trying to unlock more than was bridged to the Spoke.
+    function _decreaseBridgedPrincipal(uint256 spokeChainId_, uint256 amount_) private {
+        uint256 totalBridgedPrincipal = bridgedPrincipal[spokeChainId_];
         uint256 principalAmount = IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), _currentIndex());
 
         // Prevents unlocking more than was bridged to the Spoke
         if (principalAmount > totalBridgedPrincipal) revert InsufficientBridgedBalance();
 
         unchecked {
-            bridgedPrincipal[sourceChainId_] = totalBridgedPrincipal - principalAmount;
-        }
-
-        if (recipient_ != address(this)) {
-            IERC20(mToken).transfer(recipient_, amount_);
+            bridgedPrincipal[spokeChainId_] = totalBridgedPrincipal - principalAmount;
         }
     }
 

@@ -26,6 +26,12 @@ interface IHubPortal is IPortal {
     event EarningDisabled(uint128 index);
 
     /**
+     * @notice Emitted when cross-Spoke connection is enabled for the Spoke chain.
+     * @param  spokeChainId The EVM chain Id of the Spoke.
+     */
+    event CrossSpokeConnectionEnabled(uint256 spokeChainId);
+
+    /**
      * @notice Emitted when the M token index is sent to a destination chain.
      * @param  destinationChainId The EVM chain Id of the destination chain.
      * @param  messageId          The unique identifier for the sent message.
@@ -80,8 +86,12 @@ interface IHubPortal is IPortal {
     /// @notice Returns the value of M token index when earning for HubPortal was disabled.
     function disableEarningIndex() external view returns (uint128);
 
-    /// @notice Returns the principal amount of M tokens bridged to the destination chain.
-    function bridgedPrincipal(uint256 destinationChainId) external view returns (uint256 principal);
+    /// @notice Returns the principal amount of M tokens bridged to a specified Spoke chain.
+    /// @dev    Only applicable to isolated Spokes (i.e., `crossSpokeConnectionEnabled` == false).
+    function bridgedPrincipal(uint256 spokeChainId) external view returns (uint256 principal);
+
+    /// @notice Indicates whether a given Spoke chain can communicate with other Spokes.
+    function crossSpokeConnectionEnabled(uint256 spokeChainId) external view returns (bool enabled);
 
     /**
      * @notice Returns the delivery fee for sending $M token index.
@@ -159,4 +169,10 @@ interface IHubPortal is IPortal {
 
     /// @notice Disables earning for the Hub Portal if disallowed by TTG.
     function disableEarning() external;
+
+    /**
+     * @notice Enables cross-Spoke connection for the specified Spoke chain.
+     * @param  spokeChainId The EVM chain Id of the Spoke chain.
+     */
+    function enableCrossSpokeConnection(uint256 spokeChainId) external;
 }

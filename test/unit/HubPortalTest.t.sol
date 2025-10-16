@@ -353,6 +353,27 @@ contract HubPortalTest is Test {
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //                      enableCrossSpokeConnection                       //
+    ///////////////////////////////////////////////////////////////////////////
+
+    function test_enableCrossSpokeConnection() external {
+        vm.expectEmit();
+        emit IHubPortal.CrossSpokeConnectionEnabled(SPOKE_CHAIN_ID);
+
+        vm.prank(owner);
+        hubPortal.enableCrossSpokeConnection(SPOKE_CHAIN_ID);
+
+        assertTrue(hubPortal.crossSpokeConnectionEnabled(SPOKE_CHAIN_ID));
+    }
+
+    function test_enableCrossSpokeConnection_notOwner() external {
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, user));
+
+        hubPortal.enableCrossSpokeConnection(SPOKE_CHAIN_ID);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     //                             sendMTokenIndex                           //
     ///////////////////////////////////////////////////////////////////////////
 
