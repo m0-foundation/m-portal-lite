@@ -19,6 +19,9 @@ line_length = 130
 single_line_statement_block = "single"
 multiline_func_header = "params_first_multi"
 
+[lint]
+lint_on_build = false
+
 [rpc_endpoints]
 ethereum = "${ETHEREUM_RPC}"
 hyperevm = "${HYPEREVM_RPC}"

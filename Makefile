@@ -181,6 +181,21 @@ upgrade-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 upgrade-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
 upgrade-spoke-plume-testnet: upgrade-spoke
 
+# Upgrade M Token
+upgrade-m-token:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/upgrade/UpgradeSpokeMToken.s.sol:UpgradeSpokeMToken --rpc-url $(RPC_URL) \
+	--skip test --broadcast --slow --non-interactive -v \
+  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
+
+upgrade-m-token-local: RPC_URL=$(LOCALHOST_RPC)
+upgrade-m-token-local: upgrade-m-token
+
+upgrade-m-token-soneium-testnet: RPC_URL=$(SONEIUM_TESTNET_RPC)
+upgrade-m-token-soneium-testnet: VERIFIER="blockscout"
+upgrade-m-token-soneium-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
+upgrade-m-token-soneium-testnet: upgrade-m-token
+
 #
 # Execute
 #
