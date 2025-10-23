@@ -27,72 +27,94 @@ deploy-spoke:
 	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
 	--skip test --slow --non-interactive -v \
 	--evm-version ${EVM_VERSION} \
-	--verifier ${VERIFIER} --verifier-url ${VERIFIER_URL} \
-    --etherscan-api-key $(ETHERSCAN_API_KEY) --broadcast --verify
+	--skip test --broadcast --slow --non-interactive -v \
+  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
 
-deploy-spoke-bnb: RPC_URL=$(BNB_RPC)
-deploy-spoke-bnb: EVM_VERSION="cancun"
-deploy-spoke-bnb: deploy-spoke	 
+deploy-spoke-bsc: RPC_URL=$(BSC_RPC)
+deploy-spoke-bsc: EVM_VERSION="cancun"
+deploy-spoke-bsc: VERIFIER="etherscan"
+deploy-spoke-bsc: VERIFIER_URL=$(BSC_VERIFIER_URL)
+deploy-spoke-bsc: deploy-spoke
 
-deploy-spoke-bnb-testnet: RPC_URL=$(BNB_TESTNET_RPC)
-deploy-spoke-bnb-testnet: EVM_VERSION="cancun"
-deploy-spoke-bnb-testnet: deploy-spoke
+deploy-spoke-bsc-testnet: RPC_URL=$(BSC_TESTNET_RPC)
+deploy-spoke-bsc-testnet: EVM_VERSION="cancun"
+deploy-spoke-bsc-testnet: VERIFIER="etherscan"
+deploy-spoke-bsc-testnet: VERIFIER_URL=$(BSC_TESTNET_VERIFIER_URL)
+deploy-spoke-bsc-testnet: deploy-spoke
 
 deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
 deploy-spoke-hyper-evm: EVM_VERSION="cancun"
 deploy-spoke-hyper-evm: VERIFIER="blockscout"
-deploy-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
+deploy-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_VERIFIER_URL)
 deploy-spoke-hyper-evm: deploy-spoke
 
 deploy-spoke-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
 deploy-spoke-hyper-evm-testnet: EVM_VERSION="cancun"
 deploy-spoke-hyper-evm-testnet: VERIFIER="blockscout"
-deploy-spoke-hyper-evm-testnet: VERIFIER_URL=$(HYPEREVM_EXPLORER)
+deploy-spoke-hyper-evm-testnet: VERIFIER_URL=$(HYPEREVM_VERIFIER_URL)
 deploy-spoke-hyper-evm-testnet: deploy-spoke
 
 deploy-spoke-plume: RPC_URL=$(PLUME_RPC)
 deploy-spoke-plume: EVM_VERSION="cancun"
 deploy-spoke-plume: VERIFIER="blockscout"
-deploy-spoke-plume: VERIFIER_URL=$(PLUME_EXPLORER)
+deploy-spoke-plume: VERIFIER_URL=$(PLUME_VERIFIER_URL)
 deploy-spoke-plume: deploy-spoke
 
 deploy-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 deploy-spoke-plume-testnet: EVM_VERSION="cancun"
 deploy-spoke-plume-testnet: VERIFIER="blockscout"
-deploy-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
+deploy-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_VERIFIER_URL)
 deploy-spoke-plume-testnet: deploy-spoke
 
 deploy-spoke-linea: RPC_URL=$(LINEA_RPC)
 deploy-spoke-linea: EVM_VERSION="london"
+deploy-spoke-linea: VERIFIER="etherscan"
+deploy-spoke-linea: VERIFIER_URL=$(LINEA_VERIFIER_URL)
 deploy-spoke-linea: deploy-spoke
+
+deploy-spoke-soneium-testnet: RPC_URL=$(SONEIUM_TESTNET_RPC)
+deploy-spoke-soneium-testnet: EVM_VERSION="cancun"
+deploy-spoke-soneium-testnet: VERIFIER="blockscout"
+deploy-spoke-soneium-testnet: VERIFIER_URL=$(SONEIUM_TESTNET_VERIFIER_URL)
+deploy-spoke-soneium-testnet: deploy-spoke
 
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM --rpc-url $(RPC_URL) \
-	--skip test --slow --non-interactive -v \
-	--verifier ${VERIFIER} --verifier-url ${VERIFIER_URL} \
-    --etherscan-api-key $(ETHERSCAN_API_KEY) --broadcast --verify
+	--skip test --broadcast --slow --non-interactive -v \
+  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
 
-deploy-spoke-wrapped_m-bnb: RPC_URL=$(BNB_RPC)
-deploy-spoke-wrapped_m-bnb: deploy-spoke-wrapped_m
+deploy-spoke-wrapped_m-bsc: RPC_URL=$(BSC_RPC)
+deploy-spoke-wrapped_m-bsc: VERIFIER="etherscan"
+deploy-spoke-wrapped_m-bsc: VERIFIER_URL=$(BSC_VERIFIER_URL)
+deploy-spoke-wrapped_m-bsc: deploy-spoke-wrapped_m
 
-deploy-spoke-wrapped_m-bnb-testnet: RPC_URL=$(BNB_TESTNET_RPC)
-deploy-spoke-wrapped_m-bnb-testnet: deploy-spoke-wrapped_m
+deploy-spoke-wrapped_m-bsc-testnet: RPC_URL=$(BSC_TESTNET_RPC)
+deploy-spoke-wrapped_m-bsc-testnet: VERIFIER="etherscan"
+deploy-spoke-wrapped_m-bsc-testnet: VERIFIER_URL=$(BSC_TESTNET_VERIFIER_URL)
+deploy-spoke-wrapped_m-bsc-testnet: deploy-spoke-wrapped_m
 
 deploy-spoke-wrapped_m-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
-deploy-spoke-wrapped_m-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
+deploy-spoke-wrapped_m-hyper-evm: VERIFIER="blockscout"
+deploy-spoke-wrapped_m-hyper-evm: VERIFIER_URL=$(HYPEREVM_VERIFIER_URL)
 deploy-spoke-wrapped_m-hyper-evm: deploy-spoke-wrapped_m
 
 deploy-spoke-wrapped_m-plume: RPC_URL=$(PLUME_RPC)
-deploy-spoke-wrapped_m-plume: VERIFIER_URL=$(PLUME_EXPLORER)
+deploy-spoke-wrapped_m-plume: VERIFIER="blockscout"
+deploy-spoke-wrapped_m-plume: VERIFIER_URL=$(PLUME_VERIFIER_URL)
 deploy-spoke-wrapped_m-plume: deploy-spoke-wrapped_m
 
 deploy-spoke-wrapped_m-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
-deploy-spoke-wrapped_m-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
+deploy-spoke-wrapped_m-plume-testnet: VERIFIER="blockscout"
+deploy-spoke-wrapped_m-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_VERIFIER_URL)
 deploy-spoke-wrapped_m-plume-testnet: deploy-spoke-wrapped_m
 
+deploy-spoke-wrapped_m-soneium-testnet: RPC_URL=$(SONEIUM_TESTNET_RPC)
+deploy-spoke-wrapped_m-soneium-testnet: VERIFIER="blockscout"
+deploy-spoke-wrapped_m-soneium-testnet: VERIFIER_URL=$(SONEIUM_TESTNET_VERIFIER_URL)
+deploy-spoke-wrapped_m-soneium-testnet: deploy-spoke-wrapped_m
+
 #
-# Configure
 #
 # make configure-ethereum PEERS="[999]"
 
@@ -125,11 +147,11 @@ configure-plume-testnet: configure
 configure-linea: RPC_URL=$(LINEA_RPC)
 configure-linea: configure
 
-configure-bnb-testnet: RPC_URL=$(BNB_TESTNET_RPC)
-configure-bnb-testnet: configure
+configure-bsc-testnet: RPC_URL=$(BSC_TESTNET_RPC)
+configure-bsc-testnet: configure
 
-configure-bnb: RPC_URL=$(BNB_RPC)
-configure-bnb: configure
+configure-bsc: RPC_URL=$(BSC_RPC)
+configure-bsc: configure
 
 propose-configure: PEERS ?= []
 propose-configure:
@@ -168,12 +190,29 @@ upgrade-spoke:
 	--verifier blockscout --verifier-url $(VERIFIER_URL)
 	
 upgrade-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
-upgrade-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_EXPLORER)
+upgrade-spoke-hyper-evm: VERIFIER="blockscout"
+upgrade-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_VERIFIER_URL)
 upgrade-spoke-hyper-evm: upgrade-spoke
 
 upgrade-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
-upgrade-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_EXPLORER)
+upgrade-spoke-plume-testnet: VERIFIER="blockscout"
+upgrade-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_VERIFIER_URL)
 upgrade-spoke-plume-testnet: upgrade-spoke
+
+# Upgrade M Token
+upgrade-m-token:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/upgrade/UpgradeSpokeMToken.s.sol:UpgradeSpokeMToken --rpc-url $(RPC_URL) \
+	--skip test --broadcast --slow --non-interactive -v \
+  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
+
+upgrade-m-token-local: RPC_URL=$(LOCALHOST_RPC)
+upgrade-m-token-local: upgrade-m-token
+
+upgrade-m-token-soneium-testnet: RPC_URL=$(SONEIUM_TESTNET_RPC)
+upgrade-m-token-soneium-testnet: VERIFIER="blockscout"
+upgrade-m-token-soneium-testnet: VERIFIER_URL=$(SONEIUM_TESTNET_VERIFIER_URL)
+upgrade-m-token-soneium-testnet: upgrade-m-token
 
 #
 # Execute
@@ -246,11 +285,11 @@ transfer-plume-testnet: transfer
 transfer-linea: RPC_URL=$(LINEA_RPC)
 transfer-linea: transfer
 
-transfer-bnb-testnet: RPC_URL=$(BNB_TESTNET_RPC)
-transfer-bnb-testnet: transfer
+transfer-bsc-testnet: RPC_URL=$(BSC_TESTNET_RPC)
+transfer-bsc-testnet: transfer
 
-transfer-bnb: RPC_URL=$(BNB_RPC)
-transfer-bnb: transfer
+transfer-bsc: RPC_URL=$(BSC_RPC)
+transfer-bsc: transfer
 
 #
 # Transfer M like token
@@ -277,8 +316,8 @@ transfer-m-like-token-plume-testnet: transfer-m-like-token
 transfer-m-like-token-linea: RPC_URL=$(LINEA_RPC)
 transfer-m-like-token-linea: transfer-m-like-token
 
-transfer-m-like-token-bnb-testnet: RPC_URL=$(BNB_TESTNET_RPC)
-transfer-m-like-token-bnb-testnet: transfer-m-like-token
+transfer-m-like-token-bsc-testnet: RPC_URL=$(BSC_TESTNET_RPC)
+transfer-m-like-token-bsc-testnet: transfer-m-like-token
 
-transfer-m-like-token-bnb: RPC_URL=$(BNB_RPC)
-transfer-m-like-token-bnb: transfer-m-like-token
+transfer-m-like-token-bsc: RPC_URL=$(BSC_RPC)
+transfer-m-like-token-bsc: transfer-m-like-token

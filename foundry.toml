@@ -19,6 +19,9 @@ line_length = 130
 single_line_statement_block = "single"
 multiline_func_header = "params_first_multi"
 
+[lint]
+lint_on_build = false
+
 [rpc_endpoints]
 ethereum = "${ETHEREUM_RPC}"
 hyperevm = "${HYPEREVM_RPC}"
@@ -26,10 +29,17 @@ linea = "${LINEA_RPC}"
 sepolia = "${SEPOLIA_RPC}"
 hyperevm_testnet = "${HYPEREVM_TESTNET_RPC}"
 
+etherscan_api_key = "${ETHERSCAN_API_KEY}"
+
 [etherscan]
-mainnet = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=1" }
-linea = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=59144" }
-bnb = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=56" }
-sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=11155111" }
-lineaSepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=59141" }
-bnbTestnet = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=97" }
+mainnet = { key = "${ETHERSCAN_API_KEY}", url = "${MAINNET_VERIFIER_URL}" }
+arbitrum = { key = "${ETHERSCAN_API_KEY}", url = "${ARBITRUM_VERIFIER_URL}" }
+bsc = { key = "${ETHERSCAN_API_KEY}", url = "${BSC_VERIFIER_URL}" }
+hyperliquid = { key = "${ETHERSCAN_API_KEY}", url = "${HYPEREVM_VERIFIER_URL}" }
+linea = { key = "${ETHERSCAN_API_KEY}", url = "${LINEA_VERIFIER_URL}" }
+optimism = { key = "${ETHERSCAN_API_KEY}", url = "${OPTIMISM_VERIFIER_URL}" }
+
+sepolia = { key = "${ETHERSCAN_API_KEY}", url = "${SEPOLIA_VERIFIER_URL}" }
+arbitrum_sepolia = { key = "${ETHERSCAN_API_KEY}", url = "${ARBITRUM_SEPOLIA_VERIFIER_URL}" }
+bsc_testnet = { key = "${ETHERSCAN_API_KEY}", url = "${BSC_TESTNET_VERIFIER_URL}" }
+optimism_sepolia = { key = "${ETHERSCAN_API_KEY}", url = "${OPTIMISM_SEPOLIA_VERIFIER_URL}" }
