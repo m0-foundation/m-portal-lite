@@ -69,7 +69,7 @@ deploy-spoke-plume-testnet: deploy-spoke
 deploy-spoke-linea: RPC_URL=$(LINEA_RPC)
 deploy-spoke-linea: EVM_VERSION="london"
 deploy-spoke-linea: VERIFIER="etherscan"
-deploy-spoke-linea: VERIFIER_URL=$(SONEIUM_TESTNET_VERIFIER_URL)
+deploy-spoke-linea: VERIFIER_URL=$(LINEA_VERIFIER_URL)
 deploy-spoke-linea: deploy-spoke
 
 deploy-spoke-soneium-testnet: RPC_URL=$(SONEIUM_TESTNET_RPC)
@@ -190,15 +190,17 @@ upgrade-spoke:
 	--verifier blockscout --verifier-url $(VERIFIER_URL)
 	
 upgrade-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
+upgrade-spoke-hyper-evm: VERIFIER="blockscout"
 upgrade-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_VERIFIER_URL)
 upgrade-spoke-hyper-evm: upgrade-spoke
 
 upgrade-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
-upgrade-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_VERIFIER_URL)
+upgrade-spoke-plume-testnet: VERIFIER="blockscout"
+upgrade-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_VERIFIER_URL)
 upgrade-spoke-plume-testnet: upgrade-spoke
 
 # Upgrade M Token
-upgrade-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_VERIFIER_URL)
+upgrade-m-token:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/upgrade/UpgradeSpokeMToken.s.sol:UpgradeSpokeMToken --rpc-url $(RPC_URL) \
 	--skip test --broadcast --slow --non-interactive -v \
@@ -213,7 +215,7 @@ upgrade-m-token-soneium-testnet: VERIFIER_URL=$(SONEIUM_TESTNET_VERIFIER_URL)
 upgrade-m-token-soneium-testnet: upgrade-m-token
 
 #
-upgrade-m-token-soneium-testnet: VERIFIER_URL=$(SONEIUM_TESTNET_VERIFIER_URL)
+# Execute
 #
 
 execute:
