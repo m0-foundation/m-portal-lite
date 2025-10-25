@@ -78,6 +78,12 @@ deploy-spoke-soneium-testnet: VERIFIER="blockscout"
 deploy-spoke-soneium-testnet: VERIFIER_URL=$(SONEIUM_TESTNET_VERIFIER_URL)
 deploy-spoke-soneium-testnet: deploy-spoke
 
+deploy-spoke-manta: RPC_URL=$(MANTRA_RPC)
+deploy-spoke-manta: EVM_VERSION="cancun"
+deploy-spoke-manta: VERIFIER="blockscout"
+deploy-spoke-manta: VERIFIER_URL=$(MANTRA_VERIFIER_URL)
+deploy-spoke-manta: deploy-spoke
+
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM --rpc-url $(RPC_URL) \
@@ -114,6 +120,11 @@ deploy-spoke-wrapped_m-soneium-testnet: VERIFIER="blockscout"
 deploy-spoke-wrapped_m-soneium-testnet: VERIFIER_URL=$(SONEIUM_TESTNET_VERIFIER_URL)
 deploy-spoke-wrapped_m-soneium-testnet: deploy-spoke-wrapped_m
 
+deploy-spoke-wrapped_m-manta: RPC_URL=$(MANTRA_RPC)
+deploy-spoke-wrapped_m-manta: VERIFIER="blockscout"
+deploy-spoke-wrapped_m-manta: VERIFIER_URL=$(MANTRA_VERIFIER_URL)
+deploy-spoke-wrapped_m-manta: deploy-spoke-wrapped_m
+
 #
 #
 # make configure-ethereum PEERS="[999]"
@@ -140,6 +151,9 @@ configure-hyper-evm-testnet: configure
 
 configure-plume: RPC_URL=$(PLUME_RPC)
 configure-plume: configure
+
+configure-mantra: RPC_URL=$(MANTRA_RPC)
+configure-mantra: configure
 
 configure-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
 configure-plume-testnet: configure
@@ -291,6 +305,9 @@ transfer-bsc-testnet: transfer
 transfer-bsc: RPC_URL=$(BSC_RPC)
 transfer-bsc: transfer
 
+transfer-mantra: RPC_URL=$(MANTRA_RPC)
+transfer-mantra: transfer
+
 #
 # Transfer M like token
 #
@@ -321,3 +338,6 @@ transfer-m-like-token-bsc-testnet: transfer-m-like-token
 
 transfer-m-like-token-bsc: RPC_URL=$(BSC_RPC)
 transfer-m-like-token-bsc: transfer-m-like-token
+
+transfer-m-like-token-mantra: RPC_URL=$(MANTRA_RPC)
+transfer-m-like-token-mantra: transfer-m-like-token

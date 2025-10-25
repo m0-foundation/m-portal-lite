@@ -12,6 +12,7 @@ library Chains {
     uint256 internal constant PLUME = 98866;
     uint256 internal constant LINEA = 59144;
     uint256 internal constant BNB = 56;
+    uint256 internal constant MANTRA = 5888;
 
     // Testnet
     uint256 internal constant ETHEREUM_SEPOLIA = 11155111;
@@ -25,6 +26,7 @@ library Chains {
         if (spokeChainId_ == PLUME) return ETHEREUM;
         if (spokeChainId_ == LINEA) return ETHEREUM;
         if (spokeChainId_ == BNB) return ETHEREUM;
+        if (spokeChainId_ == MANTRA) return ETHEREUM;
 
         // Testnet
         if (spokeChainId_ == HYPER_EVM_TESTNET) return ETHEREUM_SEPOLIA;
