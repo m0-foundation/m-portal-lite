@@ -159,12 +159,13 @@ contract HubPortal is Portal, IHubPortal {
         if (crossSpokeConnectionEnabled[spokeChainId_]) return;
         
         crossSpokeConnectionEnabled[spokeChainId_] = true;
+        uint256 bridgedPrincipal_ = bridgedPrincipal[spokeChainId_];
 
         // NOTE: Reset bridged principal, as tracking it 
         //       for connected Spokes isn't possible on-chain.
         bridgedPrincipal[spokeChainId_] = 0;
 
-        emit CrossSpokeConnectionEnabled(spokeChainId_);
+        emit CrossSpokeConnectionEnabled(spokeChainId_, bridgedPrincipal_);
     }
 
     ///////////////////////////////////////////////////////////////////////////

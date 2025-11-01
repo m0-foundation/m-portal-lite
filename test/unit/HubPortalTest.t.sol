@@ -358,7 +358,7 @@ contract HubPortalTest is Test {
 
     function test_enableCrossSpokeConnection() external {
         vm.expectEmit();
-        emit IHubPortal.CrossSpokeConnectionEnabled(SPOKE_CHAIN_ID);
+        emit IHubPortal.CrossSpokeConnectionEnabled(SPOKE_CHAIN_ID, 0);
 
         vm.prank(owner);
         hubPortal.enableCrossSpokeConnection(SPOKE_CHAIN_ID);
