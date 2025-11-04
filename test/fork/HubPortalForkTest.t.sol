@@ -76,7 +76,7 @@ contract HubPortalForkTest is Test {
         hubPortal.enableEarning();
     }
 
-    function test_transfer_bridgedPrincipal() external {
+    function test_transfer_bridgedPrincipal_isolated() external {
         uint256 amount_ = 1e6;
         address sender_ = M_HOLDER;
         address recipient_ = M_HOLDER;
@@ -106,6 +106,28 @@ contract HubPortalForkTest is Test {
 
         // Bridged Principal isn't zero since the index has increased
         assertEq(hubPortal.bridgedPrincipal(HYPEREVM_CHAIN_ID), 1);
+    }
+
+    function test_transfer_bridgedPrincipal_connected() external {
+        uint256 amount_ = 1e6;
+        address recipient_ = M_HOLDER;
+        address refundAddress_ = M_HOLDER;
+        uint256 fee_ = hubPortal.quoteTransfer(amount_, HYPEREVM_CHAIN_ID, recipient_);
+
+        vm.prank(hubPortal.owner());
+        hubPortal.enableCrossSpokeConnection(HYPEREVM_CHAIN_ID);
+
+        assertEq(hubPortal.bridgedPrincipal(HYPEREVM_CHAIN_ID), 0);
+
+        vm.startPrank(M_HOLDER);
+        IERC20(ETHEREUM_M_TOKEN).approve(address(hubPortal), amount_);
+        hubPortal.transfer{ value: fee_ }(amount_, HYPEREVM_CHAIN_ID, recipient_, refundAddress_);
+        vm.stopPrank();
+
+        assertEq(IERC20(ETHEREUM_M_TOKEN).balanceOf(address(hubPortal)), 999_999);
+
+        // Bridged principal isn't recorded for connected Spokes
+        assertEq(hubPortal.bridgedPrincipal(HYPEREVM_CHAIN_ID), 0);
     }
 
     function test_transfer_insufficientBalance() external {

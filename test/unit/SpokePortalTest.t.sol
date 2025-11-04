@@ -47,7 +47,7 @@ contract SpokePortalTest is Test {
         swapFacility = new MockSwapFacility(address(mToken));
         bridge = new MockBridge();
 
-        SpokePortal implementation_ = new SpokePortal(HUB_CHAIN_ID, address(mToken), address(registrar), address(swapFacility));
+        SpokePortal implementation_ = new SpokePortal(address(mToken), address(registrar), address(swapFacility));
         ERC1967Proxy proxy_ = new ERC1967Proxy(
             address(implementation_), abi.encodeWithSelector(IPortal.initialize.selector, address(bridge), owner, owner)
         );
@@ -75,31 +75,12 @@ contract SpokePortalTest is Test {
     ///////////////////////////////////////////////////////////////////////////
 
     function test_constructor_initialState() external {
-        assertEq(spokePortal.hubChainId(), HUB_CHAIN_ID);
         assertEq(address(spokePortal.mToken()), address(mToken));
         assertEq(address(spokePortal.registrar()), address(registrar));
         assertEq(address(spokePortal.swapFacility()), address(swapFacility));
         assertEq(address(spokePortal.bridge()), address(bridge));
         assertEq(address(spokePortal.owner()), owner);
         assertEq(address(spokePortal.pauser()), owner);
-    }
-
-    function test_constructor_zeroHubChain() external {
-        vm.expectRevert(ISpokePortal.ZeroHubChain.selector);
-        new SpokePortal(0, address(mToken), address(registrar), address(swapFacility));
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    //                                transfer                               //
-    ///////////////////////////////////////////////////////////////////////////
-
-    function test_transfer_unsupportedDestinationChain() external {
-        // Not Hub chain
-        uint256 destinationChainId_ = 2;
-
-        vm.expectRevert(abi.encodeWithSelector(ISpokePortal.UnsupportedDestinationChain.selector, destinationChainId_));
-        vm.prank(user);
-        spokePortal.transfer{ value: 0 }(1000, destinationChainId_, user, user);
     }
 
     ///////////////////////////////////////////////////////////////////////////

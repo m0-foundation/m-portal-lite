@@ -220,7 +220,6 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, ReentrancyLock,
         address refundAddress_
     ) private returns (bytes32 messageId_) {
         _revertIfZeroAmount(amount_);
-        _revertIfUnsupportedDestinationChain(destinationChainId_);
         _revertIfZeroRefundAddress(refundAddress_);
 
         if (destinationToken_ == address(0)) revert ZeroDestinationToken();
@@ -383,9 +382,6 @@ abstract contract Portal is IPortal, PausableOwnableUpgradeable, ReentrancyLock,
     function _revertIfZeroRefundAddress(address refundAddress_) internal pure {
         if (refundAddress_ == address(0)) revert ZeroRefundAddress();
     }
-
-    /// @dev Overridden in SpokePortal to allow bringing only to the Hub chain
-    function _revertIfUnsupportedDestinationChain(uint256 destinationChainId_) internal view virtual { }
 
     /// @inheritdoc Migratable
     function _getMigrator() internal pure override returns (address migrator_) {

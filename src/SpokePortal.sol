@@ -2,8 +2,6 @@
 
 pragma solidity 0.8.26;
 
-import { UIntMath } from "../lib/common/src/libs/UIntMath.sol";
-
 import { ISpokeMTokenLike } from "./interfaces/ISpokeMTokenLike.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { ISpokePortal } from "./interfaces/ISpokePortal.sol";
@@ -22,24 +20,14 @@ import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
 contract SpokePortal is Portal, ISpokePortal {
     using PayloadEncoder for bytes;
 
-    uint256 public immutable hubChainId;
-
     /**
      * @notice Constructs SpokePortal Implementation contract
      * @dev    Sets immutable storage.
-     * @param  hubChainId_   The EVM chain Id of the Hub chain.
      * @param  mToken_       The address of M token.
      * @param  registrar_    The address of Registrar.
      * @param  swapFacility_ The address of Swap Facility.
      */
-    constructor(
-        uint256 hubChainId_,
-        address mToken_,
-        address registrar_,
-        address swapFacility_
-    ) Portal(mToken_, registrar_, swapFacility_) {
-        if ((hubChainId = hubChainId_) == 0) revert ZeroHubChain();
-    }
+    constructor(address mToken_, address registrar_, address swapFacility_) Portal(mToken_, registrar_, swapFacility_) { }
 
     /// @inheritdoc IPortal
     function initialize(address bridge_, address initialOwner_, address initialPauser_) external initializer {
@@ -123,10 +111,5 @@ contract SpokePortal is Portal, ISpokePortal {
     /// @dev Returns the current M token index used by the Spoke Portal.
     function _currentIndex() internal view override returns (uint128) {
         return ISpokeMTokenLike(mToken).currentIndex();
-    }
-
-    /// @dev Reverts if the destination chain is the Hub chain
-    function _revertIfUnsupportedDestinationChain(uint256 destinationChainId_) internal view override {
-        if (destinationChainId_ != hubChainId) revert UnsupportedDestinationChain(destinationChainId_);
     }
 }
