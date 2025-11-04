@@ -21,6 +21,7 @@ contract ProposeUpgradeSpokePortal is ConfigureBase, MultiSigBatchBase {
     using Chains for uint256;
 
     address constant _SAFE_MULTISIG = 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1;
+    address constant _MUSD = 0xacA92E438df0B2401fF60dA7E4337B687a2435DA;
 
     function run(uint256 peerChainId) external {
         address deployer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
@@ -53,6 +54,7 @@ contract ProposeUpgradeSpokePortal is ConfigureBase, MultiSigBatchBase {
         _addToBatch(portal_, abi.encodeCall(IPortal.setSupportedBridgingPath, (mToken_, peerChainId, peerWrappedM_, true)));
         _addToBatch(portal_, abi.encodeCall(IPortal.setSupportedBridgingPath, (wrappedM_, peerChainId, peerMToken_, true)));
         _addToBatch(portal_, abi.encodeCall(IPortal.setSupportedBridgingPath, (wrappedM_, peerChainId, peerWrappedM_, true)));
+        _addToBatch(portal_, abi.encodeCall(IPortal.setSupportedBridgingPath, (_MUSD, peerChainId, _MUSD, true)));
 
         _simulateBatch(_SAFE_MULTISIG);
         _proposeBatch(_SAFE_MULTISIG, deployer_);
