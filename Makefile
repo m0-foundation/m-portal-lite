@@ -213,12 +213,40 @@ upgrade-spoke-plume-testnet: VERIFIER="blockscout"
 upgrade-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_VERIFIER_URL)
 upgrade-spoke-plume-testnet: upgrade-spoke
 
+propose-upgrade-hub: 
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/upgrade/ProposeUpgradeHubPortal.s.sol:ProposeUpgradeHubPortal \
+	--rpc-url $(RPC_URL) \
+	--etherscan-api-key $(ETHERSCAN_API_KEY) \
+	--slow --non-interactive -v --skip test --broadcast --verify --ffi
+
+propose-upgrade-hub-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-upgrade-hub-ethereum: propose-upgrade-hub
+
+propose-upgrade-spoke: 
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/upgrade/ProposeUpgradeSpokePortal.s.sol:ProposeUpgradeSpokePortal \
+	--rpc-url $(RPC_URL) \
+	--sig "run(uint256)" $(PEER_CHAIN_ID) \
+	--etherscan-api-key $(ETHERSCAN_API_KEY) --verifier $(VERIFIER) --verifier-url $(VERIFIER_URL) \
+	--slow --non-interactive -v --skip test --broadcast --verify --ffi
+
+propose-upgrade-spoke-linea: RPC_URL=$(LINEA_RPC)
+propose-upgrade-spoke-linea: VERIFIER=etherscan
+propose-upgrade-spoke-linea: VERIFIER_URL=$(LINEA_VERIFIER_URL)
+propose-upgrade-spoke-linea: propose-upgrade-spoke
+
+propose-upgrade-spoke-bsc: RPC_URL=$(BSC_RPC)
+propose-upgrade-spoke-bsc: VERIFIER=etherscan
+propose-upgrade-spoke-bsc: VERIFIER_URL=$(BSC_VERIFIER_URL)
+propose-upgrade-spoke-bsc: propose-upgrade-spoke
+
 # Upgrade M Token
 upgrade-m-token:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/upgrade/UpgradeSpokeMToken.s.sol:UpgradeSpokeMToken --rpc-url $(RPC_URL) \
 	--skip test --broadcast --slow --non-interactive -v \
-  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
+    --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
 
 upgrade-m-token-local: RPC_URL=$(LOCALHOST_RPC)
 upgrade-m-token-local: upgrade-m-token
