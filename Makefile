@@ -25,10 +25,9 @@ deploy-hub-sepolia: deploy-hub
 deploy-spoke: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
-	--skip test --slow --non-interactive -v \
-	--evm-version ${EVM_VERSION} \
 	--skip test --broadcast --slow --non-interactive -v \
-  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
+	--evm-version ${EVM_VERSION} \
+    --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
 
 deploy-spoke-bsc: RPC_URL=$(BSC_RPC)
 deploy-spoke-bsc: EVM_VERSION="cancun"
@@ -71,6 +70,12 @@ deploy-spoke-linea: EVM_VERSION="london"
 deploy-spoke-linea: VERIFIER="etherscan"
 deploy-spoke-linea: VERIFIER_URL=$(LINEA_VERIFIER_URL)
 deploy-spoke-linea: deploy-spoke
+
+deploy-spoke-soneium: RPC_URL=$(SONEIUM_RPC)
+deploy-spoke-soneium: EVM_VERSION="cancun"
+deploy-spoke-soneium: VERIFIER="blockscout"
+deploy-spoke-soneium: VERIFIER_URL=$(SONEIUM_VERIFIER_URL)
+deploy-spoke-soneium: deploy-spoke
 
 deploy-spoke-soneium-testnet: RPC_URL=$(SONEIUM_TESTNET_RPC)
 deploy-spoke-soneium-testnet: EVM_VERSION="cancun"
@@ -125,6 +130,11 @@ deploy-spoke-wrapped_m-manta: VERIFIER="blockscout"
 deploy-spoke-wrapped_m-manta: VERIFIER_URL=$(MANTRA_VERIFIER_URL)
 deploy-spoke-wrapped_m-manta: deploy-spoke-wrapped_m
 
+deploy-spoke-wrapped_m-soneium: RPC_URL=$(SONEIUM_RPC)
+deploy-spoke-wrapped_m-soneium: VERIFIER="blockscout"
+deploy-spoke-wrapped_m-soneium: VERIFIER_URL=$(SONEIUM_VERIFIER_URL)
+deploy-spoke-wrapped_m-soneium: deploy-spoke-wrapped_m
+
 #
 #
 # make configure-ethereum PEERS="[999]"
@@ -166,6 +176,9 @@ configure-bsc-testnet: configure
 
 configure-bsc: RPC_URL=$(BSC_RPC)
 configure-bsc: configure
+
+configure-soneium: RPC_URL=$(SONEIUM_RPC)
+configure-soneium: configure
 
 propose-configure: PEERS ?= []
 propose-configure:
@@ -368,6 +381,9 @@ transfer-bsc: transfer
 transfer-mantra: RPC_URL=$(MANTRA_RPC)
 transfer-mantra: transfer
 
+transfer-soneium: RPC_URL=$(SONEIUM_RPC)
+transfer-soneium: transfer
+
 #
 # Transfer M like token
 #
@@ -401,3 +417,6 @@ transfer-m-like-token-bsc: transfer-m-like-token
 
 transfer-m-like-token-mantra: RPC_URL=$(MANTRA_RPC)
 transfer-m-like-token-mantra: transfer-m-like-token
+
+transfer-m-like-token-soneium: RPC_URL=$(SONEIUM_RPC)
+transfer-m-like-token-soneium: transfer-m-like-token
