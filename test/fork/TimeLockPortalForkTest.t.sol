@@ -18,7 +18,6 @@ contract TimeLockPortalForkTest is Test {
     address public constant MAINNET_HUB_PORTAL = 0x36f586A30502AE3afb555b8aA4dCc05d233c2ecE;
     address public constant MAINNET_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
  
-    // TIMELOCK_ADMIN=0x0000000000000000000000000000000000000000
     address public constant MAINNET_TIMELOCK = 0x23CA665c8a73292Fc7AC2cC4493d2cE883BBA468;
     address public constant TIMELOCK_PROPOSER_1 = 0xb7A9B5f301eF3bAD36C2b4964E82931Dd7fb989C;
     address public constant TIMELOCK_EXECUTOR_1 = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
@@ -38,7 +37,7 @@ contract TimeLockPortalForkTest is Test {
     address public currentOwner;
 
     function setUp() external {
-    // Fork Mainnet testnet
+    // Fork Ethereum Mainnet
     mainnetForkId = vm.createSelectFork({ urlOrAlias: "ethereum", blockNumber: MAINNET_FORK_BLOCK });
 
     // Load the deployed contracts from Mainnet
@@ -250,8 +249,9 @@ contract TimeLockPortalForkTest is Test {
         uint256 spokeChainId = 999;
         // Using existing mToken address for destination (illustrative)
         address destMToken = MAINNET_M_TOKEN;
-        bytes4 setDestSel = bytes4(keccak256("setDestinationMToken(uint256,address)"));
-        bytes4 setPathSel = bytes4(keccak256("setSupportedBridgingPath(address,uint256,address,bool)"));
+        // Use base Portal selectors (functions defined in Portal)
+        bytes4 setDestSel = Portal.setDestinationMToken.selector;
+        bytes4 setPathSel = Portal.setSupportedBridgingPath.selector;
 
         address[] memory targets = new address[](2);
         uint256[] memory values = new uint256[](2);
