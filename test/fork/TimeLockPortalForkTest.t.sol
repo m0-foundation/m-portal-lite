@@ -8,6 +8,7 @@ import { IPausableOwnable } from "../../src/interfaces/IPausableOwnable.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 import { Portal } from "../../src/Portal.sol";
 import { HubPortal } from "../../src/HubPortal.sol";
+import { PayloadType } from "../../src/libs/PayloadEncoder.sol";
 
 
 contract TimeLockPortalForkTest is Test {
@@ -43,10 +44,10 @@ contract TimeLockPortalForkTest is Test {
     address public currentOwner;
 
     function setUp() external {
-        // Fork Sepolia testnet
-        sepoliaForkId = vm.createSelectFork({ urlOrAlias: "sepolia", blockNumber: SEPOLIA_FORK_BLOCK });
- 
-        // Load the deployed contracts fjkkhrom Sepolia
+    // Fork Sepolia testnet
+    sepoliaForkId = vm.createSelectFork({ urlOrAlias: "sepolia", blockNumber: SEPOLIA_FORK_BLOCK });
+
+    // Load the deployed contracts from Sepolia
         hubPortal = HubPortal(SEPOLIA_HUB_PORTAL);
         timelock = TimelockController(payable(SEPOLIA_TIMELOCK));
 
@@ -208,12 +209,18 @@ contract TimeLockPortalForkTest is Test {
     }
 
     function test_timelock_setPayloadGasLimit_success() external {
-        // selector: setPayloadGasLimit(uint256,uint8,uint256)
-        bytes4 sel = bytes4(keccak256("setPayloadGasLimit(uint256,uint8,uint256)"));
+        // Use enum for clarity: PayloadType.Token = 0
         uint256 spokeChainId = 999;
-        uint8 payloadType = 0; // Token type (assumption; adjust if enum differs)
+        PayloadType payloadType = PayloadType.Token;
         uint256 newLimit = 500_000;
-        bytes memory callData = abi.encodeWithSelector(sel, spokeChainId, payloadType, newLimit);
+
+        bytes memory callData = abi.encodeWithSelector(
+            Portal.setPayloadGasLimit.selector,
+            spokeChainId,
+            payloadType,
+            newLimit
+        );
+
         bytes32 opId = timelock.hashOperation(
             SEPOLIA_HUB_PORTAL,
             0,
@@ -221,6 +228,7 @@ contract TimeLockPortalForkTest is Test {
             bytes32(0),
             bytes32(0)
         );
+
         vm.prank(TIMELOCK_PROPOSER_1);
         timelock.schedule(
             SEPOLIA_HUB_PORTAL,
@@ -230,7 +238,9 @@ contract TimeLockPortalForkTest is Test {
             bytes32(0),
             TIMELOCK_DELAY
         );
+
         vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+
         vm.prank(TIMELOCK_EXECUTOR_1);
         timelock.execute(
             SEPOLIA_HUB_PORTAL,
@@ -239,7 +249,9 @@ contract TimeLockPortalForkTest is Test {
             bytes32(0),
             bytes32(0)
         );
+
         assertTrue(timelock.isOperationDone(opId));
+        assertEq(Portal(SEPOLIA_HUB_PORTAL).payloadGasLimit(spokeChainId, payloadType), newLimit, "Gas limit not set");
     }
 
     function test_timelock_setDestinationAndPath_batch() external {
