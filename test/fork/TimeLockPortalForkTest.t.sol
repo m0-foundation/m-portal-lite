@@ -1,0 +1,375 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.26;
+
+import { Test } from "../../lib/forge-std/src/Test.sol";
+import { TimelockController } from "../../lib/openzeppelin/contracts/governance/TimelockController.sol";
+import { OwnableUpgradeable } from "../../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import { IPausableOwnable } from "../../src/interfaces/IPausableOwnable.sol";
+import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
+import { Portal } from "../../src/Portal.sol";
+import { HubPortal } from "../../src/HubPortal.sol";
+
+
+contract TimeLockPortalForkTest is Test {
+    uint256 public constant SEPOLIA_CHAIN_ID = 11155111;
+    
+    // Sepolia deployed contract addresses
+    address public constant SEPOLIA_HUB_PORTAL = 0x36f586A30502AE3afb555b8aA4dCc05d233c2ecE;
+    address public constant SEPOLIA_BRIDGE = 0x51DcE104E5ba88fabC19A2C519f955bb834b0DC3;
+    address public constant SEPOLIA_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
+    address public constant SEPOLIA_REGISTRAR = 0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c;
+    address public constant SEPOLIA_VAULT = 0x3dc71Be52d6D687e21FC0d4FFc196F32cacbc26d;
+    address public constant SEPOLIA_WRAPPED_M_TOKEN = 0x437cc33344a0B27A429f795ff6B469C72698B291;
+    address public constant SEPOLIA_SWAP_FACILITY = 0xB6807116b3B1B321a390594e31ECD6e0076f6278;
+ 
+    // TIMELOCK_ADMIN=0x0000000000000000000000000000000000000000
+    address public constant SEPOLIA_TIMELOCK = 0x3486d197C081A6408029B6D8321529aD9B834e97;
+    address public constant TIMELOCK_PROPOSER_1 = 0x1234567890123456789012345678901234567890;
+    address public constant TIMELOCK_PROPOSER_2 = 0x0987654321098765432109876543210987654321;
+    address public constant TIMELOCK_EXECUTOR_1 = 0x13CB6AE34A13a0977F4d7101eBc24B87Bb23F0d5;
+    address public constant TIMELOCK_EXECUTOR_2 = 0x14cb6ae34a13a0977F4D7101ebC24b87BB23F0d6;
+    
+    // Use latest block to avoid code absence issues; can pin if needed later
+    uint256 public constant SEPOLIA_FORK_BLOCK = 9574293;
+    
+    // Timelock configuration matches deployed delay (3 days)
+    uint256 public constant TIMELOCK_DELAY = 259200; // 3 days
+    
+    uint256 public sepoliaForkId;
+    HubPortal public hubPortal;
+    TimelockController public timelock;
+    
+    // Test accounts
+    address public currentOwner;
+
+    function setUp() external {
+        // Fork Sepolia testnet
+        sepoliaForkId = vm.createSelectFork({ urlOrAlias: "sepolia", blockNumber: SEPOLIA_FORK_BLOCK });
+ 
+        // Load the deployed contracts fjkkhrom Sepolia
+        hubPortal = HubPortal(SEPOLIA_HUB_PORTAL);
+        timelock = TimelockController(payable(SEPOLIA_TIMELOCK));
+
+        currentOwner = hubPortal.owner();
+
+        // Fund role addresses and helpers for gas
+        vm.deal(TIMELOCK_PROPOSER_1, 1 ether);
+        vm.deal(TIMELOCK_PROPOSER_2, 1 ether);
+        vm.deal(TIMELOCK_EXECUTOR_1, 1 ether);
+        vm.deal(TIMELOCK_EXECUTOR_2, 1 ether);
+
+        // attempt timelock transfer (impersonation)
+        vm.deal(currentOwner, 1 ether);
+        vm.prank(currentOwner);
+        hubPortal.transferOwnership(address(timelock));
+        assertEq(hubPortal.owner(), address(timelock), "Timelock must own HubPortal");
+    }
+
+    /// @dev Pause via timelock using actual proposer/executor roles
+    function test_timelock_pause_success() external {
+        assertFalse(hubPortal.paused(), "Already paused");
+
+        bytes32 operationId = timelock.hashOperation(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(IPausableOwnable.pause.selector),
+            bytes32(0),
+            bytes32(0)
+        );
+
+        // Schedule using a valid proposer
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(IPausableOwnable.pause.selector),
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+
+        assertTrue(timelock.isOperationPending(operationId));
+        assertFalse(timelock.isOperationReady(operationId));
+        assertFalse(hubPortal.paused());
+
+        // Advance time beyond delay
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        assertTrue(timelock.isOperationReady(operationId));
+
+        // Execute with a valid executor
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        timelock.execute(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(IPausableOwnable.pause.selector),
+            bytes32(0),
+            bytes32(0)
+        );
+
+        assertTrue(timelock.isOperationDone(operationId));
+        assertTrue(hubPortal.paused());
+    }
+
+    /// @dev Enable cross-spoke connection via timelock (owner-only function enableCrossSpokeConnection(uint256))
+    function test_timelock_enableCrossSpokeConnection_success() external {
+        uint256 spokeChainId = 999; // sample spoke chain id used elsewhere
+
+        assertFalse(hubPortal.crossSpokeConnectionEnabled(spokeChainId), "Connection already enabled");
+
+        bytes32 opId = timelock.hashOperation(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(HubPortal.enableCrossSpokeConnection.selector, spokeChainId),
+            bytes32(0),
+            bytes32(0)
+        );
+
+        // Schedule by valid proposer
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(HubPortal.enableCrossSpokeConnection.selector, spokeChainId),
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        assertTrue(timelock.isOperationPending(opId));
+        assertFalse(timelock.isOperationReady(opId));
+
+        // Advance time
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        assertTrue(timelock.isOperationReady(opId));
+
+        // Execute by valid executor
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        timelock.execute(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(HubPortal.enableCrossSpokeConnection.selector, spokeChainId),
+            bytes32(0),
+            bytes32(0)
+        );
+
+        // Verify
+        assertTrue(timelock.isOperationDone(opId));
+        assertTrue(hubPortal.crossSpokeConnectionEnabled(spokeChainId));
+    }
+
+    function test_timelock_unpause_success() external {
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(IPausableOwnable.pause.selector),
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        timelock.execute(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(IPausableOwnable.pause.selector),
+            bytes32(0),
+            bytes32(0)
+        );
+        assertTrue(hubPortal.paused(), "Precondition pause failed");
+
+        bytes32 opId = timelock.hashOperation(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(IPausableOwnable.unpause.selector),
+            bytes32(0),
+            bytes32(0)
+        );
+
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(IPausableOwnable.unpause.selector),
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        timelock.execute(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(IPausableOwnable.unpause.selector),
+            bytes32(0),
+            bytes32(0)
+        );
+        assertTrue(timelock.isOperationDone(opId));
+        assertFalse(hubPortal.paused());
+    }
+
+    function test_timelock_setPayloadGasLimit_success() external {
+        // selector: setPayloadGasLimit(uint256,uint8,uint256)
+        bytes4 sel = bytes4(keccak256("setPayloadGasLimit(uint256,uint8,uint256)"));
+        uint256 spokeChainId = 999;
+        uint8 payloadType = 0; // Token type (assumption; adjust if enum differs)
+        uint256 newLimit = 500_000;
+        bytes memory callData = abi.encodeWithSelector(sel, spokeChainId, payloadType, newLimit);
+        bytes32 opId = timelock.hashOperation(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0)
+        );
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        timelock.execute(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0)
+        );
+        assertTrue(timelock.isOperationDone(opId));
+    }
+
+    function test_timelock_setDestinationAndPath_batch() external {
+        uint256 spokeChainId = 999;
+        // Using existing mToken address for destination (illustrative)
+        address destMToken = SEPOLIA_M_TOKEN;
+        bytes4 setDestSel = bytes4(keccak256("setDestinationMToken(uint256,address)"));
+        bytes4 setPathSel = bytes4(keccak256("setSupportedBridgingPath(address,uint256,address,bool)"));
+
+        address[] memory targets = new address[](2);
+        uint256[] memory values = new uint256[](2);
+        bytes[] memory payloads = new bytes[](2);
+        targets[0] = SEPOLIA_HUB_PORTAL;
+        targets[1] = SEPOLIA_HUB_PORTAL;
+        values[0] = 0; values[1] = 0;
+        payloads[0] = abi.encodeWithSelector(setDestSel, spokeChainId, destMToken);
+        payloads[1] = abi.encodeWithSelector(setPathSel, SEPOLIA_M_TOKEN, spokeChainId, destMToken, true);
+
+        bytes32 opId = timelock.hashOperationBatch(targets, values, payloads, bytes32(0), bytes32(0));
+
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.scheduleBatch(targets, values, payloads, bytes32(0), bytes32(0), TIMELOCK_DELAY);
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        timelock.executeBatch(targets, values, payloads, bytes32(0), bytes32(0));
+        assertTrue(timelock.isOperationDone(opId));
+    }
+
+    function test_direct_owner_call_reverts() external {
+        address attacker = address(0xBEEF);
+        vm.deal(attacker, 1 ether);
+        vm.prank(attacker);
+        vm.expectRevert();
+        hubPortal.pause();
+    }
+
+    function test_timelock_setBridge_success() external {
+        // choose a new (dummy) bridge address (non-zero). No interface calls in setter.
+        address newBridge = TIMELOCK_EXECUTOR_2;
+        bytes32 opId = timelock.hashOperation(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(Portal.setBridge.selector, newBridge),
+            bytes32(0),
+            bytes32(0)
+        );
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(Portal.setBridge.selector, newBridge),
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        timelock.execute(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(Portal.setBridge.selector, newBridge),
+            bytes32(0),
+            bytes32(0)
+        );
+        assertTrue(timelock.isOperationDone(opId));
+        // Cannot directly read `bridge` (public) since it's in Portal; cast works:
+        assertEq(Portal(SEPOLIA_HUB_PORTAL).bridge(), newBridge);
+    }
+
+    function test_timelock_transferOwnership_success() external {
+        address newOwner = TIMELOCK_PROPOSER_2;
+        bytes32 opId = timelock.hashOperation(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(OwnableUpgradeable.transferOwnership.selector, newOwner),
+            bytes32(0),
+            bytes32(0)
+        );
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(OwnableUpgradeable.transferOwnership.selector, newOwner),
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        timelock.execute(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(OwnableUpgradeable.transferOwnership.selector, newOwner),
+            bytes32(0),
+            bytes32(0)
+        );
+        assertTrue(timelock.isOperationDone(opId));
+        assertEq(hubPortal.owner(), newOwner);
+    }
+
+    function test_timelock_renounceOwnership_success() external {
+        bytes32 opId = timelock.hashOperation(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(OwnableUpgradeable.renounceOwnership.selector),
+            bytes32(0),
+            bytes32(0)
+        );
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(OwnableUpgradeable.renounceOwnership.selector),
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        timelock.execute(
+            SEPOLIA_HUB_PORTAL,
+            0,
+            abi.encodeWithSelector(OwnableUpgradeable.renounceOwnership.selector),
+            bytes32(0),
+            bytes32(0)
+        );
+        assertTrue(timelock.isOperationDone(opId));
+        assertEq(hubPortal.owner(), address(0));
+    }
+}
+
+
+
