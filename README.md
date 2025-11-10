@@ -50,3 +50,32 @@ Compile the contracts:
 forge build
 ```
 
+### Env
+
+Copy `.env` and write down the env variables needed to run this project.
+
+```bash
+cp .env.example .env
+```
+
+### Test
+
+To run all tests:
+
+```bash
+forge test
+```
+
+Run test that matches a test contract:
+
+```bash
+forge test --mc <test-contract-name>
+```
+
+### Code quality
+
+[Forge](https://getfoundry.sh/introduction/installation) is used to format Solidity code. Use it by running:
+
+```bash
+forge fmt
+```
