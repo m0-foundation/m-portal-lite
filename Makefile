@@ -178,6 +178,21 @@ propose-configure:
 propose-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
 propose-configure-ethereum: propose-configure
 
+propose-transfer-pauser: NEW_PAUSER ?= 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1
+propose-transfer-pauser:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/execute/TransferPauserRole.s.sol:ProposeTransferPauserRole \
+	--sig "run(address)" $(NEW_PAUSER) \
+	--rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --broadcast --ffi
+
+propose-transfer-ownership:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/execute/TransferOwnership.s.sol:ProposeTransferOwnership \
+	--sig "run(address)" $(NEW_OWNER) \
+	--rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --broadcast --ffi
+
 #
 # Upgrade
 #
