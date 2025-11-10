@@ -185,8 +185,9 @@ propose-transfer-pauser:
 	--sig "run(address)" $(NEW_PAUSER) \
 	--rpc-url $(RPC_URL) \
 	--skip test --slow --non-interactive --broadcast --ffi
-
-propose-transfer-ownership:
+	
+propose-transfer-ownership: NEW_OWNER ?= 0x23CA665c8a73292Fc7AC2cC4493d2cE883BBA468
+propose-transfer-ownership: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/execute/TransferOwnership.s.sol:ProposeTransferOwnership \
 	--sig "run(address)" $(NEW_OWNER) \
