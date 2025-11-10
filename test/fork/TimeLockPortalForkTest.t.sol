@@ -373,6 +373,161 @@ contract TimeLockPortalForkTest is Test {
         assertTrue(timelock.isOperationDone(opId));
         assertEq(hubPortal.owner(), address(0));
     }
+
+    // ----------------------- Cancellation Tests ----------------------- //
+
+    function test_timelock_cancel_pending_single() external {
+        bytes memory callData = abi.encodeWithSelector(IPausableOwnable.pause.selector);
+        bytes32 opId = timelock.hashOperation(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0)
+        );
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        assertTrue(timelock.isOperationPending(opId));
+        vm.prank(TIMELOCK_PROPOSER_1); // proposer has CANCELLER_ROLE per OZ constructor
+        timelock.cancel(opId);
+        assertFalse(timelock.isOperation(opId));
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        vm.expectRevert();
+        timelock.execute(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0)
+        );
+    }
+
+    function test_timelock_cancel_ready_single() external {
+        bytes memory callData = abi.encodeWithSelector(IPausableOwnable.pause.selector);
+        bytes32 opId = timelock.hashOperation(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0)
+        );
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        assertTrue(timelock.isOperationReady(opId));
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.cancel(opId);
+        assertFalse(timelock.isOperation(opId));
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        vm.expectRevert();
+        timelock.execute(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0)
+        );
+    }
+
+    function test_timelock_cancel_unauthorized_reverts() external {
+        bytes memory callData = abi.encodeWithSelector(IPausableOwnable.pause.selector);
+        bytes32 opId = timelock.hashOperation(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0)
+        );
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        address attacker = makeAddr("attacker");
+        vm.prank(attacker);
+        vm.expectRevert();
+        timelock.cancel(opId);
+        // Valid canceller still succeeds
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.cancel(opId);
+        assertFalse(timelock.isOperation(opId));
+    }
+
+    function test_timelock_cancel_after_execute_reverts() external {
+        bytes memory callData = abi.encodeWithSelector(IPausableOwnable.pause.selector);
+        bytes32 opId = timelock.hashOperation(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0)
+        );
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.schedule(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0),
+            TIMELOCK_DELAY
+        );
+        vm.warp(block.timestamp + TIMELOCK_DELAY + 1);
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        timelock.execute(
+            MAINNET_HUB_PORTAL,
+            0,
+            callData,
+            bytes32(0),
+            bytes32(0)
+        );
+        assertTrue(timelock.isOperationDone(opId));
+        vm.prank(TIMELOCK_PROPOSER_1);
+        vm.expectRevert();
+        timelock.cancel(opId);
+    }
+
+    function test_timelock_cancel_batch_pending() external {
+        uint256 spokeChainId = 999;
+        bytes4 setDestSel = Portal.setDestinationMToken.selector;
+        bytes4 setPathSel = Portal.setSupportedBridgingPath.selector;
+        address destMToken = MAINNET_M_TOKEN;
+        address[] memory targets = new address[](2);
+        uint256[] memory values = new uint256[](2);
+        bytes[] memory payloads = new bytes[](2);
+        targets[0] = MAINNET_HUB_PORTAL;
+        targets[1] = MAINNET_HUB_PORTAL;
+        values[0] = 0; values[1] = 0;
+        payloads[0] = abi.encodeWithSelector(setDestSel, spokeChainId, destMToken);
+        payloads[1] = abi.encodeWithSelector(setPathSel, MAINNET_M_TOKEN, spokeChainId, destMToken, true);
+        bytes32 opId = timelock.hashOperationBatch(targets, values, payloads, bytes32(0), bytes32(0));
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.scheduleBatch(targets, values, payloads, bytes32(0), bytes32(0), TIMELOCK_DELAY);
+        assertTrue(timelock.isOperationPending(opId));
+        vm.prank(TIMELOCK_PROPOSER_1);
+        timelock.cancel(opId);
+        assertFalse(timelock.isOperation(opId));
+        vm.prank(TIMELOCK_EXECUTOR_1);
+        vm.expectRevert();
+        timelock.executeBatch(targets, values, payloads, bytes32(0), bytes32(0));
+    }
 }
 
 
