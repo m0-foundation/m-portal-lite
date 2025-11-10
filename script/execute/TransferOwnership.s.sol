@@ -21,7 +21,7 @@ contract ProposeTransferOwnership is ScriptBase, MultiSigBatchBase {
         console.log("Multisig (current owner):", _SAFE_MULTISIG);
 
         // Add transferOwnership to batch
-        _addToBatch(portal_, abi.encodeCall(Ownable.transferOwnership, newOwner_));
+        _addToBatch(portal_, abi.encodeCall(Ownable.transferOwnership, (newOwner_)));
 
         // Simulate and propose the batch
         _simulateBatch(_SAFE_MULTISIG);

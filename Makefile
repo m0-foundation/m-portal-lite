@@ -188,7 +188,7 @@ propose-transfer-pauser:
 
 propose-transfer-pauser-ethereum: RPC_URL=$(ETHEREUM_RPC)
 propose-transfer-pauser-ethereum: propose-transfer-pauser
-	
+
 propose-transfer-ownership: NEW_OWNER ?= 0x23CA665c8a73292Fc7AC2cC4493d2cE883BBA468
 propose-transfer-ownership: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \

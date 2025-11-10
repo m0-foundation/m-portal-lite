@@ -21,7 +21,7 @@ contract ProposeTransferPauserRole is ExecuteBase, MultiSigBatchBase {
         console.log("Multisig (owner):", _SAFE_MULTISIG);
 
         // Add transferPauserRole to batch
-        _addToBatch(portal_, abi.encodeCall(IPausableOwnable.transferPauserRole, newPauser_));
+        _addToBatch(portal_, abi.encodeCall(IPausableOwnable.transferPauserRole, (newPauser_)));
 
         // Simulate and propose the batch
         _simulateBatch(_SAFE_MULTISIG);
