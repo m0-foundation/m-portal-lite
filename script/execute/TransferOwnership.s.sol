@@ -4,10 +4,10 @@ pragma solidity 0.8.26;
 
 import { console } from "../../lib/forge-std/src/console.sol";
 import { Ownable } from "../../lib/openzeppelin/contracts/access/Ownable.sol";
-import { ScriptBase } from "../ScriptBase.sol";
+import { ExecuteBase } from "./ExecuteBase.sol";
 import { MultiSigBatchBase } from "../MultiSigBatchBase.sol";
 
-contract ProposeTransferOwnership is ScriptBase, MultiSigBatchBase {
+contract ProposeTransferOwnership is ExecuteBase, MultiSigBatchBase {
     address constant _SAFE_MULTISIG = 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1;
 
     function run(address newOwner_) external {

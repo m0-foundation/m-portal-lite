@@ -4,7 +4,7 @@ pragma solidity 0.8.26;
 
 import { console } from "../../lib/forge-std/src/console.sol";
 import { IPausableOwnable } from "../../src/interfaces/IPausableOwnable.sol";
-import { ScriptBase } from "../ScriptBase.sol";
+import { ExecuteBase } from "./ExecuteBase.sol";
 import { MultiSigBatchBase } from "../MultiSigBatchBase.sol";
 
 contract ProposeTransferPauserRole is ExecuteBase, MultiSigBatchBase {
