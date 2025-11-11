@@ -25,9 +25,9 @@ deploy-hub-sepolia: deploy-hub
 deploy-spoke: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
-	--skip test --broadcast --slow --non-interactive -v \
+	--skip test --slow --non-interactive -v \
 	--evm-version ${EVM_VERSION} \
-    --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
+	--broadcast --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
 
 deploy-spoke-bsc: RPC_URL=$(BSC_RPC)
 deploy-spoke-bsc: EVM_VERSION="cancun"
@@ -92,8 +92,8 @@ deploy-spoke-manta: deploy-spoke
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM --rpc-url $(RPC_URL) \
-	--skip test --broadcast --slow --non-interactive -v \
-  --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
+	--skip test --slow --non-interactive -v \
+  	--broadcast --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
 
 deploy-spoke-wrapped_m-bsc: RPC_URL=$(BSC_RPC)
 deploy-spoke-wrapped_m-bsc: VERIFIER="etherscan"
@@ -222,6 +222,15 @@ propose-renounce-timelock-admin:
 
 propose-renounce-timelock-admin-ethereum: RPC_URL=$(ETHEREUM_RPC)
 propose-renounce-timelock-admin-ethereum: propose-renounce-timelock-admin
+
+propose-migrate-safe:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/upgrade/ProposeMigrateSafe.s.sol:ProposeMigrateSafe \
+	--rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --ffi
+
+propose-migrate-safe-soneium: RPC_URL=$(SONEIUM_RPC)
+propose-migrate-safe-soneium: propose-migrate-safe
 
 #
 # Upgrade
