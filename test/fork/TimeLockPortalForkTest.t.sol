@@ -23,9 +23,6 @@ contract TimeLockPortalForkTest is Test {
     address public constant TIMELOCK_EXECUTOR_1 = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
     address public constant TIMELOCK_ADMIN = 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1;
 
-    // Use latest block to avoid code absence issues; can pin if needed later
-    uint256 public constant MAINNET_FORK_BLOCK = 23743449;
-
     // Timelock configuration matches deployed delay (3 days)
     uint256 public constant TIMELOCK_DELAY = 259200; // 3 days
 
@@ -38,7 +35,7 @@ contract TimeLockPortalForkTest is Test {
 
     function setUp() external {
         // Fork Ethereum Mainnet
-        mainnetForkId = vm.createSelectFork({ urlOrAlias: "ethereum", blockNumber: MAINNET_FORK_BLOCK });
+        mainnetForkId = vm.createSelectFork({ urlOrAlias: "ethereum" });
 
         // Load the deployed contracts from Mainnet
         hubPortal = HubPortal(MAINNET_HUB_PORTAL);
