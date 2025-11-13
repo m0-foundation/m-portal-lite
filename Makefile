@@ -178,6 +178,38 @@ propose-configure:
 propose-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
 propose-configure-ethereum: propose-configure
 
+propose-transfer-pauser: NEW_PAUSER ?= 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1
+propose-transfer-pauser:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/execute/ProposeTransferPauserRole.s.sol:ProposeTransferPauserRole \
+	--sig "run(address)" $(NEW_PAUSER) \
+	--rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --broadcast --ffi
+
+propose-transfer-pauser-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-transfer-pauser-ethereum: propose-transfer-pauser
+
+propose-transfer-ownership: NEW_OWNER ?= 0x23CA665c8a73292Fc7AC2cC4493d2cE883BBA468
+propose-transfer-ownership: 
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/execute/ProposeTransferOwnership.s.sol:ProposeTransferOwnership \
+	--sig "run(address)" $(NEW_OWNER) \
+	--rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --broadcast --ffi
+
+propose-transfer-ownership-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-transfer-ownership-ethereum: propose-transfer-ownership
+
+propose-renounce-timelock-admin: 
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/execute/ProposeRenounceTimelockAdmin.s.sol:ProposeRenounceTimelockAdmin \
+	--sig "run()" \
+	--rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --broadcast --ffi
+
+propose-renounce-timelock-admin-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-renounce-timelock-admin-ethereum: propose-renounce-timelock-admin
+
 #
 # Upgrade
 #
