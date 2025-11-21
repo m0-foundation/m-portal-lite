@@ -14,6 +14,7 @@ library Chains {
     uint256 internal constant BNB = 56;
     uint256 internal constant MANTRA = 5888;
     uint256 internal constant SONEIUM = 1868;
+    uint256 internal constant PLASMA = 9745;
 
     // Testnet
     uint256 internal constant ETHEREUM_SEPOLIA = 11155111;
@@ -29,6 +30,7 @@ library Chains {
         if (spokeChainId_ == BNB) return ETHEREUM;
         if (spokeChainId_ == MANTRA) return ETHEREUM;
         if (spokeChainId_ == SONEIUM) return ETHEREUM;
+        if (spokeChainId_ == PLASMA) return ETHEREUM;
 
         // Testnet
         if (spokeChainId_ == HYPER_EVM_TESTNET) return ETHEREUM_SEPOLIA;
