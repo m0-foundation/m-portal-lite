@@ -41,9 +41,9 @@ deploy-spoke:
 	--rpc-url $(RPC_URL) \
 	--skip test --slow --non-interactive -v \
 	--evm-version ${EVM_VERSION} \
-    --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL} \
-	--etherscan-api-key "verifyContract"
-	$(BROADCAST_FLAGS)
+    --verifier ${VERIFIER} \
+	--verifier-url ${VERIFIER_URL} \
+	--etherscan-api-key "verifyContract" $(BROADCAST_FLAGS)
 
 # To run without broadcasting use make deploy-spoke-plasma DRY_RUN=true
 # To broadcast use make deploy-spoke-plasma
@@ -110,7 +110,8 @@ deploy-spoke-wrapped_m:
 	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM \
 	--rpc-url $(RPC_URL) \
 	--skip test --slow --non-interactive -v \
-    --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL} \
+    --verifier ${VERIFIER} \
+	--verifier-url ${VERIFIER_URL} \
 	$(BROADCAST_FLAGS)
 
 deploy-spoke-wrapped_m-bsc: RPC_URL=$(BSC_RPC)
@@ -154,6 +155,7 @@ deploy-spoke-wrapped_m-soneium: VERIFIER_URL=$(SONEIUM_VERIFIER_URL)
 deploy-spoke-wrapped_m-soneium: deploy-spoke-wrapped_m
 
 deploy-spoke-wrapped_m-plasma: RPC_URL=$(PLASMA_RPC)
+deploy-spoke-wrapped_m-plasma: VERIFIER="custom"
 deploy-spoke-wrapped_m-plasma: VERIFIER_URL=$(PLASMA_VERIFIER_URL)
 deploy-spoke-wrapped_m-plasma: deploy-spoke-wrapped_m	
 
@@ -203,16 +205,28 @@ configure-bsc: configure
 configure-soneium: RPC_URL=$(SONEIUM_RPC)
 configure-soneium: configure
 
+configure-plasma: RPC_URL=$(PLASMA_RPC)
+configure-plasma: configure
+
 propose-configure: PEERS ?= []
 propose-configure:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
-	forge script script/configure/ProposeConfigure.s.sol:ProposeConfigure \
+	forge script $(SCRIPT) \
 	--sig "run(uint256[])" $(PEERS) \
 	--rpc-url $(RPC_URL) \
 	--skip test --slow --non-interactive --broadcast --ffi
 
+propose-configure-ethereum: SCRIPT=script/configure/ProposeConfigure.s.sol:ProposeConfigure
 propose-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
 propose-configure-ethereum: propose-configure
+
+propose-set-peer-ethereum: SCRIPT=script/configure/ProposeSetPeer.s.sol:ProposeSetPeer
+propose-set-peer-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-set-peer-ethereum: propose-configure
+
+propose-timelocked-configure-ethereum: SCRIPT=script/configure/ProposeTimelockedConfigure.s.sol:ProposeTimelockedConfigure
+propose-timelocked-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-timelocked-configure-ethereum: propose-timelocked-configure
 
 propose-transfer-pauser: NEW_PAUSER ?= 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1
 propose-transfer-pauser:
@@ -416,6 +430,9 @@ transfer-mantra: transfer
 transfer-soneium: RPC_URL=$(SONEIUM_RPC)
 transfer-soneium: transfer
 
+transfer-plasma: RPC_URL=$(PLASMA_RPC)
+transfer-plasma: transfer
+
 #
 # Transfer M like token
 #
@@ -452,3 +469,6 @@ transfer-m-like-token-mantra: transfer-m-like-token
 
 transfer-m-like-token-soneium: RPC_URL=$(SONEIUM_RPC)
 transfer-m-like-token-soneium: transfer-m-like-token
+
+transfer-m-like-token-plasma: RPC_URL=$(PLASMA_RPC)
+transfer-m-like-token-plasma: transfer-m-like-token
