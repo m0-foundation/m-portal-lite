@@ -226,7 +226,7 @@ propose-set-peer-ethereum: propose-configure
 
 propose-timelocked-configure-ethereum: SCRIPT=script/configure/ProposeTimelockedConfigure.s.sol:ProposeTimelockedConfigure
 propose-timelocked-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
-propose-timelocked-configure-ethereum: propose-timelocked-configure
+propose-timelocked-configure-ethereum: propose-configure
 
 propose-transfer-pauser: NEW_PAUSER ?= 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1
 propose-transfer-pauser:
