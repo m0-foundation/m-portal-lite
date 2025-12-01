@@ -22,45 +22,58 @@ deploy-hub-sepolia: deploy-hub
 # Deploy Spoke
 #
 
+# Default to actual deployment (not simulation)
+DRY_RUN ?= false
+
+# Conditionally set broadcast and verify flags
+ifeq ($(DRY_RUN),true)
+    BROADCAST_FLAGS =
+else
+    BROADCAST_FLAGS = --broadcast --verify
+endif
+
+# Default EVM version
+EVM_VERSION ?= "cancun"
+
 deploy-spoke: 
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
-	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(RPC_URL) \
+	forge script script/deploy/DeploySpoke.s.sol:DeploySpoke \
+	--rpc-url $(RPC_URL) \
 	--skip test --slow --non-interactive -v \
 	--evm-version ${EVM_VERSION} \
-	--broadcast --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
+    --verifier ${VERIFIER} \
+	--verifier-url ${VERIFIER_URL} \
+	--etherscan-api-key "verifyContract" $(BROADCAST_FLAGS)
+
+# To run without broadcasting use make deploy-spoke-plasma DRY_RUN=true
+# To broadcast use make deploy-spoke-plasma
 
 deploy-spoke-bsc: RPC_URL=$(BSC_RPC)
-deploy-spoke-bsc: EVM_VERSION="cancun"
 deploy-spoke-bsc: VERIFIER="etherscan"
 deploy-spoke-bsc: VERIFIER_URL=$(BSC_VERIFIER_URL)
 deploy-spoke-bsc: deploy-spoke
 
 deploy-spoke-bsc-testnet: RPC_URL=$(BSC_TESTNET_RPC)
-deploy-spoke-bsc-testnet: EVM_VERSION="cancun"
 deploy-spoke-bsc-testnet: VERIFIER="etherscan"
 deploy-spoke-bsc-testnet: VERIFIER_URL=$(BSC_TESTNET_VERIFIER_URL)
 deploy-spoke-bsc-testnet: deploy-spoke
 
 deploy-spoke-hyper-evm: RPC_URL=$(HYPEREVM_RPC)
-deploy-spoke-hyper-evm: EVM_VERSION="cancun"
 deploy-spoke-hyper-evm: VERIFIER="blockscout"
 deploy-spoke-hyper-evm: VERIFIER_URL=$(HYPEREVM_VERIFIER_URL)
 deploy-spoke-hyper-evm: deploy-spoke
 
 deploy-spoke-hyper-evm-testnet: RPC_URL=$(HYPEREVM_TESTNET_RPC)
-deploy-spoke-hyper-evm-testnet: EVM_VERSION="cancun"
 deploy-spoke-hyper-evm-testnet: VERIFIER="blockscout"
 deploy-spoke-hyper-evm-testnet: VERIFIER_URL=$(HYPEREVM_VERIFIER_URL)
 deploy-spoke-hyper-evm-testnet: deploy-spoke
 
 deploy-spoke-plume: RPC_URL=$(PLUME_RPC)
-deploy-spoke-plume: EVM_VERSION="cancun"
 deploy-spoke-plume: VERIFIER="blockscout"
 deploy-spoke-plume: VERIFIER_URL=$(PLUME_VERIFIER_URL)
 deploy-spoke-plume: deploy-spoke
 
 deploy-spoke-plume-testnet: RPC_URL=$(PLUME_TESTNET_RPC)
-deploy-spoke-plume-testnet: EVM_VERSION="cancun"
 deploy-spoke-plume-testnet: VERIFIER="blockscout"
 deploy-spoke-plume-testnet: VERIFIER_URL=$(PLUME_TESTNET_VERIFIER_URL)
 deploy-spoke-plume-testnet: deploy-spoke
@@ -78,22 +91,28 @@ deploy-spoke-soneium: VERIFIER_URL=$(SONEIUM_VERIFIER_URL)
 deploy-spoke-soneium: deploy-spoke
 
 deploy-spoke-soneium-testnet: RPC_URL=$(SONEIUM_TESTNET_RPC)
-deploy-spoke-soneium-testnet: EVM_VERSION="cancun"
 deploy-spoke-soneium-testnet: VERIFIER="blockscout"
 deploy-spoke-soneium-testnet: VERIFIER_URL=$(SONEIUM_TESTNET_VERIFIER_URL)
 deploy-spoke-soneium-testnet: deploy-spoke
 
 deploy-spoke-manta: RPC_URL=$(MANTRA_RPC)
-deploy-spoke-manta: EVM_VERSION="cancun"
 deploy-spoke-manta: VERIFIER="blockscout"
 deploy-spoke-manta: VERIFIER_URL=$(MANTRA_VERIFIER_URL)
 deploy-spoke-manta: deploy-spoke
 
+deploy-spoke-plasma: RPC_URL=$(PLASMA_RPC)
+deploy-spoke-plasma: VERIFIER="custom"
+deploy-spoke-plasma: VERIFIER_URL=$(PLASMA_VERIFIER_URL)
+deploy-spoke-plasma: deploy-spoke
+
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
-	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM --rpc-url $(RPC_URL) \
+	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM \
+	--rpc-url $(RPC_URL) \
 	--skip test --slow --non-interactive -v \
-  	--broadcast --verify --verifier ${VERIFIER} --verifier-url ${VERIFIER_URL}
+    --verifier ${VERIFIER} \
+	--verifier-url ${VERIFIER_URL} \
+	$(BROADCAST_FLAGS)
 
 deploy-spoke-wrapped_m-bsc: RPC_URL=$(BSC_RPC)
 deploy-spoke-wrapped_m-bsc: VERIFIER="etherscan"
@@ -135,7 +154,13 @@ deploy-spoke-wrapped_m-soneium: VERIFIER="blockscout"
 deploy-spoke-wrapped_m-soneium: VERIFIER_URL=$(SONEIUM_VERIFIER_URL)
 deploy-spoke-wrapped_m-soneium: deploy-spoke-wrapped_m
 
+deploy-spoke-wrapped_m-plasma: RPC_URL=$(PLASMA_RPC)
+deploy-spoke-wrapped_m-plasma: VERIFIER="custom"
+deploy-spoke-wrapped_m-plasma: VERIFIER_URL=$(PLASMA_VERIFIER_URL)
+deploy-spoke-wrapped_m-plasma: deploy-spoke-wrapped_m	
+
 #
+# Configure
 #
 # make configure-ethereum PEERS="[999]"
 
@@ -180,16 +205,28 @@ configure-bsc: configure
 configure-soneium: RPC_URL=$(SONEIUM_RPC)
 configure-soneium: configure
 
+configure-plasma: RPC_URL=$(PLASMA_RPC)
+configure-plasma: configure
+
 propose-configure: PEERS ?= []
 propose-configure:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
-	forge script script/configure/ProposeConfigure.s.sol:ProposeConfigure \
+	forge script $(SCRIPT) \
 	--sig "run(uint256[])" $(PEERS) \
 	--rpc-url $(RPC_URL) \
 	--skip test --slow --non-interactive --broadcast --ffi
 
+propose-configure-ethereum: SCRIPT=script/configure/ProposeConfigure.s.sol:ProposeConfigure
 propose-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
 propose-configure-ethereum: propose-configure
+
+propose-set-peer-ethereum: SCRIPT=script/configure/ProposeSetPeer.s.sol:ProposeSetPeer
+propose-set-peer-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-set-peer-ethereum: propose-configure
+
+propose-timelocked-configure-ethereum: SCRIPT=script/configure/ProposeTimelockedConfigure.s.sol:ProposeTimelockedConfigure
+propose-timelocked-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-timelocked-configure-ethereum: propose-configure
 
 propose-transfer-pauser: NEW_PAUSER ?= 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1
 propose-transfer-pauser:
@@ -393,6 +430,9 @@ transfer-mantra: transfer
 transfer-soneium: RPC_URL=$(SONEIUM_RPC)
 transfer-soneium: transfer
 
+transfer-plasma: RPC_URL=$(PLASMA_RPC)
+transfer-plasma: transfer
+
 #
 # Transfer M like token
 #
@@ -429,3 +469,6 @@ transfer-m-like-token-mantra: transfer-m-like-token
 
 transfer-m-like-token-soneium: RPC_URL=$(SONEIUM_RPC)
 transfer-m-like-token-soneium: transfer-m-like-token
+
+transfer-m-like-token-plasma: RPC_URL=$(PLASMA_RPC)
+transfer-m-like-token-plasma: transfer-m-like-token
