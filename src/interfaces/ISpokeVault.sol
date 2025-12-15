@@ -51,7 +51,7 @@ interface ISpokeVault is IMigratable {
      * @param  refundAddress The refund address to receive excess native gas.
      * @return messageId     The unique identifier of the message sent.
      */
-    function transferExcesswM(address refundAddress) external payable returns (bytes32 messageId);
+    function transferExcessWrappedM(address refundAddress) external payable returns (bytes32 messageId);
 
     /**
      * @notice Performs an arbitrarily defined migration.

@@ -56,7 +56,7 @@ contract SpokeVault is ISpokeVault, Migratable {
     ///////////////////////////////////////////////////////////////////////////
 
     /// @inheritdoc ISpokeVault
-    function transferExcesswM(address refundAddress_) external payable returns (bytes32 messageId_) {
+    function transferExcessWrappedM(address refundAddress_) external payable returns (bytes32 messageId_) {
         uint256 wrappedMBalance_ = IERC20(wrappedMToken).balanceOf(address(this));
 
         if (wrappedMBalance_ == 0) return bytes32(0);
