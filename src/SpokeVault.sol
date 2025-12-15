@@ -8,6 +8,7 @@ import { Migratable } from "../lib/common/src/Migratable.sol";
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { ISpokeVault } from "./interfaces/ISpokeVault.sol";
+import { ISwapFacilityLike } from "./interfaces/ISwapFacilityLike.sol";
 
 /**
  * @title  SpokeVault
@@ -25,10 +26,16 @@ contract SpokeVault is ISpokeVault, Migratable {
     address public immutable mToken;
 
     /// @inheritdoc ISpokeVault
+    address public immutable wrappedMToken;
+
+    /// @inheritdoc ISpokeVault
     address public immutable hubVault;
 
     /// @inheritdoc ISpokeVault
     address public immutable spokePortal;
+
+    /// @inheritdoc ISpokeVault
+    address public immutable swapFacility;
 
     /**
      * @notice Constructs SpokeVault Implementation contract.
@@ -36,14 +43,23 @@ contract SpokeVault is ISpokeVault, Migratable {
      * @param  hubVault_       The address of the Vault contract on the hub chain.
      * @param  hubChainId_     The EVM chain Id of the Hub chain.
      * @param  migrationAdmin_ The address of a migration admin.
+     * @param  wrappedMToken_  The address of the Wrapped M token.
      */
-    constructor(address spokePortal_, address hubVault_, uint256 hubChainId_, address migrationAdmin_) {
+    constructor(
+        address spokePortal_,
+        address hubVault_,
+        uint256 hubChainId_,
+        address migrationAdmin_,
+        address wrappedMToken_
+    ) {
         if ((spokePortal = spokePortal_) == address(0)) revert ZeroSpokePortal();
         if ((hubVault = hubVault_) == address(0)) revert ZeroHubVault();
         if ((hubChainId = hubChainId_) == 0) revert ZeroHubChain();
         if ((migrationAdmin = migrationAdmin_) == address(0)) revert ZeroMigrationAdmin();
+        if ((wrappedMToken = wrappedMToken_) == address(0)) revert ZeroWrappedMToken();
 
-        mToken = IPortal(spokePortal).mToken();
+        mToken = IPortal(spokePortal_).mToken();
+        swapFacility = IPortal(spokePortal_).swapFacility();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -52,6 +68,15 @@ contract SpokeVault is ISpokeVault, Migratable {
 
     /// @inheritdoc ISpokeVault
     function transferExcessM(address refundAddress_) external payable returns (bytes32 messageId_) {
+        // Unwrap any wM to M
+        uint256 wrappedMBalance_ = IERC20(wrappedMToken).balanceOf(address(this));
+
+        if (wrappedMBalance_ > 0) {
+            IERC20(wrappedMToken).approve(swapFacility, wrappedMBalance_);
+            ISwapFacilityLike(swapFacility).swapOutM(wrappedMToken, wrappedMBalance_, address(this));
+        }
+
+        // Transfer all M (including unwrapped wM) to HubVault
         uint256 amount_ = IERC20(mToken).balanceOf(address(this));
 
         if (amount_ == 0) return messageId_;

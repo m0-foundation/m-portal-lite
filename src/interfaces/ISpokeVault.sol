@@ -39,6 +39,9 @@ interface ISpokeVault is IMigratable {
     /// @notice Thrown in constructor if Migration Admin is 0x0.
     error ZeroMigrationAdmin();
 
+    /// @notice Thrown when the Wrapped M Token address is 0x0.
+    error ZeroWrappedMToken();
+
     ///////////////////////////////////////////////////////////////////////////
     //                         INTERACTIVE FUNCTIONS                         //
     ///////////////////////////////////////////////////////////////////////////
@@ -69,9 +72,15 @@ interface ISpokeVault is IMigratable {
     /// @notice The address of the M token.
     function mToken() external view returns (address mToken);
 
+    /// @notice The address of the Wrapped M token.
+    function wrappedMToken() external view returns (address wrappedMToken);
+
     /// @notice Address of the Vault on the Hub that will receive the excess M.
     function hubVault() external view returns (address hubVault);
 
     /// @notice Address of the SpokePortal being used to bridge M back to the Hub.
     function spokePortal() external view returns (address spokePortal);
+
+    /// @notice Address of the Swap Facility used to unwrap Wrapped M tokens.
+    function swapFacility() external view returns (address swapFacility);
 }
