@@ -8,7 +8,6 @@ import { Migratable } from "../lib/common/src/Migratable.sol";
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { ISpokeVault } from "./interfaces/ISpokeVault.sol";
-import { ISwapFacilityLike } from "./interfaces/ISwapFacilityLike.sol";
 
 /**
  * @title  SpokeVault
@@ -29,37 +28,39 @@ contract SpokeVault is ISpokeVault, Migratable {
     address public immutable wrappedMToken;
 
     /// @inheritdoc ISpokeVault
+    address public immutable hubWrappedMToken;
+
+    /// @inheritdoc ISpokeVault
     address public immutable hubVault;
 
     /// @inheritdoc ISpokeVault
     address public immutable spokePortal;
 
-    /// @inheritdoc ISpokeVault
-    address public immutable swapFacility;
-
     /**
      * @notice Constructs SpokeVault Implementation contract.
-     * @param  spokePortal_    The address of the SpokePortal contract.
-     * @param  hubVault_       The address of the Vault contract on the hub chain.
-     * @param  hubChainId_     The EVM chain Id of the Hub chain.
-     * @param  migrationAdmin_ The address of a migration admin.
-     * @param  wrappedMToken_  The address of the Wrapped M token.
+     * @param  spokePortal_       The address of the SpokePortal contract.
+     * @param  hubVault_          The address of the Vault contract on the hub chain.
+     * @param  hubChainId_        The EVM chain Id of the Hub chain.
+     * @param  migrationAdmin_    The address of a migration admin.
+     * @param  wrappedMToken_     The address of the Wrapped M token on the spoke chain.
+     * @param  hubWrappedMToken_  The address of the Wrapped M token on the hub chain.
      */
     constructor(
         address spokePortal_,
         address hubVault_,
         uint256 hubChainId_,
         address migrationAdmin_,
-        address wrappedMToken_
+        address wrappedMToken_,
+        address hubWrappedMToken_
     ) {
         if ((spokePortal = spokePortal_) == address(0)) revert ZeroSpokePortal();
         if ((hubVault = hubVault_) == address(0)) revert ZeroHubVault();
         if ((hubChainId = hubChainId_) == 0) revert ZeroHubChain();
         if ((migrationAdmin = migrationAdmin_) == address(0)) revert ZeroMigrationAdmin();
         if ((wrappedMToken = wrappedMToken_) == address(0)) revert ZeroWrappedMToken();
+        if ((hubWrappedMToken = hubWrappedMToken_) == address(0)) revert ZeroHubWrappedMToken();
 
         mToken = IPortal(spokePortal_).mToken();
-        swapFacility = IPortal(spokePortal_).swapFacility();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -68,25 +69,38 @@ contract SpokeVault is ISpokeVault, Migratable {
 
     /// @inheritdoc ISpokeVault
     function transferExcessM(address refundAddress_) external payable returns (bytes32 messageId_) {
-        // Unwrap any wM to M
+        uint256 mBalance_ = IERC20(mToken).balanceOf(address(this));
+
+        if (mBalance_ == 0) return bytes32(0);
+
+        IERC20(mToken).approve(spokePortal, mBalance_);
+        messageId_ = IPortal(spokePortal).transfer{ value: msg.value }(
+            mBalance_,
+            hubChainId,
+            hubVault,
+            refundAddress_
+        );
+
+        emit ExcessMTokenSent(mBalance_, messageId_);
+    }
+
+    /// @inheritdoc ISpokeVault
+    function transferExcessWrappedM(address refundAddress_) external payable returns (bytes32 messageId_) {
         uint256 wrappedMBalance_ = IERC20(wrappedMToken).balanceOf(address(this));
 
-        if (wrappedMBalance_ > 0) {
-            IERC20(wrappedMToken).approve(swapFacility, wrappedMBalance_);
-            ISwapFacilityLike(swapFacility).swapOutM(wrappedMToken, wrappedMBalance_, address(this));
-        }
+        if (wrappedMBalance_ == 0) return bytes32(0);
 
-        // Transfer all M (including unwrapped wM) to HubVault
-        uint256 amount_ = IERC20(mToken).balanceOf(address(this));
+        IERC20(wrappedMToken).approve(spokePortal, wrappedMBalance_);
+        messageId_ = IPortal(spokePortal).transferMLikeToken{ value: msg.value }(
+            wrappedMBalance_,
+            wrappedMToken,
+            hubChainId,
+            hubWrappedMToken,
+            hubVault,
+            refundAddress_
+        );
 
-        if (amount_ == 0) return messageId_;
-
-        address spokePortal_ = spokePortal;
-
-        IERC20(mToken).approve(spokePortal_, amount_);
-        messageId_ = IPortal(spokePortal_).transfer{ value: msg.value }(amount_, hubChainId, hubVault, refundAddress_);
-
-        emit ExcessMTokenSent(amount_, messageId_);
+        emit ExcessWrappedMTokenSent(wrappedMBalance_, messageId_);
     }
 
     /// @inheritdoc ISpokeVault

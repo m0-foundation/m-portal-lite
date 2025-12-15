@@ -20,6 +20,13 @@ interface ISpokeVault is IMigratable {
      */
     event ExcessMTokenSent(uint256 amount, bytes32 messageId);
 
+    /**
+     * @notice Emitted when excess Wrapped M token are sent to the Vault on Ethereum Mainnet.
+     * @param  amount    The amount of bridged Wrapped M tokens.
+     * @param  messageId The unique identifier of the message sent.
+     */
+    event ExcessWrappedMTokenSent(uint256 amount, bytes32 messageId);
+
     ///////////////////////////////////////////////////////////////////////////
     //                             CUSTOM ERRORS                             //
     ///////////////////////////////////////////////////////////////////////////
@@ -42,6 +49,9 @@ interface ISpokeVault is IMigratable {
     /// @notice Thrown when the Wrapped M Token address is 0x0.
     error ZeroWrappedMToken();
 
+    /// @notice Thrown when the Hub Wrapped M Token address is 0x0.
+    error ZeroHubWrappedMToken();
+
     ///////////////////////////////////////////////////////////////////////////
     //                         INTERACTIVE FUNCTIONS                         //
     ///////////////////////////////////////////////////////////////////////////
@@ -52,6 +62,13 @@ interface ISpokeVault is IMigratable {
      * @return messageId     The unique identifier of the message sent.
      */
     function transferExcessM(address refundAddress) external payable returns (bytes32 messageId);
+
+    /**
+     * @notice Transfers the total excess amount of Wrapped M in the SpokeVault to the HubVault on Ethereum Mainnet.
+     * @param  refundAddress The refund address to receive excess native gas.
+     * @return messageId     The unique identifier of the message sent.
+     */
+    function transferExcessWrappedM(address refundAddress) external payable returns (bytes32 messageId);
 
     /**
      * @notice Performs an arbitrarily defined migration.
@@ -72,15 +89,15 @@ interface ISpokeVault is IMigratable {
     /// @notice The address of the M token.
     function mToken() external view returns (address mToken);
 
-    /// @notice The address of the Wrapped M token.
+    /// @notice The address of the Wrapped M token on the spoke chain.
     function wrappedMToken() external view returns (address wrappedMToken);
+
+    /// @notice The address of the Wrapped M token on the hub chain.
+    function hubWrappedMToken() external view returns (address hubWrappedMToken);
 
     /// @notice Address of the Vault on the Hub that will receive the excess M.
     function hubVault() external view returns (address hubVault);
 
     /// @notice Address of the SpokePortal being used to bridge M back to the Hub.
     function spokePortal() external view returns (address spokePortal);
-
-    /// @notice Address of the Swap Facility used to unwrap Wrapped M tokens.
-    function swapFacility() external view returns (address swapFacility);
 }
