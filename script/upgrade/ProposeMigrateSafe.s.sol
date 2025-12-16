@@ -53,7 +53,7 @@ contract ProposeMigrateSafe is ScriptBase, DelegatePrank {
             console.log("Safe singleton after migration:", newSingleton);
         } else {
             console.log("Migration simulation failed with error:", string(result));
-            revert(result);
+            revert(string(result));
         }
 
         // Propose the transaction to the Safe Transaction Service

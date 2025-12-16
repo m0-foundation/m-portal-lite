@@ -21,7 +21,7 @@ contract DeploySpokeWrappedM is DeploySpokeBase {
 
         uint256 chainId_ = block.chainid;
 
-        (, address vault_) = _deployVault(deployer_, portal_, hubVault_, hubChainId_, migrationAdmin_);
+        (, address vault_) = _deployVault(deployer_, portal_, hubVault_, hubChainId_, migrationAdmin_, _EXPECTED_WRAPPED_M_TOKEN_ADDRESS);
         (, address wrappedMToken_) = _deployWrappedMToken(deployer_, mToken_, registrar_, vault_, migrationAdmin_);
 
         vm.stopBroadcast();
