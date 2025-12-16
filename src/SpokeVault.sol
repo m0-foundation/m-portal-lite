@@ -71,7 +71,7 @@ contract SpokeVault is ISpokeVault, Migratable {
             refundAddress_
         );
 
-        emit ExcessMTokenSent(wrappedMBalance_, messageId_);
+        emit ExcessWrappedMTokenSent(wrappedMBalance_, messageId_);
     }
 
     /// @inheritdoc ISpokeVault

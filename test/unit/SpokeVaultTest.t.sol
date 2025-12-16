@@ -78,6 +78,7 @@ contract SpokeVaultTest is Test {
         uint256 amount = 1e6;
         bytes32 expectedMessageId = bytes32(0);
 
+        // Mint tokens to the vault
         wrappedMToken.mint(address(spokeVault), amount);
 
         vm.expectCall(
@@ -89,13 +90,14 @@ contract SpokeVaultTest is Test {
         );
 
         vm.expectEmit(true, false, false, true);
-        emit ISpokeVault.ExcessMTokenSent(amount, expectedMessageId);
+        emit ISpokeVault.ExcessWrappedMTokenSent(amount, expectedMessageId);
 
         vm.prank(user);
         spokeVault.transferExcessWrappedM{ value: 0.0001 ether }(refundAddress);
     }
 
     function test_transferExcessWrappedM_noTokensReturnsZero() external {
+        // No tokens in vault
         assertEq(wrappedMToken.balanceOf(address(spokeVault)), 0);
 
         vm.prank(user);

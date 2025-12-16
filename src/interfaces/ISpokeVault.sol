@@ -18,7 +18,7 @@ interface ISpokeVault is IMigratable {
      * @param  amount    The amount of bridged Wrapped M tokens.
      * @param  messageId The unique identifier of the message sent.
      */
-    event ExcessMTokenSent(uint256 amount, bytes32 messageId);
+    event ExcessWrappedMTokenSent(uint256 amount, bytes32 messageId);
 
     ///////////////////////////////////////////////////////////////////////////
     //                             CUSTOM ERRORS                             //
