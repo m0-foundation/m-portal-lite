@@ -14,11 +14,11 @@ interface ISpokeVault is IMigratable {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * @notice Emitted when excess M token are sent to the Vault on Ethereum Mainnet.
-     * @param  amount    The amount of bridged M tokens.
+     * @notice Emitted when excess Wrapped M tokens are sent to the Vault on Ethereum Mainnet.
+     * @param  amount    The amount of bridged Wrapped M tokens.
      * @param  messageId The unique identifier of the message sent.
      */
-    event ExcessMTokenSent(uint256 amount, bytes32 messageId);
+    event ExcessWrappedMTokenSent(uint256 amount, bytes32 messageId);
 
     ///////////////////////////////////////////////////////////////////////////
     //                             CUSTOM ERRORS                             //
@@ -39,16 +39,19 @@ interface ISpokeVault is IMigratable {
     /// @notice Thrown in constructor if Migration Admin is 0x0.
     error ZeroMigrationAdmin();
 
+    /// @notice Thrown when the Wrapped M Token address is 0x0.
+    error ZeroWrappedMToken();
+
     ///////////////////////////////////////////////////////////////////////////
     //                         INTERACTIVE FUNCTIONS                         //
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * @notice Transfers the total excess amount of M in the SpokeVault to the HubVault on Ethereum Mainnet.
+     * @notice Transfers the total excess amount of Wrapped M in the SpokeVault to the HubVault on Ethereum Mainnet.
      * @param  refundAddress The refund address to receive excess native gas.
      * @return messageId     The unique identifier of the message sent.
      */
-    function transferExcessM(address refundAddress) external payable returns (bytes32 messageId);
+    function transferExcessWrappedM(address refundAddress) external payable returns (bytes32 messageId);
 
     /**
      * @notice Performs an arbitrarily defined migration.
@@ -66,12 +69,12 @@ interface ISpokeVault is IMigratable {
     /// @notice The EVM chain Id of the Hub chain (Ethereum Mainnet).
     function hubChainId() external view returns (uint256 hubChainId);
 
-    /// @notice The address of the M token.
-    function mToken() external view returns (address mToken);
+    /// @notice The address of the Wrapped M token.
+    function wrappedMToken() external view returns (address wrappedMToken);
 
-    /// @notice Address of the Vault on the Hub that will receive the excess M.
+    /// @notice Address of the Vault on the Hub that will receive the excess Wrapped M.
     function hubVault() external view returns (address hubVault);
 
-    /// @notice Address of the SpokePortal being used to bridge M back to the Hub.
+    /// @notice Address of the SpokePortal being used to bridge Wrapped M back to the Hub.
     function spokePortal() external view returns (address spokePortal);
 }

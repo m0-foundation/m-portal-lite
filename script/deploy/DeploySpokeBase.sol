@@ -76,9 +76,10 @@ contract DeploySpokeBase is DeployBase {
         address spokePortal_,
         address hubVault_,
         uint256 hubChainId_,
-        address migrationAdmin_
+        address migrationAdmin_,
+        address wrappedMToken_
     ) internal returns (address spokeVaultImplementation_, address spokeVaultProxy_) {
-        spokeVaultImplementation_ = address(new SpokeVault(spokePortal_, hubVault_, hubChainId_, migrationAdmin_));
+        spokeVaultImplementation_ = address(new SpokeVault(spokePortal_, hubVault_, hubChainId_, migrationAdmin_, wrappedMToken_));
 
         spokeVaultProxy_ =
             _deployCreate3Proxy(address(spokeVaultImplementation_), _computeSalt(deployer_, _VAULT_CONTRACT_NAME), "");
