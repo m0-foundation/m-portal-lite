@@ -105,6 +105,11 @@ deploy-spoke-plasma: VERIFIER="custom"
 deploy-spoke-plasma: VERIFIER_URL=$(PLASMA_VERIFIER_URL)
 deploy-spoke-plasma: deploy-spoke
 
+deploy-spoke-citrea: RPC_URL=$(CITREA_RPC)
+deploy-spoke-citrea: VERIFIER="custom"
+deploy-spoke-citrea: VERIFIER_URL=$(CITREA_VERIFIER_URL)
+deploy-spoke-citrea: deploy-spoke
+
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM \
@@ -157,7 +162,12 @@ deploy-spoke-wrapped_m-soneium: deploy-spoke-wrapped_m
 deploy-spoke-wrapped_m-plasma: RPC_URL=$(PLASMA_RPC)
 deploy-spoke-wrapped_m-plasma: VERIFIER="custom"
 deploy-spoke-wrapped_m-plasma: VERIFIER_URL=$(PLASMA_VERIFIER_URL)
-deploy-spoke-wrapped_m-plasma: deploy-spoke-wrapped_m	
+deploy-spoke-wrapped_m-plasma: deploy-spoke-wrapped_m
+
+deploy-spoke-wrapped_m-citrea: RPC_URL=$(CITREA_RPC)
+deploy-spoke-wrapped_m-citrea: VERIFIER="custom"
+deploy-spoke-wrapped_m-citrea: VERIFIER_URL=$(CITREA_VERIFIER_URL)
+deploy-spoke-wrapped_m-citrea: deploy-spoke-wrapped_m
 
 #
 # Configure
@@ -207,6 +217,9 @@ configure-soneium: configure
 
 configure-plasma: RPC_URL=$(PLASMA_RPC)
 configure-plasma: configure
+
+configure-citrea: RPC_URL=$(CITREA_RPC)
+configure-citrea: configure
 
 propose-configure: PEERS ?= []
 propose-configure:
@@ -433,6 +446,9 @@ transfer-soneium: transfer
 transfer-plasma: RPC_URL=$(PLASMA_RPC)
 transfer-plasma: transfer
 
+transfer-citrea: RPC_URL=$(CITREA_RPC)
+transfer-citrea: transfer
+
 #
 # Transfer M like token
 #
@@ -472,3 +488,6 @@ transfer-m-like-token-soneium: transfer-m-like-token
 
 transfer-m-like-token-plasma: RPC_URL=$(PLASMA_RPC)
 transfer-m-like-token-plasma: transfer-m-like-token
+
+transfer-m-like-token-citrea: RPC_URL=$(CITREA_RPC)
+transfer-m-like-token-citrea: transfer-m-like-token
