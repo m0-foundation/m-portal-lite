@@ -180,7 +180,7 @@ configure:
 	forge script script/configure/Configure.s.sol:Configure \
 	--sig "run(uint256[])" $(PEERS) \
 	--rpc-url $(RPC_URL) \
-	--skip test --slow --non-interactive --broadcast
+	--skip test --slow --non-interactive $(BROADCAST_FLAGS)
 
 configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
 configure-ethereum: configure
