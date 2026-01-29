@@ -223,7 +223,7 @@ configure-citrea: configure
 
 propose-configure: PEERS ?= []
 propose-configure:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) CHAIN_NAME=$(CHAIN_NAME) \
 	forge script $(SCRIPT) \
 	--sig "run(uint256[])" $(PEERS) \
 	--rpc-url $(RPC_URL) \
@@ -240,6 +240,20 @@ propose-set-peer-ethereum: propose-configure
 propose-timelocked-configure-ethereum: SCRIPT=script/configure/ProposeTimelockedConfigure.s.sol:ProposeTimelockedConfigure
 propose-timelocked-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
 propose-timelocked-configure-ethereum: propose-configure
+
+# Set Token Gas Limit
+# Usage: make propose-set-token-gas-limit-ethereum PEERS="[999,56]"
+
+propose-set-token-gas-limit: PEERS ?= []
+propose-set-token-gas-limit:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/configure/ProposeSetTokenGasLimit.s.sol:ProposeSetTokenGasLimit \
+	--sig "run(uint256[])" $(PEERS) \
+	--rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --broadcast --ffi
+
+propose-set-token-gas-limit-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-set-token-gas-limit-ethereum: propose-set-token-gas-limit
 
 propose-transfer-pauser: NEW_PAUSER ?= 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1
 propose-transfer-pauser:
