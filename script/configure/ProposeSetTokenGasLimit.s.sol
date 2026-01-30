@@ -2,14 +2,14 @@
 
 pragma solidity 0.8.26;
 
-import { ProposeConfigureBase } from "./ProposeConfigureBase.sol";
+import { TimelockConfigureBase } from "./TimelockConfigureBase.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { PayloadType } from "../../src/libs/PayloadEncoder.sol";
 
 /// @title  ProposeSetTokenGasLimit
 /// @notice Proposes a timelocked transaction to set PayloadType.Token gas limit on portal contracts.
-contract ProposeSetTokenGasLimit is ProposeConfigureBase {
+contract ProposeSetTokenGasLimit is TimelockConfigureBase {
     /// @notice Proposes setting Token gas limit for the given peer chains.
     /// @param  peerChainIds_ Array of peer chain IDs to configure.
     function run(uint256[] memory peerChainIds_) external {

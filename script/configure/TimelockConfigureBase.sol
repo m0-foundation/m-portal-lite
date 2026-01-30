@@ -8,9 +8,9 @@ import { TimelockController } from "../../lib/openzeppelin/contracts/governance/
 import { ConfigureBase } from "./ConfigureBase.sol";
 import { TimelockBatchBase } from "../TimelockBatchBase.sol";
 
-/// @title  ProposeConfigureBase
+/// @title  TimelockConfigureBase
 /// @notice Base contract for proposing timelocked configuration changes via Safe multisig.
-abstract contract ProposeConfigureBase is ConfigureBase, TimelockBatchBase {
+abstract contract TimelockConfigureBase is ConfigureBase, TimelockBatchBase {
     using Safe for *;
 
     address internal constant _PROPOSER_SAFE_MULTISIG = 0xb7A9B5f301eF3bAD36C2b4964E82931Dd7fb989C;

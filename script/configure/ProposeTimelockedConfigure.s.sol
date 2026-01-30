@@ -3,12 +3,12 @@
 pragma solidity 0.8.26;
 
 import { Chains } from "../config/Chains.sol";
-import { ProposeConfigureBase } from "./ProposeConfigureBase.sol";
+import { TimelockConfigureBase } from "./TimelockConfigureBase.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { PayloadType } from "../../src/libs/PayloadEncoder.sol";
 
-contract ProposeTimelockedConfigure is ProposeConfigureBase {
+contract ProposeTimelockedConfigure is TimelockConfigureBase {
     using Chains for uint256;
 
     function run(uint256[] memory peerChainIds_) external {
