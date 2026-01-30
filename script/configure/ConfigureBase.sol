@@ -24,7 +24,7 @@ contract ConfigureBase is ScriptBase {
     uint256 internal constant _INDEX_UPDATE_GAS_LIMIT = 50_000;
     uint256 internal constant _KEY_UPDATE_GAS_LIMIT = 50_000;
     uint256 internal constant _LIST_UPDATE_GAS_LIMIT = 50_000;
-    uint256 internal constant _TOKEN_TRANSFER_GAS_LIMIT = 150_000;
+    uint256 internal constant _TOKEN_TRANSFER_GAS_LIMIT = 250_000;
 
     function _configurePeers(
         address portal_,
