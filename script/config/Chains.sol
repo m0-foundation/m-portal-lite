@@ -22,6 +22,7 @@ library Chains {
     uint256 internal constant HYPER_EVM_TESTNET = 998;
     uint256 internal constant PLUME_TESTNET = 98867;
     uint256 internal constant BNB_TESTNET = 97;
+    uint256 internal constant POLYGON_AMOY_TESTNET = 80002;
 
     function getHubChainId(uint256 spokeChainId_) internal returns (uint256 hubChainId_) {
         // Mainnet
@@ -33,6 +34,7 @@ library Chains {
         if (spokeChainId_ == SONEIUM) return ETHEREUM;
         if (spokeChainId_ == PLASMA) return ETHEREUM;
         if (spokeChainId_ == CITREA) return ETHEREUM;
+        if (spokeChainId_ == POLYGON_AMOY_TESTNET) return ETHEREUM;
 
         // Testnet
         if (spokeChainId_ == HYPER_EVM_TESTNET) return ETHEREUM_SEPOLIA;
