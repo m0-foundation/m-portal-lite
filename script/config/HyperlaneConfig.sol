@@ -22,6 +22,7 @@ library HyperlaneConfig {
         if (chainId_ == Chains.SONEIUM) return 0x3a464f746D23Ab22155710f44dB16dcA53e0775E;
         if (chainId_ == Chains.PLASMA) return 0x3a464f746D23Ab22155710f44dB16dcA53e0775E;
         if (chainId_ == Chains.CITREA) return 0x3a464f746D23Ab22155710f44dB16dcA53e0775E;
+        if (chainId_ == Chains.POLYGON_AMOY_TESTNET) return 0x54148470292C24345fb828B003461a9444414517;
 
         // Testnet
         if (chainId_ == Chains.ETHEREUM_SEPOLIA) return 0xfFAEF09B3cd11D9b20d1a19bECca54EEC2884766;
