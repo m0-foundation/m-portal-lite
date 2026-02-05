@@ -6,6 +6,7 @@ import { TimelockConfigureBase } from "./TimelockConfigureBase.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { PayloadType } from "../../src/libs/PayloadEncoder.sol";
+import { console } from "forge-std/console.sol";
 
 /// @title  ProposeSetTokenGasLimit
 /// @notice Proposes a timelocked transaction to set PayloadType.Token gas limit on portal contracts.
@@ -23,7 +24,7 @@ contract ProposeSetTokenGasLimit is TimelockConfigureBase {
             );
         }
 
-        bytes32 salt_ = bytes32(bytes(string.concat("SetTokenGasLimit ", vm.toString(block.timestamp))));
+        bytes32 salt_ = bytes32(bytes(string.concat("SetTokenGasLimit")));
         _proposeTimelockBatch(sender_, salt_);
     }
 }
