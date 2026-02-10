@@ -110,6 +110,11 @@ deploy-spoke-citrea: VERIFIER="custom"
 deploy-spoke-citrea: VERIFIER_URL=$(CITREA_VERIFIER_URL)
 deploy-spoke-citrea: deploy-spoke
 
+deploy-spoke-0g: RPC_URL=$(ZG_RPC)
+deploy-spoke-0g: VERIFIER="custom"
+deploy-spoke-0g: VERIFIER_URL=$(ZG_VERIFIER_URL)
+deploy-spoke-0g: deploy-spoke
+
 deploy-spoke-wrapped_m:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script script/deploy/DeploySpokeWrappedM.s.sol:DeploySpokeWrappedM \
@@ -169,6 +174,11 @@ deploy-spoke-wrapped_m-citrea: VERIFIER="custom"
 deploy-spoke-wrapped_m-citrea: VERIFIER_URL=$(CITREA_VERIFIER_URL)
 deploy-spoke-wrapped_m-citrea: deploy-spoke-wrapped_m
 
+deploy-spoke-wrapped_m-0g: RPC_URL=$(ZG_RPC)
+deploy-spoke-wrapped_m-0g: VERIFIER="custom"
+deploy-spoke-wrapped_m-0g: VERIFIER_URL=$(ZG_VERIFIER_URL)
+deploy-spoke-wrapped_m-0g: deploy-spoke-wrapped_m
+
 #
 # Configure
 #
@@ -220,6 +230,9 @@ configure-plasma: configure
 
 configure-citrea: RPC_URL=$(CITREA_RPC)
 configure-citrea: configure
+
+configure-0g: RPC_URL=$(ZG_RPC)
+configure-0g: configure
 
 propose-configure: PEERS ?= []
 propose-configure:
@@ -463,6 +476,9 @@ transfer-plasma: transfer
 transfer-citrea: RPC_URL=$(CITREA_RPC)
 transfer-citrea: transfer
 
+transfer-0g: RPC_URL=$(ZG_RPC)
+transfer-0g: transfer
+
 #
 # Transfer M like token
 #
@@ -505,3 +521,6 @@ transfer-m-like-token-plasma: transfer-m-like-token
 
 transfer-m-like-token-citrea: RPC_URL=$(CITREA_RPC)
 transfer-m-like-token-citrea: transfer-m-like-token
+
+transfer-m-like-token-0g: RPC_URL=$(ZG_RPC)
+transfer-m-like-token-0g: transfer-m-like-token
