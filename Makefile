@@ -254,6 +254,17 @@ propose-timelocked-configure-ethereum: SCRIPT=script/configure/ProposeTimelocked
 propose-timelocked-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
 propose-timelocked-configure-ethereum: propose-configure
 
+execute-timelocked-configure: PEERS ?= []
+execute-timelocked-configure:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) CHAIN_NAME=$(CHAIN_NAME) \
+	forge script script/configure/ExecuteTimelockedConfigure.s.sol:ExecuteTimelockedConfigure \
+	--sig "run(uint256[])" $(PEERS) \
+	--rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --broadcast
+
+execute-timelocked-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
+execute-timelocked-configure-ethereum: execute-timelocked-configure
+
 # Set Token Gas Limit
 # Usage: make propose-set-token-gas-limit-ethereum PEERS="[999,56]"
 
