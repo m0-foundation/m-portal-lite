@@ -16,6 +16,7 @@ library Chains {
     uint256 internal constant SONEIUM = 1868;
     uint256 internal constant PLASMA = 9745;
     uint256 internal constant CITREA = 4114;
+    uint256 internal constant ZG = 16661;
 
     // Testnet
     uint256 internal constant ETHEREUM_SEPOLIA = 11155111;
@@ -33,6 +34,7 @@ library Chains {
         if (spokeChainId_ == SONEIUM) return ETHEREUM;
         if (spokeChainId_ == PLASMA) return ETHEREUM;
         if (spokeChainId_ == CITREA) return ETHEREUM;
+        if (spokeChainId_ == ZG) return ETHEREUM;
 
         // Testnet
         if (spokeChainId_ == HYPER_EVM_TESTNET) return ETHEREUM_SEPOLIA;
