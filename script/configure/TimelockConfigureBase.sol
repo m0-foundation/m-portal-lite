@@ -9,7 +9,7 @@ import { ConfigureBase } from "./ConfigureBase.sol";
 import { TimelockBatchBase } from "../TimelockBatchBase.sol";
 
 /// @title  TimelockConfigureBase
-/// @notice Base contract for proposing timelocked configuration changes via Safe multisig.
+/// @notice Base contract for proposing and executing timelocked configuration changes.
 abstract contract TimelockConfigureBase is ConfigureBase, TimelockBatchBase {
     using Safe for *;
 
@@ -27,5 +27,19 @@ abstract contract TimelockConfigureBase is ConfigureBase, TimelockBatchBase {
         _safeMultiSig.initialize(_PROPOSER_SAFE_MULTISIG);
         uint256 delay_ = TimelockController(payable(_TIMELOCK)).getMinDelay();
         _safeMultiSig.proposeTransaction(_TIMELOCK, _getScheduleBatchCallData(bytes32(0), salt_, delay_), sender_);
+    }
+
+    /// @notice Executes a previously scheduled timelock batch after the delay has elapsed.
+    /// @param  salt_ The salt used when scheduling the timelock operation.
+    function _executeTimelockBatch(bytes32 salt_) internal {
+        TimelockController timelock_ = TimelockController(payable(_TIMELOCK));
+
+        bytes32 id_ = timelock_.hashOperationBatch(
+            _timelockTargets, _timelockValues, _timelockPayloads, bytes32(0), salt_
+        );
+
+        require(timelock_.isOperationReady(id_), "TimelockConfigureBase: operation not ready");
+
+        timelock_.executeBatch(_timelockTargets, _timelockValues, _timelockPayloads, bytes32(0), salt_);
     }
 }
