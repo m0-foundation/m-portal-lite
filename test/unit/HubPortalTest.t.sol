@@ -697,4 +697,89 @@ contract HubPortalTest is Test {
         vm.expectRevert(IPortal.NotBridge.selector);
         hubPortal.receiveMessage(SPOKE_CHAIN_ID, bytes("payload"));
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //                               migrateM                                //
+    ///////////////////////////////////////////////////////////////////////////
+
+    function test_migrateM() external {
+        uint256 amount_ = 1000;
+
+        // Mint M tokens to the portal
+        mToken.mint(address(hubPortal), amount_);
+
+        // Pause the contract
+        vm.prank(owner);
+        hubPortal.pause();
+
+        // Migrate M tokens
+        vm.prank(hubPortal.MIGRATOR());
+        hubPortal.migrateM(amount_);
+
+        // Verify tokens were transferred to MAIN_PORTAL
+        assertEq(mToken.balanceOf(address(hubPortal)), 0);
+        assertEq(mToken.balanceOf(hubPortal.MAIN_PORTAL()), amount_);
+    }
+
+    function test_migrateM_partialAmount() external {
+        uint256 balance_ = 1000;
+        uint256 amount_ = 500;
+
+        // Mint M tokens to the portal
+        mToken.mint(address(hubPortal), balance_);
+
+        // Pause the contract
+        vm.prank(owner);
+        hubPortal.pause();
+
+        // Migrate partial amount
+        vm.prank(hubPortal.MIGRATOR());
+        hubPortal.migrateM(amount_);
+
+        // Verify correct amount transferred
+        assertEq(mToken.balanceOf(address(hubPortal)), balance_ - amount_);
+        assertEq(mToken.balanceOf(hubPortal.MAIN_PORTAL()), amount_);
+    }
+
+    function test_migrateM_notPaused() external {
+        uint256 amount_ = 1000;
+        address migrator_ = hubPortal.MIGRATOR();
+
+        mToken.mint(address(hubPortal), amount_);
+
+        vm.expectRevert(PausableUpgradeable.ExpectedPause.selector);
+        vm.prank(migrator_);
+        hubPortal.migrateM(amount_);
+    }
+
+    function test_migrateM_unauthorized() external {
+        uint256 amount_ = 1000;
+
+        mToken.mint(address(hubPortal), amount_);
+
+        // Pause the contract
+        vm.prank(owner);
+        hubPortal.pause();
+
+        vm.expectRevert(abi.encodeWithSelector(IPausableOwnable.Unauthorized.selector, user));
+        vm.prank(user);
+        hubPortal.migrateM(amount_);
+    }
+
+    function test_migrateM_insufficientBalance() external {
+        uint256 balance_ = 500;
+        uint256 amount_ = 1000;
+        address migrator_ = hubPortal.MIGRATOR();
+
+        // Mint less M tokens than requested
+        mToken.mint(address(hubPortal), balance_);
+
+        // Pause the contract
+        vm.prank(owner);
+        hubPortal.pause();
+
+        vm.expectRevert(abi.encodeWithSelector(IHubPortal.InsufficientBalance.selector, balance_, amount_));
+        vm.prank(migrator_);
+        hubPortal.migrateM(amount_);
+    }
 }

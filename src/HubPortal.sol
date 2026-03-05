@@ -22,6 +22,9 @@ import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
  * @dev    Tokens are bridged using lock-release mechanism.
  */
 contract HubPortal is Portal, IHubPortal {
+    address public constant MAIN_PORTAL = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd;
+    address public constant MIGRATOR = 0xb7A9B5f301eF3bAD36C2b4964E82931Dd7fb989C;
+
     /// @inheritdoc IHubPortal
     bool public wasEarningEnabled;
 
@@ -148,6 +151,16 @@ contract HubPortal is Portal, IHubPortal {
         IMTokenLike(mToken).stopEarning(address(this));
 
         emit EarningDisabled(currentMIndex_);
+    }
+
+    /// @inheritdoc IHubPortal
+    function migrateM(uint256 amount) external whenPaused {
+        if (msg.sender != MIGRATOR) revert Unauthorized(msg.sender);
+
+        uint256 balance = IERC20(mToken).balanceOf(address(this));
+        if (amount > balance) revert InsufficientBalance(balance, amount);
+
+        IERC20(mToken).transfer(MAIN_PORTAL, amount);
     }
 
     ///////////////////////////////////////////////////////////////////////////

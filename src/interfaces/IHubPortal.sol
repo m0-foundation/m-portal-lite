@@ -74,6 +74,9 @@ interface IHubPortal is IPortal {
     /// @notice Thrown when performing an operation that is not allowed when earning is enabled.
     error EarningIsEnabled();
 
+    /// @notice Thrown when trying to migrate more $M tokens than Portal holds.
+    error InsufficientBalance(uint256 balance, uint256 amount);
+
     /// @notice Thrown when trying to unlock more tokens than was locked.
     error InsufficientBridgedBalance();
 
@@ -176,4 +179,11 @@ interface IHubPortal is IPortal {
      * @param  spokeChainId The EVM chain Id of the Spoke chain.
      */
     function enableCrossSpokeConnection(uint256 spokeChainId) external;
+
+    /**
+     * @notice Migrates $M tokens to the main Portal.
+     * @dev    Can only be called by the migrator when the contract is paused.
+     * @param  amount The amount of $M tokens to migrate.
+     */
+    function migrateM(uint256 amount) external;
 }
