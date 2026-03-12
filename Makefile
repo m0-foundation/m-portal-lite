@@ -254,6 +254,10 @@ propose-timelocked-configure-ethereum: SCRIPT=script/configure/ProposeTimelocked
 propose-timelocked-configure-ethereum: RPC_URL=$(ETHEREUM_RPC)
 propose-timelocked-configure-ethereum: propose-configure
 
+propose-remove-bridging-path-ethereum: SCRIPT=script/configure/ProposeRemoveBridgingPath.s.sol:ProposeRemoveBridgingPath
+propose-remove-bridging-path-ethereum: RPC_URL=$(ETHEREUM_RPC)
+propose-remove-bridging-path-ethereum: propose-configure
+
 execute-timelocked-configure: PEERS ?= []
 execute-timelocked-configure:
 	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) CHAIN_NAME=$(CHAIN_NAME) \
