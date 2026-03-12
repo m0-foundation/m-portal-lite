@@ -741,17 +741,6 @@ contract HubPortalTest is Test {
         assertEq(mToken.balanceOf(hubPortal.MAIN_PORTAL()), amount_);
     }
 
-    function test_migrateM_notPaused() external {
-        uint256 amount_ = 1000;
-        address migrator_ = hubPortal.MIGRATOR();
-
-        mToken.mint(address(hubPortal), amount_);
-
-        vm.expectRevert(PausableUpgradeable.ExpectedPause.selector);
-        vm.prank(migrator_);
-        hubPortal.migrateM(amount_);
-    }
-
     function test_migrateM_unauthorized() external {
         uint256 amount_ = 1000;
 

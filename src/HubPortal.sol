@@ -154,7 +154,7 @@ contract HubPortal is Portal, IHubPortal {
     }
 
     /// @inheritdoc IHubPortal
-    function migrateM(uint256 amount) external whenPaused {
+    function migrateM(uint256 amount) external {
         if (msg.sender != MIGRATOR) revert Unauthorized(msg.sender);
 
         uint256 balance = IERC20(mToken).balanceOf(address(this));
