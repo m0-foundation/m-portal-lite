@@ -182,7 +182,6 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Migrates $M tokens to the main Portal.
-     * @dev    Can only be called by the migrator when the contract is paused.
      * @param  amount The amount of $M tokens to migrate.
      */
     function migrateM(uint256 amount) external;
